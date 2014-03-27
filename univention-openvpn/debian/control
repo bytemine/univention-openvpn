@@ -1,0 +1,20 @@
+Source: univention-openvpn
+Section: univention
+Maintainer: Fedor Scholz <fsc@bytemine.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+
+Package: univention-openvpn-server
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn
+Description: Server package for OpenVPN
+
+Package: univention-openvpn-master
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), univention-openvpn-schema
+Description: Master package for OpenVPN
+
+Package: univention-openvpn-schema
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1)
+Description: Schema package for OpenVPN

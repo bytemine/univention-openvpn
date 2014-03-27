@@ -1,0 +1,97 @@
+#!/bin/bash
+
+if [ $# -ne 6 ]; then
+    echo "create-bundle: argument error" >&2
+    echo "usage: create-bundle [yes|no] <uid> <home> <server> <addr> <port>" >&2
+    exit 1
+fi
+
+crcrt=$1
+shift
+
+uid=$1
+home=$2
+server=$3
+addr=$4
+port=$5
+
+ssl=/etc/univention/ssl
+
+# ensure home directory exists
+if ! [ -d "$home" ]; then
+    HOME="$home" USER="$uid" /usr/sbin/univention-create-homedir
+fi
+
+# create or renew certificate for user
+if /usr/sbin/univention-certificate check -name "${uid}.openvpn"; then
+  if [ "$crtcr" = yes ]; then
+    defdays=$(ucr get ssl/default/days)
+    if [ -z "$defdays" ]; then
+        defdays=1825
+    fi
+    univention-certificate renew -days ${defdays} -name "${uid}.openvpn"
+  fi
+else
+    univention-certificate new -name "${uid}.openvpn"
+fi
+
+# prepare a matching client config
+cat > "${ssl}/${uid}.openvpn/${server}.ovpn" <<-ENDOFCLIENTCONFIG
+	# client config for server ${server}
+
+	client
+	dev tun0
+	proto udp
+	remote ${addr} ${port}
+	tls-remote ${server}
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	ca CAcert.pem
+	cert cert.pem
+	key private.key
+	comp-lzo
+	verb 3
+	auth-user-pass
+
+	script-security 2
+	up /etc/openvpn/update-resolv-conf 
+	down /etc/openvpn/update-resolv-conf
+
+ENDOFCLIENTCONFIG
+
+# prepare a matching client config (windows)
+cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
+	# windows client config for server ${server}
+
+	client
+	dev tun
+	proto udp
+	remote ${addr} ${port}
+	tls-remote ${server}
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	ca CAcert.pem
+	cert cert.pem
+	key private.key
+	comp-lzo
+	verb 3
+	auth-user-pass
+
+ENDOFWINCLIENTCONFIG
+
+# zip all required files into home directory of user
+bundle="${home}/openvpn-${server}-${uid}.zip"
+umask 077
+zip -j "$bundle" \
+    "${ssl}/ucsCA/CAcert.pem" \
+    "${ssl}/${uid}.openvpn/cert.pem" \
+    "${ssl}/${uid}.openvpn/private.key" \
+    "${ssl}/${uid}.openvpn/${server}.ovpn" \
+    "${ssl}/${uid}.openvpn/win-${server}.ovpn"
+chown "$uid" "$bundle"
+
+exit 0

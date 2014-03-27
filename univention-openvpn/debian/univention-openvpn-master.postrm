@@ -1,0 +1,13 @@
+#!/bin/sh
+
+#DEBHELPER#
+
+ui=06univention-openvpn-master-uninstall.uinst
+
+if [ "$1" = "remove" ]; then
+	. /usr/share/univention-lib/base.sh
+	call_unjoinscript "$ui"
+	invoke-rc.d univention-directory-listener restart
+fi
+
+exit 0

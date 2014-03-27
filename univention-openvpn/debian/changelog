@@ -1,0 +1,64 @@
+univention-openvpn (0.8) unstable; urgency=low
+
+  * cleanup, typos, version bump
+
+ -- Holger Rasch <rasch@bytemine.net>  Wed, 26 Mar 2014 21:14:19 +0100
+
+
+univention-openvpn (0.7) unstable; urgency=low
+
+  * updated texts and tooltips
+  * update client config on relevant server config changes
+  * disable server when 'active' flag is removed
+  * revoke client certificate when 'account' flag is removed
+  * use certificate revocation list on server
+  * updated defaults and syntax
+
+ -- Holger Rasch <rasch@bytemine.net>  Fri, 21 Mar 2014 17:21:33 +0100
+
+
+univention-openvpn (0.6) unstable; urgency=low
+
+  * additional server and client config options
+
+ -- Holger Rasch <rasch@bytemine.net>  Mon, 03 Mar 2014 18:43:28 +0100
+
+
+univention-openvpn (0.5) unstable; urgency=low
+
+  * add listener restarts, change pam module, fix error in listener script
+  * fix typos in READMEs
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 25 Feb 2014 17:49:00 +0100
+
+
+univention-openvpn (0.4) unstable; urgency=low
+
+  * Add unjoin scripts and support,
+    small fixes and general cleanup,
+    join script reorg,
+    updated german translations for umc.
+
+ -- Holger Rasch <rasch@bytemine.net>  Fri, 21 Feb 2014 16:09:13 +0100
+
+
+univention-openvpn (0.3) unstable; urgency=low
+
+  * Update initial server config, change pam plugin,
+    include german translations for extended attributes.
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 18 Feb 2014 18:22:35 +0100
+
+
+univention-openvpn (0.2) unstable; urgency=low
+
+  * All base functionality now included. Debug removed.
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 18 Feb 2014 12:56:15 +0100
+
+
+univention-openvpn (0.1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Fedor Scholz <fsc@bytemine.net>  Sun, 12 Jan 2014 15:11:44 +0100

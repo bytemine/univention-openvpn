@@ -1,0 +1,73 @@
+#!/bin/sh
+
+#DEBHELPER#
+
+ui=/usr/lib/univention-install/06univention-openvpn-server-uninstall.uinst
+if [ "$1" = "configure" ]; then
+	[ -e "$ui" ] && rm "$ui"
+	invoke-rc.d univention-directory-listener restart
+fi
+
+# --------------------------------------------------------------
+DHPARAM=/etc/openvpn/dh2048.pem
+[ ! -f "$DHPARAM" ] && /usr/bin/openssl dhparam -out "$DHPARAM" 2048
+CRLDER=/etc/openvpn/ca.crl
+CRLPEM=/etc/openvpn/crl.pem
+if [ ! -f "$CRLPEM" ]; then
+    [ ! -f "$CRLDER" ] && /usr/bin/wget -O "$CRLDER" http://$(ucr get ldap/master)/ucsCA.crl
+    /usr/bin/openssl crl -inform der -outform pem -in "$CRLDER" -out "$CRLPEM"
+fi
+eval $(ucr shell nameserver1 interfaces/eth0/network interfaces/eth0/netmask domain/domainname domainname)
+if [ -z "$nameserver1" ]; then
+    donamC='#'
+else
+    donnamC=
+fi
+if [ -z "$interfaces_eth0_network" -o -z "$interfaces_eth0_netmask" ]; then
+    dorouC='#'
+else
+    dorouC=
+fi
+dodom=${domain_domainname:-$domainname}
+if [ -z "$dodom" ]; then
+    dodomC='#'
+else
+    dodomC=
+fi
+cat > /etc/openvpn/server.conf-disabled <<-EOINISRVCONF
+	### Constant values
+
+	proto udp
+	dh /etc/openvpn/dh2048.pem
+	ca /etc/univention/ssl/ucsCA/CAcert.pem
+	cert /etc/univention/ssl/$(hostname)/cert.pem
+	key /etc/univention/ssl/$(hostname)/private.key
+	crl-verify /etc/openvpn/crl.pem
+	ifconfig-pool-persist ipp.txt
+	${dorouC}push "route ${interfaces_eth0_network} ${interfaces_eth0_netmask}"
+	${donamC}push "dhcp-option DNS ${nameserver1}"
+	${dodomC}push "dhcp-option DOMAIN ${dodom}"
+	keepalive 10 120
+	comp-lzo
+	persist-key
+	persist-tun
+	verb 1
+	mute 5
+	status /var/log/openvpn/openvpn-status.log
+	management /var/run/management-udp unix
+	plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/kcheckpass
+	dev tun
+
+	### Values which can be changed through UDM
+
+	server 10.0.1.0 255.255.255.0
+	port 443
+	push "redirect-gateway"
+EOINISRVCONF
+
+# --------------------------------------------------------------
+
+. /usr/share/univention-lib/base.sh
+call_joinscript 94univention-openvpn-server.inst
+
+exit 0

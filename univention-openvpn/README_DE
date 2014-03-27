@@ -1,0 +1,28 @@
+<p>
+OpenVPN 4 UCS stellt eine Integration von OpenVPN in den
+Univention Corporate Server bereit. Nach der Installation
+kann ein Univention Server mit den bekannten UCS Mitteln
+als OpenVPN Server konfiguriert werden.
+</p>
+
+<p>
+Anschliessend können beliebige Benutzer für das VPN freigeschaltet
+werden. Dies geschieht indem im Benutzerobjekt ein entsprechender
+Schalter aktiviert wird. Für den Benutzer wird dann im Hintergrund
+ein sogenanntes 'Ready-to-go Paket' gebaut und in das Heimatverzeichnis
+des Benutzers gelegt. Das ZIP-Archiv enthält folgende Komponenten:
+</p>
+
+<ul>
+<li>
+Zertifikate für die Verwendung des VPN
+</li>
+<li>
+Konfigurationsdatei zur Verwendung mit OpenVPN auf dem Client
+</li>
+</ul>
+
+<p>
+Die Authentifizierung am VPN erfolgt mittels des Zertifikates und
+dem Benutzername/Passwort des Benutzers.
+</p>

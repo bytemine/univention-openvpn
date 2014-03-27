@@ -1,0 +1,1 @@
+58 *	* * *	root	/usr/bin/wget -O /etc/openvpn/ca.crl http://$(/usr/sbin/ucr get ldap/master)/ucsCA.crl && /usr/bin/openssl crl -inform der -outform pem -in /etc/openvpn/ca.crl -out /etc/openvpn/crl.pem
