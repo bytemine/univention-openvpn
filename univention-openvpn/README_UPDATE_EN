@@ -1,0 +1,12 @@
+<p>
+New in version 0.8:
+
+<ul>
+	<li>Upon revoking access for a user to the vpn, the certificates will now be added to the certificate revocation list</li>
+	<li>The ready2go-packages will automatically be regenerated upon config changes to the server-side</li>
+	<li>The ready2go-packages now contain a configuration file for use with Windows clients as well</li>
+	<li>Highly improved tooltips, naming and descriptions</li>
+	<li>Removed some config options and replaced them with sane defaults</li>
+</ul>
+</p>
+
