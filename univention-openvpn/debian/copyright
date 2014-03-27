@@ -8,7 +8,8 @@ Copyright: <years> <put author's name and email here>
 License: GPL-3.0+
 
 Files: debian/*
-Copyright: 2014 Fedor Scholz <fsc@bytemine.net>
+Copyright: 2014 Fedor Scholz <scholz@bytemine.net>
+		   2014 Holger Rasch <rasch@bytemine.net>
 License: GPL-3.0+
 
 License: GPL-3.0+
