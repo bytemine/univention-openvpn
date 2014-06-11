@@ -181,6 +181,31 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
 
 univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
         --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+	--append module="computers/domaincontroller_master" \
+	--append module="computers/domaincontroller_slave" \
+	--append module="computers/domaincontroller_backup" \
+	--append module="computers/memberserver" \
+        --set ldapMapping='univentionOpenvpnFixedAddresses' \
+        --set objectClass='univentionOpenvpn' \
+        --set name='UniventionOpenvpn-FixedAddresses' \
+        --set shortDescription='OpenVPN fixed addresses' \
+        --set longDescription='Use fixed IP addresses fuer users' \
+	--set translationShortDescription='"de_DE" "Feste Adressen"' \
+	--set translationLongDescription='"de_DE" "Benutze feste IP Adressen für Benutzer"' \
+        --set tabName='OpenVPN' \
+        --set overwriteTab='0' \
+        --set valueRequired='0' \
+        --set CLIName='openvpnfixedaddresses' \
+        --set syntax='boolean' \
+        --set tabAdvanced='1' \
+        --set mayChange='1' \
+        --set multivalue='0' \
+        --set deleteObjectClass='0' \
+        --set doNotSearch='0' \
+        --set hook='None' || die
+
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+        --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
 	--set module="users/user" \
         --set ldapMapping='univentionOpenvpnAccount' \
         --set objectClass='univentionOpenvpnUser' \
