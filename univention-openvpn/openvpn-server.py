@@ -41,6 +41,22 @@ def write_rc(flist, wfile):
 		univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to write to file "%s": %s' % (wfile, str(e)))
 	listener.unsetuid()
 
+def create_dir(path):
+	listener.setuid(0)
+	try:
+		os.makedirs(path)
+	except Exception, e:
+		univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to make directory "%s"' % path)
+	listener.unsetuid()
+
+def rename_dir(pathold, pathnew):
+	listener.setuid(0)
+	try:
+		os.rename(pathold, pathnew)
+	except Exception, e:
+		univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to rename directory "%s" to "%s"' % (pathold, pathnew))
+	listener.unsetuid()
+
 def handler(dn, new, old, command):
 	global action
 	univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, '### OpenVPN handler invoked' )
@@ -70,18 +86,30 @@ def handler(dn, new, old, command):
 
 		flist = load_rc(fn_serverconf)
 
-		flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x)]
+		flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("client-config-dir", x)]
 
 		flist.append("port %s\n" % new.get('univentionOpenvpnPort', [None])[0])
 		flist.append("server %s 255.255.255.0\n" % new.get('univentionOpenvpnNet', [None])[0])
 
-		redirect = new.get('univentionOpenvpnRedirect',[None])[0]
+		redirect = new.get('univentionOpenvpnRedirect', [None])[0]
 		if redirect == '1':
 			flist.append('push "redirect-gateway"\n')
 
 		duplicate = new.get('univentionOpenvpnDuplicate', [None])[0]
 		if duplicate == '1':
 			flist.append('duplicate-cn\n')
+
+		portold = old.get('univentionOpenvpnPort', [None])[0]
+		portnew = new.get('univentionOpenvpnPort', [None])[0]
+
+		fixedaddresses = new.get('univentionOpenvpnFixedAddresses', [None])[0]
+		if fixedaddresses == '1':
+			flist.append('client-config-dir /etc/openvpn/ccd-%s\n' % portnew)
+			if not os.path.exists('/etc/openvpn/ccd-%s' % portnew):
+				if not os.path.exists('/etc/openvpn/ccd-%s' % portold):
+					create_dir('/etc/openvpn/ccd-%s' % portnew)
+				else:
+					rename_dir('/etc/openvpn/ccd-%s' % portold, '/etc/openvpn/ccd-%s' % portnew)
 
 		write_rc(flist, fn_serverconf)
 	else:
