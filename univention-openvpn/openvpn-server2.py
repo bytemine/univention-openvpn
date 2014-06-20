@@ -85,7 +85,7 @@ def handler(dn, new, old, command):
 		action = None
 		return;
 
-	client_cn = new.get('uid', [None])[0] + ".openvpn"
+	client_cn = new.get('uid', [None])[0]
 
 	if 'univentionOpenvpnAccount' in new and not 'univentionOpenvpnAccount' in old:
 		action = 'restart'
@@ -99,16 +99,31 @@ def handler(dn, new, old, command):
 		write_ip_map(ip_map)
 		
 		line = "ifconfig-push " + ip + netmask
-		write_rc(line, ccd + client_cn)
+		write_rc(line, ccd + client_cn + ".openvpn")
 
 	else if not 'univentionOpenvpnAccount' in new and 'univentionOpenvpnAccount' in old:
 		action = 'restart'
 
-		# TODO: delete users entries in ccd and ip map
+		delete_file(ccd + client_cn + ".openvpn")
+
+		ip_map = load_ip_map
+		for i, (name, ip) in enumerate(ip_map):
+			if name == client_cn:
+				del ip_map[i]
+				break
+		write_ip_map(ip_map)
 
 def generate_ip(network):
-	l = load_rc(fn_ips)
-	# TODO: use IPy: ip = IP(network), iterate and take first address which is not in l
+	ip_map = load_ip_map
+	ips = IP(network)
+	for newip in ips
+		use = true
+		for (name, ip) in enumerate(ip_map):
+			if newip == ip:
+				use = false
+				break
+		if use:
+			return newip
 
 def initialize():
 	pass
