@@ -13,9 +13,9 @@ import re
 import univention_baseconfig
 import os
 import json
+import univention.uldap as ul
 
 fn_ips = '/etc/openvpn/ips'
-ccd = # TODO
 
 action = None
 
@@ -79,26 +79,30 @@ def handler(dn, new, old, command):
 		action = None
 		return
 
-	cn = new.get('cn', [None])[0]
-	myname = listener.baseConfig['hostname']
-	if cn != myname:
-		action = None
-		return;
-
 	client_cn = new.get('uid', [None])[0]
+
+	myname = listener.baseConfig['hostname']
+
+	listener.setuid(0)
+	lo = ul.getBackupConnection()
+	server = lo.search('(cn=' + myname + ')')[0]
+	port = server[1].get('univentionOpenvpnPort', [None])[0]
+	addr = server[1].get('univentionOpenvpnAddress', [None])[0]
+
+	ccd = "/etc/openvpn/ccd-" + port
+	network = addr + "/24"
+	netmask = "255.255.255.0"
 
 	if 'univentionOpenvpnAccount' in new and not 'univentionOpenvpnAccount' in old:
 		action = 'restart'
 
-		network = # TODO
-		netmask = # TODO
 		ip = generate_ip(network)
 
 		ip_map = load_ip_map
 		ip_map.append((client_cn, ip))
 		write_ip_map(ip_map)
 		
-		line = "ifconfig-push " + ip + netmask
+		line = "ifconfig-push " + ip + " " + netmask
 		write_rc(line, ccd + client_cn + ".openvpn")
 
 	else if not 'univentionOpenvpnAccount' in new and 'univentionOpenvpnAccount' in old:
