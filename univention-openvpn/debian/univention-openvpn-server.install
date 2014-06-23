@@ -1,4 +1,5 @@
 openvpn-server.py usr/lib/univention-directory-listener/system
+openvpn-server2.py usr/lib/univention-directory-listener/system
 94univention-openvpn-server.inst usr/lib/univention-install
 06univention-openvpn-server-uninstall.uinst usr/lib/univention-uninstall
 cron/openvpn4ucs etc/cron.d

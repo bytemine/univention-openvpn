@@ -14,6 +14,7 @@ import univention_baseconfig
 import os
 import json
 import univention.uldap as ul
+from netaddr import *
 
 fn_ips = '/etc/openvpn/ips'
 
@@ -52,7 +53,7 @@ def delete_file(fn):
 	listener.unsetuid()
 
 # ----- function to open the ip map with setuid(0) for root-action
-def load_ip_map
+def load_ip_map():
 	listener.setuid(0)
 	try:
 		with open(fn_ips) as f:
@@ -63,7 +64,7 @@ def load_ip_map
 	return ips
 
 # ----- function to write the ip map with setuid(0) for root-action
-def write_ip_map(ips)
+def write_ip_map(ips):
 	listener.setuid(0)
 	try:
 		with open(fn_ips, 'w') as f:
@@ -89,9 +90,9 @@ def handler(dn, new, old, command):
 	port = server[1].get('univentionOpenvpnPort', [None])[0]
 	addr = server[1].get('univentionOpenvpnAddress', [None])[0]
 
-	ccd = "/etc/openvpn/ccd-" + port
-	network = addr + "/24"
-	netmask = "255.255.255.0"
+	ccd = '/etc/openvpn/ccd-' + port
+	network = addr + '/24'
+	netmask = '255.255.255.0'
 
 	if 'univentionOpenvpnAccount' in new and not 'univentionOpenvpnAccount' in old:
 		action = 'restart'
@@ -105,7 +106,7 @@ def handler(dn, new, old, command):
 		line = "ifconfig-push " + ip + " " + netmask
 		write_rc(line, ccd + client_cn + ".openvpn")
 
-	else if not 'univentionOpenvpnAccount' in new and 'univentionOpenvpnAccount' in old:
+	elif not 'univentionOpenvpnAccount' in new and 'univentionOpenvpnAccount' in old:
 		action = 'restart'
 
 		delete_file(ccd + client_cn + ".openvpn")
@@ -119,15 +120,15 @@ def handler(dn, new, old, command):
 
 def generate_ip(network):
 	ip_map = load_ip_map
-	ips = IP(network)
-	for newip in ips
+	ips = IPNetwork(network)
+	for newip in list(ips):
 		use = true
 		for (name, ip) in enumerate(ip_map):
-			if newip == ip:
+			if str(newip) == ip:
 				use = false
 				break
 		if use:
-			return newip
+			return str(newip)
 
 def initialize():
 	pass
