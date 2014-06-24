@@ -1,20 +1,24 @@
-#!/usr/bin/python2.6
+#
+#       Univention OpenVPN integration -- server2.py
+#
 
-name = "openvpn-server2"
-description = "manage fixed addresses"
-filter = "(objectClass=univentionOpenvpnUser)"
-attribute = ['univentionOpenvpnAccount']
-modrdn = "1" # first rewrite whole config
 
-__package__='' 	# workaround for PEP 366
+__package__ = ''  # workaround for PEP 366
+
 import listener
 import univention.debug
 import re
 import univention_baseconfig
 import os
-import json
+import csv
 import univention.uldap as ul
 from netaddr import *
+
+name        = 'openvpn-server2'
+description = 'manage fixed ip addresses'
+filter = "(objectClass=univentionOpenvpnUser)"
+attribute = ['univentionOpenvpnAccount']
+modrdn = "1" # first rewrite whole config
 
 fn_ips = '/etc/openvpn/ips'
 
@@ -54,21 +58,26 @@ def delete_file(fn):
 
 # ----- function to open the ip map with setuid(0) for root-action
 def load_ip_map():
+	ip_map = []
 	listener.setuid(0)
 	try:
-		with open(fn_ips) as f:
-    			ips = json.load(f)
+		with open(fn_ips, 'rb') as f:
+			r = csv.reader(f, delimiter=' ', quotechar='|')
+			for row in r:
+				ip_map.append(row)
 	except Exception, e:
 		univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to load ip map: %s' % str(e))
 	listener.unsetuid()
-	return ips
+	return ip_map
 
 # ----- function to write the ip map with setuid(0) for root-action
-def write_ip_map(ips):
+def write_ip_map(ip_map):
 	listener.setuid(0)
 	try:
-		with open(fn_ips, 'w') as f:
-    			json.dump(ips, f)
+		with open(fn_ips, 'wb') as f:
+    			w = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+			for i in ip_map:
+				w.writerow(i)
 	except Exception, e:
 		univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to write ip map: %s' % str(e))
 	listener.unsetuid()
@@ -90,7 +99,7 @@ def handler(dn, new, old, command):
 	port = server[1].get('univentionOpenvpnPort', [None])[0]
 	addr = server[1].get('univentionOpenvpnAddress', [None])[0]
 
-	ccd = '/etc/openvpn/ccd-' + port
+	ccd = '/etc/openvpn/ccd-' + port + '/'
 	network = addr + '/24'
 	netmask = '255.255.255.0'
 
@@ -99,7 +108,7 @@ def handler(dn, new, old, command):
 
 		ip = generate_ip(network)
 
-		ip_map = load_ip_map
+		ip_map = load_ip_map()
 		ip_map.append((client_cn, ip))
 		write_ip_map(ip_map)
 		
@@ -111,21 +120,26 @@ def handler(dn, new, old, command):
 
 		delete_file(ccd + client_cn + ".openvpn")
 
-		ip_map = load_ip_map
-		for i, (name, ip) in enumerate(ip_map):
+		ip_map = load_ip_map()
+		i = 0
+		for (name, ip) in ip_map:
 			if name == client_cn:
 				del ip_map[i]
 				break
+			i = i + 1
 		write_ip_map(ip_map)
 
 def generate_ip(network):
-	ip_map = load_ip_map
-	ips = IPNetwork(network)
+	ip_map = load_ip_map()
+	ips = list(IPNetwork(network))
+	length = len(ips)
+	del ips[length - 1]
+	del ips[0]
 	for newip in list(ips):
-		use = true
-		for (name, ip) in enumerate(ip_map):
+		use = True
+		for (name, ip) in ip_map:
 			if str(newip) == ip:
-				use = false
+				use = False
 				break
 		if use:
 			return str(newip)
