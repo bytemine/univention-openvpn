@@ -97,18 +97,28 @@ def handler(dn, new, old, command):
 	lo = ul.getBackupConnection()
 	server = lo.search('(cn=' + myname + ')')[0]
 	port = server[1].get('univentionOpenvpnPort', [None])[0]
-	addr = server[1].get('univentionOpenvpnAddress', [None])[0]
+	net = server[1].get('univentionOpenvpnNet', [None])[0]
 
 	ccd = '/etc/openvpn/ccd-' + port + '/'
-	network = addr + '/24'
+	network = net + '/24'
 	netmask = '255.255.255.0'
+
+	if not os.path.exists(ccd):
+		os.makedirs(ccd)
+		ip_map = load_ip_map()
+		for (name, ip) in ip_map:
+			line = "ifconfig-push " + ip + " " + netmask
+			write_rc(line, ccd + name + ".openvpn")
+			
+	if not os.path.exists(fn_ips):
+		open(fn_ips, 'a').close()
 
 	if 'univentionOpenvpnAccount' in new and not 'univentionOpenvpnAccount' in old:
 		action = 'restart'
 
-		ip = generate_ip(network)
 
 		ip_map = load_ip_map()
+		ip = generate_ip(network, ip_map)
 		ip_map.append((client_cn, ip))
 		write_ip_map(ip_map)
 		
@@ -129,11 +139,11 @@ def handler(dn, new, old, command):
 			i = i + 1
 		write_ip_map(ip_map)
 
-def generate_ip(network):
-	ip_map = load_ip_map()
+def generate_ip(network, ip_map):
 	ips = list(IPNetwork(network))
 	length = len(ips)
 	del ips[length - 1]
+	del ips[0]
 	del ips[0]
 	for newip in list(ips):
 		use = True
