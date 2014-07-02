@@ -86,7 +86,7 @@ def load_ip_map(path):
         return ip_map
 
 # ----- function to write the ip map with setuid(0) for root-action
-def write_ip_map(path, ip_map):
+def write_ip_map(ip_map, path):
         listener.setuid(0)
         try:
                 with open(fn_ips, 'wb') as f:
@@ -123,6 +123,77 @@ def handler(dn, new, old, command):
                 univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to activate server config: %s' % str(e))
                 return
             listener.unsetuid()
+
+        if not os.path.exists(fn_serverconf):
+            config = """### Constant values
+
+proto udp
+dh /etc/openvpn/dh2048.pem
+ca /etc/univention/ssl/ucsCA/CAcert.pem
+cert /etc/univention/ssl/{hostname}/cert.pem
+key /etc/univention/ssl/{hostname}/private.key
+crl-verify /etc/openvpn/crl.pem
+ifconfig-pool-persist ipp.txt
+{dorouC}push "route {interfaces_eth0_network} {interfaces_eth0_netmask}"
+{donamC}push "dhcp-option DNS {nameserver1}"
+{dodomC}push "dhcp-option DOMAIN {dodom}"
+keepalive 10 120
+comp-lzo
+persist-key
+persist-tun
+verb 1
+mute 5
+status /var/log/openvpn/openvpn-status.log
+management /var/run/management-udp unix
+plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/kcheckpass
+dev tun
+topology subnet
+
+### Values which can be changed through UDM
+
+server 10.0.1.0 255.255.255.0
+port 443
+push "redirect-gateway"
+"""
+
+            interfaces_eth0_network = listener.baseConfig['interfaces/eth0/network']
+            interfaces_eth0_netmask = listener.baseConfig['interfaces/eth0/netmask']
+            nameserver1 = listener.baseConfig['nameserver1']
+            domain_domainname = listener.baseConfig['domain/domainname']
+            domainname = listener.baseConfig['domainname']
+
+            if domain_domainname != None:
+                dodom = domain_domainname
+            else:
+                dodom = domainname
+
+            if interfaces_eth0_network == '' or interfaces_eth0_netmask == '':
+                dorouC = '#'
+            else:
+                dorouC = ''
+
+            if nameserver1 == '':
+                donamC = '#'
+            else:
+                donamC = ''
+
+            if dodom == '':
+                dodomC = '#'
+            else:
+                dodomC = ''
+
+            context = {
+                'hostname' : myname,
+                'dorouC' : dorouC,
+                'donamC' : donamC,
+                'dodomC' : dodomC,
+                'interfaces_eth0_network' : interfaces_eth0_network,
+                'interfaces_eth0_netmask' : interfaces_eth0_netmask,
+                'nameserver1' : nameserver1,
+                'dodom' : dodom
+            }
+
+            write_rc(config.format(**context), fn_serverconf) 
 
         flist = load_rc(fn_serverconf)
 
@@ -173,7 +244,7 @@ def handler(dn, new, old, command):
                 delete_file(ccd + name + ".openvpn")
                 line = "ifconfig-push " + ip_new + " " + netmask
                 write_rc(line, ccd + name + ".openvpn")
-            write_ip_map(fn_ips, ip_map_new)
+            write_ip_map(ip_map_new, fn_ips)
 
     else:
 

@@ -69,7 +69,7 @@ def load_ip_map(path):
     return ip_map
 
 # ----- function to write the ip map with setuid(0) for root-action
-def write_ip_map(path, ip_map):
+def write_ip_map(ip_map, path):
     listener.setuid(0)
     try:
         with open(path, 'wb') as f:
@@ -119,7 +119,7 @@ def handler(dn, new, old, command):
         ip_map = load_ip_map(fn_ips)
         ip = generate_ip(network, ip_map)
         ip_map.append((client_cn, ip))
-        write_ip_map(fn_ips, ip_map)
+        write_ip_map(ip_map, fn_ips)
         
         line = "ifconfig-push " + ip + " " + netmask
         write_rc(line, ccd + client_cn + ".openvpn")
@@ -136,7 +136,7 @@ def handler(dn, new, old, command):
                 del ip_map[i]
                 break
             i = i + 1
-        write_ip_map(fn_ips, ip_map)
+        write_ip_map(ip_map, fn_ips)
 
 def generate_ip(network, ip_map):
     ips = list(IPNetwork(network))
