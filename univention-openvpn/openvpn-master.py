@@ -1,5 +1,5 @@
 #
-#	Univention OpenVPN integration -- server-master.py
+#	Univention OpenVPN integration -- openvpn-master.py
 #
 
 
