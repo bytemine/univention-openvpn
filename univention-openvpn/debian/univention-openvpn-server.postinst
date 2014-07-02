@@ -57,6 +57,7 @@ cat > /etc/openvpn/server.conf-disabled <<-EOINISRVCONF
 	management /var/run/management-udp unix
 	plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/kcheckpass
 	dev tun
+	topology subnet
 
 	### Values which can be changed through UDM
 
