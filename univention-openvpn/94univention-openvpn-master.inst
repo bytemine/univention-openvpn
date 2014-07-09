@@ -226,6 +226,35 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
         --set doNotSearch='0' \
         --set hook='None' || die
 
+ucs_registerLDAPExtension --udm_syntax /usr/share/pyshared/univention/admin/syntax.d/univention-openvpn-schema.py
+
+udm settings/extended_attribute remove "$@" \
+        --dn "cn=UniventionOpenvpn-UserAddress,${eabas}" >/dev/null 2>&1
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+        --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+        --append module="computers/domaincontroller_master" \
+        --append module="computers/domaincontroller_slave" \
+        --append module="computers/domaincontroller_backup" \
+        --append module="computers/memberserver" \
+        --set ldapMapping='univentionOpenvpnUserAddress' \
+        --set objectClass='univentionOpenvpn' \
+        --set name='UniventionOpenvpn-UserAddress' \
+        --set shortDescription='OpenVPN users address' \
+        --set longDescription='Assign IP address to users' \
+        --set translationShortDescription='"de_DE" "Adresse des Benutzers"' \
+        --set translationLongDescription='"de_DE" "Weise Benutzer feste IP Adresse zu"' \
+        --set tabName='OpenVPN' \
+        --set overwriteTab='0' \
+        --set valueRequired='0' \
+        --set CLIName='openvpnuseraddress' \
+        --set syntax='OpenvpnUser_and_Address' \
+        --set tabAdvanced='1' \
+        --set mayChange='1' \
+        --set multivalue='1' \
+        --set deleteObjectClass='0' \
+        --set doNotSearch='0' \
+        --set hook='None' || die
+
 # present in versions < 0.7
 udm settings/extended_attribute remove "$@" \
 	--dn "cn=UniventionOpenvpn-Tun,${eabas}" >/dev/null 2>&1
