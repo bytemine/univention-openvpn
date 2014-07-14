@@ -1,10 +1,8 @@
-class OpenvpnUser(UDM_Attribute):
-	udm_module = 'users/user'
-	attribute = 'cn'
-        label_format = '%($attribute$)s'
+class openvpnUser( UDM_Attribute ):
+        udm_module = 'users/user'
+        attribute = 'cn'
+        label_format = '%(displayName)s: %($attribute$)s'
 
-class OpenvpnUser_and_Address(complex):
-        delimiter = ': '
-        subsyntaxes = [ ( _( 'Openvpn user' ), OpenvpnUser ), ( _( 'IP address' ), ipv4Address ) ]
-        all_required = True
-
+class openvpnUser_and_Address( complex ):
+        description=_('Openvpn user')
+        subsyntaxes = ( ( _( 'Openvpn user' ), UserID ), ( _( 'IP address' ), ipv4Address ) )
