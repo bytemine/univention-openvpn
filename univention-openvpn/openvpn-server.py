@@ -229,7 +229,7 @@ push "redirect-gateway"
             fn_ips = '/etc/openvpn/ips-' + portnew
             network = new.get('univentionOpenvpnNet', [None])[0] + '/24'
             netmask = '255.255.255.0'
-        
+
             if not os.path.exists(ccd):
                 os.makedirs(ccd)
 
@@ -239,12 +239,17 @@ push "redirect-gateway"
             ip_map_old = load_ip_map(fn_ips)
             ip_map_new = []
             for (name, _) in ip_map_old:
-                ip_new = generate_ip(network, ip_map_new)    
+                ip_new = generate_ip(network, ip_map_new)
                 ip_map_new.append((name, ip_new))
                 delete_file(ccd + name + ".openvpn")
                 line = "ifconfig-push " + ip_new + " " + netmask
                 write_rc(line, ccd + name + ".openvpn")
             write_ip_map(ip_map_new, fn_ips)
+#        if new.get('univentionOpenvpnUserAddress', [None]) != old.get('univentionOpenvpnUserAddress', [None]):
+#            useraddress = new.get('univentionOpenvpnUserAddress')
+#            for pair in useraddress:
+#                write_rc(pair, ccd + "test")
+
 
     else:
 

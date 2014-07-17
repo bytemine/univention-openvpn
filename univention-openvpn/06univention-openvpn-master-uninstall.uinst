@@ -4,7 +4,7 @@ VERSION=3
 
 SERVICE="OpenVPN"
 
-EASUFXS="Port Net Redirect Duplicate Active Address Account FixedAddresses"
+EASUFXS="Port Tun Net Redirect Duplicate Active Address Account FixedAddresses UserAddress"
 
 . /usr/share/univention-join/joinscripthelper.lib
 joinscript_init
@@ -22,6 +22,7 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 			"cn=UniventionOpenvpn-${suf},${eabas}" || die
 	done
 	udm container/cn remove "$@" --dn "$eabas" || die
+	ucs_unregisterLDAPExtension --udm_syntax univention-openvpn-schema
 
 	stop_udm_cli_server
 fi

@@ -1,8 +1,12 @@
-class openvpnUser( UDM_Attribute ):
-        udm_module = 'users/user'
-        attribute = 'cn'
-        label_format = '%(displayName)s: %($attribute$)s'
+class openvpnUser( UDM_Objects ):
+        udm_modules = ( 'users/user', )
+        key = '%(username)s'
+        label = '%(username)s'
+        regex = re.compile( '^[a-z]+$' )
+        use_objects = False
 
-class openvpnUser_and_Address( complex ):
+class openvpnUserandAddress( complex ):
+        delimiter = ': '
+        all_required = 1
         description=_('Openvpn user')
-        subsyntaxes = ( ( _( 'Openvpn user' ), UserID ), ( _( 'IP address' ), ipv4Address ) )
+        subsyntaxes = ( ( _( 'Openvpn user' ), openvpnUser ), ( _( 'IP address' ), ipv4Address ), )
