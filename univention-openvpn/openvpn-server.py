@@ -89,7 +89,7 @@ def load_ip_map(path):
 def write_ip_map(ip_map, path):
         listener.setuid(0)
         try:
-                with open(fn_ips, 'wb') as f:
+                with open(path, 'wb') as f:
                         w = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
                         for i in ip_map:
                                 w.writerow(i)
@@ -231,25 +231,51 @@ push "redirect-gateway"
             netmask = '255.255.255.0'
 
             if not os.path.exists(ccd):
-                os.makedirs(ccd)
+                create_dir(ccd)
 
-            if not os.path.exists(fn_ips):
-                open(fn_ips, 'a').close()
+#            if not os.path.exists(fn_ips):
+#                open(fn_ips, 'a').close()
 
             ip_map_old = load_ip_map(fn_ips)
             ip_map_new = []
             for (name, _) in ip_map_old:
                 ip_new = generate_ip(network, ip_map_new)
                 ip_map_new.append((name, ip_new))
-                delete_file(ccd + name + ".openvpn")
+                delete_file(ccd + name + ".openvpn") # TODO: needed?
                 line = "ifconfig-push " + ip_new + " " + netmask
                 write_rc(line, ccd + name + ".openvpn")
             write_ip_map(ip_map_new, fn_ips)
-#        if new.get('univentionOpenvpnUserAddress', [None]) != old.get('univentionOpenvpnUserAddress', [None]):
-#            useraddress = new.get('univentionOpenvpnUserAddress')
-#            for pair in useraddress:
-#                write_rc(pair, ccd + "test")
+        if new.get('univentionOpenvpnUserAddress', [None]) != old.get('univentionOpenvpnUserAddress', [None]):
+            ccd = '/etc/openvpn/ccd-' + portnew + '/'
+            fn_ips = '/etc/openvpn/ips-' + portnew
+            network = new.get('univentionOpenvpnNet', [None])[0] + '/24'
+            netmask = '255.255.255.0'
 
+            if not os.path.exists(ccd):
+                create_dir(ccd)
+
+#            if not os.path.exists(fn_ips):
+#                open(fn_ips, 'a').close()
+
+            ip_map_old = load_ip_map(fn_ips)
+            useraddresses = map(lambda x: tuple(x.split(":")), new.get('univentionOpenvpnUserAddress', [None]))
+            ip_map_new = useraddresses
+            lost_users = []
+            for (name, ip) in ip_map_old:
+                if not(name in map(lambda (u,i): u, useraddresses)):
+                    if not(ip in map(lambda (u,i): i, useraddresses)):
+                        ip_map_new.append((name, ip))
+                    else:
+                        lost_users.append(name)
+            for name in lost_users:
+                ip_new = generate_ip(network, ip_map_new)
+                ip_map_new.append((name, ip_new))
+
+            for (name, ip) in ip_map_new:
+                delete_file(ccd + name + ".openvpn") # TODO: needed?
+                line = "ifconfig-push " + ip + " " + netmask
+                write_rc(line, ccd + name + ".openvpn")
+            write_ip_map(ip_map_new, fn_ips)
 
     else:
 

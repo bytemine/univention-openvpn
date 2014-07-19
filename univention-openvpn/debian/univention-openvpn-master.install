@@ -1,6 +1,7 @@
 create-bundle usr/lib/openvpn-int
 openvpn-master.py usr/lib/univention-directory-listener/system
 openvpn-master2.py usr/lib/univention-directory-listener/system
+univention-openvpn.py usr/share/pyshared/univention/admin/hooks.d
 univention-openvpn-schema.py usr/share/pyshared/univention/admin/syntax.d
 94univention-openvpn-master.inst usr/lib/univention-install
 06univention-openvpn-master-uninstall.uinst usr/lib/univention-uninstall
