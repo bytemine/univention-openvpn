@@ -233,8 +233,10 @@ push "redirect-gateway"
             if not os.path.exists(ccd):
                 create_dir(ccd)
 
-#            if not os.path.exists(fn_ips):
-#                open(fn_ips, 'a').close()
+            if not os.path.exists(fn_ips):
+                listener.setuid(0)
+                open(fn_ips, 'a').close()
+                listener.unsetuid()
 
             ip_map_old = load_ip_map(fn_ips)
             ip_map_new = []
@@ -254,11 +256,14 @@ push "redirect-gateway"
             if not os.path.exists(ccd):
                 create_dir(ccd)
 
-#            if not os.path.exists(fn_ips):
-#                open(fn_ips, 'a').close()
+            if not os.path.exists(fn_ips):
+                listener.setuid(0)
+                open(fn_ips, 'a').close()
+                listener.unsetuid()
 
             ip_map_old = load_ip_map(fn_ips)
             useraddresses = map(lambda x: tuple(x.split(":")), new.get('univentionOpenvpnUserAddress', [None]))
+
             ip_map_new = useraddresses
             lost_users = []
             for (name, ip) in ip_map_old:
