@@ -42,7 +42,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationLongDescription='"de_DE" "OpenVPN empfängt Verbindungen auf diesem Port."' \
     --set tabName='OpenVPN' \
     --set overwriteTab='0' \
-    --set valueRequired='1' \
+    --set valueRequired='0' \
     --set CLIName='openvpnPort' \
     --set syntax='integer' \
     --set tabAdvanced='1' \
@@ -70,7 +70,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationLongDescription='"de_DE" "OpenVPN verwendet dieses Transfernetzwerk innerhalb des virtuellen privaten Netzes."' \
     --set tabName='OpenVPN' \
     --set overwriteTab='0' \
-    --set valueRequired='1' \
+    --set valueRequired='0' \
     --set CLIName='openvpnTransfernetwork' \
     --set syntax='string' \
     --set tabAdvanced='1' \
@@ -180,7 +180,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set default='0.0.0.0' \
     --set tabName='OpenVPN' \
     --set overwriteTab='0' \
-    --set valueRequired='1' \
+    --set valueRequired='0' \
     --set CLIName='openvpnAddress' \
     --set syntax='ipv4Address' \
     --set tabAdvanced='1' \

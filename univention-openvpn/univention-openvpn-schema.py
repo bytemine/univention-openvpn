@@ -2,7 +2,7 @@ class openvpnUser( UDM_Objects ):
         udm_modules = ( 'users/user', )
         key = '%(username)s'
         label = '%(username)s'
-        regex = re.compile( '^[a-z]+$' )
+        regex = re.compile( '^[a-zA-Z0-9_-]+$' )
         use_objects = False
 
 class openvpnUserandAddress( complex ):
