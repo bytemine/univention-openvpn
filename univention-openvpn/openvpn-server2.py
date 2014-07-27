@@ -87,8 +87,6 @@ def handler(dn, new, old, command):
         action = None
         return
 
-    client_cn = new.get('uid', [None])[0]
-
     myname = listener.baseConfig['hostname']
 
     listener.setuid(0)
@@ -108,9 +106,26 @@ def handler(dn, new, old, command):
         for (name, ip) in ip_map:
             line = "ifconfig-push " + ip + " " + netmask
             write_rc(line, ccd + name + ".openvpn")
-            
+
     if not os.path.exists(fn_ips):
         open(fn_ips, 'a').close()
+
+    if command == 'd':
+        univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, '### User deleted! ###' )
+        action = 'restart'
+        client_cn = old.get('uid', [None])[0]
+        delete_file(ccd + client_cn + ".openvpn")
+        ip_map = load_ip_map(fn_ips)
+        i = 0
+        for (name, ip) in ip_map:
+            if name == client_cn:
+                del ip_map[i]
+                break
+            i = i + 1
+        write_ip_map(ip_map, fn_ips)
+        return
+
+    client_cn = new.get('uid', [None])[0]
 
     if 'univentionOpenvpnAccount' in new and not 'univentionOpenvpnAccount' in old:
         action = 'restart'
@@ -120,7 +135,7 @@ def handler(dn, new, old, command):
         ip = generate_ip(network, ip_map)
         ip_map.append((client_cn, ip))
         write_ip_map(ip_map, fn_ips)
-        
+
         line = "ifconfig-push " + ip + " " + netmask
         write_rc(line, ccd + client_cn + ".openvpn")
 
