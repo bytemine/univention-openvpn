@@ -132,6 +132,9 @@ def handler(dn, new, old, command):
 
 
         ip_map = load_ip_map(fn_ips)
+        for (name, ip) in ip_map:
+            if name == client_cn:
+                return
         ip = generate_ip(network, ip_map)
         ip_map.append((client_cn, ip))
         write_ip_map(ip_map, fn_ips)

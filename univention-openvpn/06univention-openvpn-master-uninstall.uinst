@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=3
+VERSION=4
 
 SERVICE="OpenVPN"
 
@@ -23,6 +23,7 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 	done
 	udm container/cn remove "$@" --dn "$eabas" || die
 	ucs_unregisterLDAPExtension --udm_syntax univention-openvpn-schema
+	ucs_unregisterLDAPExtension --udm_hook univention-openvpn
 
 	stop_udm_cli_server
 fi
