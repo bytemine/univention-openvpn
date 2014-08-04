@@ -8,11 +8,6 @@ class univentionOpenVpn(simpleHook):
 
 	def __convert(self, obj):
 
-		# map
-		# [['uid=join-backup,cn=users,dc=w2k12,dc=test', '10.200.7.66'], ['uid=Administrator,cn=users,dc=w2k12,dc=test', '10.200.7.11']]
-		# to
-		# ['uid=join-backup,cn=users,dc=w2k12,dc=test: 10.200.7.66', 'uid=Administrator,cn=users,dc=w2k12,dc=test: 10.200.7.11']
-		# in openvpnuseraddress
 		changed = False
 		new = []
 		if type(obj) == type([]) and len(obj) >= 1:
@@ -57,11 +52,6 @@ class univentionOpenVpn(simpleHook):
 
 	def hook_open(self, module):
 
-		# map
-		# ['uid=join-backup,cn=users,dc=w2k12,dc=test: 10.200.7.66', 'uid=Administrator,cn=users,dc=w2k12,dc=test: 10.200.7.11']
-		# to
-		# [['uid=join-backup,cn=users,dc=w2k12,dc=test', '10.200.7.66'], ['uid=Administrator,cn=users,dc=w2k12,dc=test', '10.200.7.11']]
-		# in openvpnuseraddress
 		if module.get(self.udmAtribute):
 			if type(module[self.udmAtribute]) == type([]) and len(module[self.udmAtribute]) >= 1:
 				newValue = []

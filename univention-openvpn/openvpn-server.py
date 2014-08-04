@@ -243,7 +243,7 @@ push "redirect-gateway"
             for (name, _) in ip_map_old:
                 ip_new = generate_ip(network, ip_map_new)
                 ip_map_new.append((name, ip_new))
-                delete_file(ccd + name + ".openvpn") # TODO: needed?
+                delete_file(ccd + name + ".openvpn")
                 line = "ifconfig-push " + ip_new + " " + netmask
                 write_rc(line, ccd + name + ".openvpn")
             write_ip_map(ip_map_new, fn_ips)
@@ -277,7 +277,7 @@ push "redirect-gateway"
                 ip_map_new.append((name, ip_new))
 
             for (name, ip) in ip_map_new:
-                delete_file(ccd + name + ".openvpn") # TODO: needed?
+                delete_file(ccd + name + ".openvpn")
                 line = "ifconfig-push " + ip + " " + netmask
                 write_rc(line, ccd + name + ".openvpn")
             write_ip_map(ip_map_new, fn_ips)

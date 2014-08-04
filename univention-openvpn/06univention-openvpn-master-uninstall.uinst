@@ -19,9 +19,9 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 
 	for suf in $EASUFXS; do
 		udm settings/extended_attribute remove "$@" --dn \
-			"cn=UniventionOpenvpn-${suf},${eabas}" || die
+			"cn=UniventionOpenvpn-${suf},${eabas}"
 	done
-	udm container/cn remove "$@" --dn "$eabas" || die
+	udm container/cn remove "$@" --dn "$eabas"
 	ucs_unregisterLDAPExtension --udm_syntax univention-openvpn-schema
 	ucs_unregisterLDAPExtension --udm_hook univention-openvpn
 
