@@ -1,13 +1,10 @@
 <p>
-Neues in Version 0.8:
+Neues in Version 0.9:
 
 <ul>
-	<li>Client-Zertifikat wird beim Deaktiveren des Zugangs in die Sperrliste aufgenommen</li>
-	<li>Automatisches Neugenerieren der ready2go-Pakete bei &Auml;nderungen an der Serverconfig</li>
-	<li>ready2go-Paket beinhaltet jetzt auch eine Konfigurationsdatei f&uuml;r Windows Clients</li>
-	<li>Verbesserte Beschreibungen und Tooltips</li>
-	<li>Reduzierung der Konfigurationsoptionen und Einsetzen von guten Defaultwerten</li>
-	<li>
+    <li>Neue Option erm&ouml;glicht die Benutzung von festen IP-Adressen</li>
+    <li>Direkte Vergabe von IP-Adressen an Benutzer m&ouml;glich</li>
+    <li>Generierung der Konfigurationsdatei von openvpn ist nun templatebasiert</li>
 </ul>
 </p>
 

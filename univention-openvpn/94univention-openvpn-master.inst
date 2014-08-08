@@ -12,7 +12,7 @@ joinscript_init
 
 eval "$(ucr shell ldap/base)"
 
-ucs_addServiceToLocalhost "$SERVICE" "$@" || die
+ucs_addServiceToLocalhost "$SERVICE" "$@"
 
 ucs_registerLDAPExtension --udm_hook /usr/share/pyshared/univention/admin/hooks.d/univention-openvpn.py
 ucs_registerLDAPExtension --udm_syntax /usr/share/pyshared/univention/admin/syntax.d/univention-openvpn-schema.py

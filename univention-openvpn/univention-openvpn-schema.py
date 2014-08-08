@@ -4,6 +4,7 @@ class openvpnUser( UDM_Objects ):
         label = '%(username)s'
         regex = re.compile( '^[a-zA-Z0-9_-]+$' )
         use_objects = False
+        udm_filter = 'openvpnAccount=1'
 
 class openvpnUserandAddress( complex ):
         delimiter = ':'

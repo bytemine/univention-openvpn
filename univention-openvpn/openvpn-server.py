@@ -98,8 +98,8 @@ def write_ip_map(ip_map, path):
         listener.unsetuid()
 
 def handler(dn, new, old, command):
+    univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'openvpn-server.handler() invoked')
     global action
-    univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, '### OpenVPN handler invoked' )
     if command == 'n':
         action = None
         return

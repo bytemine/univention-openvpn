@@ -8,7 +8,7 @@ SERVICE="OpenVPN"
 . /usr/share/univention-join/joinscripthelper.lib
 joinscript_init
 
-ucs_addServiceToLocalhost "$SERVICE" "$@" || die
+ucs_addServiceToLocalhost "$SERVICE" "$@"
 
 joinscript_save_current_version
 

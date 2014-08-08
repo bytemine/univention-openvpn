@@ -17,7 +17,7 @@ from netaddr import *
 name        = 'openvpn-server2'
 description = 'manage fixed ip addresses'
 filter = "(objectClass=univentionOpenvpnUser)"
-attribute = ['univentionOpenvpnAccount']
+attribute = []
 modrdn = "1" # first rewrite whole config
 
 action = None
@@ -81,8 +81,8 @@ def write_ip_map(ip_map, path):
     listener.unsetuid()
 
 def handler(dn, new, old, command):
+    univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'openvpn-server2.handler() invoked')
     global action
-    univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, '### OpenVPN handler invoked' )
     if command == 'n':
         action = None
         return
@@ -111,7 +111,6 @@ def handler(dn, new, old, command):
         open(fn_ips, 'a').close()
 
     if command == 'd':
-        univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, '### User deleted! ###' )
         action = 'restart'
         client_cn = old.get('uid', [None])[0]
         delete_file(ccd + client_cn + ".openvpn")
