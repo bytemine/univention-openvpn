@@ -1,3 +1,11 @@
+
+univention-openvpn (0.10) unstable; urgency=low
+
+  * enable domainnames for server address, too (instead of IP only)
+
+ -- Holger Rasch <rasch@bytemine.net>  Mon, 08 Sep 2014 14:00:00 +0200
+
+
 univention-openvpn (0.9) unstable; urgency=low
 
   * enable fixed ip addresses
