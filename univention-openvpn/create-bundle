@@ -17,11 +17,6 @@ port=$5
 
 ssl=/etc/univention/ssl
 
-# ensure home directory exists
-if ! [ -d "$home" ]; then
-    HOME="$home" USER="$uid" /usr/sbin/univention-create-homedir
-fi
-
 # create or renew certificate for user
 if /usr/sbin/univention-certificate check -name "${uid}.openvpn"; then
   if [ "$crtcr" = yes ]; then
@@ -83,8 +78,31 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 
 ENDOFWINCLIENTCONFIG
 
-# zip all required files into home directory of user
-bundle="${home}/openvpn-${server}-${uid}.zip"
+# zip all required files into home or apache directory of user
+if [ -d "$home" ]; then
+    bundle="${home}/openvpn-${server}-${uid}.zip"
+else
+    mkdir -p "/var/www/${uid}/"
+    cat > "/var/www/${uid}/.htaccess" <<- ENDOFHTACCESS
+    AuthBasicProvider ldap
+    AuthType Basic
+    AuthName "secret"
+    AuthzLDAPAuthoritative off
+    AuthLDAPURL ldap://localhost:7389/dc=vm,dc=office,dc=bytemine,dc=net?uid
+    AuthLDAPBindDN uid=<ldapper>,cn=users,dc=vm,dc=office,dc=bytemine,dc=net
+    AuthLDAPBindPassword <pw>
+    Require ldap-user ${uid}
+
+    ENDOFHTACCESS
+
+    a2enmod ldap
+    a2enmod authnz_ldap
+
+    /etc/init.d/apache2 restart
+
+    bundle="/var/www/${uid}/openvpn-${server}-${uid}.zip"
+fi
+
 umask 077
 zip -j "$bundle" \
     "${ssl}/ucsCA/CAcert.pem" \
