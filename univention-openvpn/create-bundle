@@ -78,27 +78,30 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 
 ENDOFWINCLIENTCONFIG
 
+eval "$(ucr shell ldap/base)"
+
 # zip all required files into home or apache directory of user
 if [ -d "$home" ]; then
     bundle="${home}/openvpn-${server}-${uid}.zip"
 else
     mkdir -p "/var/www/${uid}/"
-    cat > "/var/www/${uid}/.htaccess" <<- ENDOFHTACCESS
-    AuthBasicProvider ldap
-    AuthType Basic
-    AuthName "secret"
-    AuthzLDAPAuthoritative off
-    AuthLDAPURL ldap://localhost:7389/dc=vm,dc=office,dc=bytemine,dc=net?uid
-    AuthLDAPBindDN uid=<ldapper>,cn=users,dc=vm,dc=office,dc=bytemine,dc=net
-    AuthLDAPBindPassword <pw>
-    Require ldap-user ${uid}
+    cat > "/var/www/${uid}/.htaccess" <<-ENDOFHTACCESS
+AuthBasicProvider ldap
+AuthType Basic
+AuthName "secret"
+AuthzLDAPAuthoritative off
+AuthLDAPURL "ldap://localhost:7389/$ldap_base?uid"
+AuthLDAPBindDN "uid=ldapper,cn=users,$ldap_base"
+AuthLDAPBindPassword "ldapperssecret"
+Require ldap-user ${uid}
 
-    ENDOFHTACCESS
+ENDOFHTACCESS
 
-    a2enmod ldap
-    a2enmod authnz_ldap
-
-    /etc/init.d/apache2 restart
+    if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
+        a2enmod ldap
+        a2enmod authnz_ldap
+        /etc/init.d/apache2 restart
+    fi
 
     bundle="/var/www/${uid}/openvpn-${server}-${uid}.zip"
 fi

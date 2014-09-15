@@ -237,7 +237,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnAddress' \
-    --set syntax='DNS_Name' \
+    --set syntax='hostOrIP' \
     --set tabAdvanced='1' \
     --set mayChange='1' \
     --set multivalue='0' \
@@ -272,6 +272,15 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
 # present in versions < 0.7
 udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-Tun,${eabas}" >/dev/null 2>&1
+
+ldapper_mail=listener.baseConfig['mail/alias/root']
+
+univention-directory-manager users/user create \
+    --position "cn=users,$ldap_base" \
+    --set username="ldapper" \
+    --set firstname="ldapper" \
+    --set lastname="ldapper" \
+    --set password="ldapperssecret"
 
 stop_udm_cli_server
 

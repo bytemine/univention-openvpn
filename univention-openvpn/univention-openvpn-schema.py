@@ -10,4 +10,4 @@ class openvpnUserandAddress( complex ):
         delimiter = ':'
         all_required = 1
         description=_('Openvpn user')
-        subsyntaxes = ( ( _( 'Openvpn user' ), openvpnUser ), ( _( 'IP address' ), ipv4Address ), )
+        subsyntaxes = ( ( _( 'Openvpn user' ), openvpnUser ), ( _( 'IP address' ), ipAddress ), )

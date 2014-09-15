@@ -200,7 +200,11 @@ push "redirect-gateway"
         flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("client-config-dir", x)]
 
         flist.append("port %s\n" % new.get('univentionOpenvpnPort', [None])[0])
-        flist.append("server %s 255.255.255.0\n" % new.get('univentionOpenvpnNet', [None])[0])
+
+        network = new.get('univentionOpenvpnNet', [None])[0]
+        network_pure = str(list(IPNetwork(network))[0])
+        netmask = str(IPNetwork(network).netmask)
+        flist.append("server %s %s\n" % (network_pure, netmask))
 
         redirect = new.get('univentionOpenvpnRedirect', [None])[0]
         if redirect == '1':
@@ -227,8 +231,6 @@ push "redirect-gateway"
         if new.get('univentionOpenvpnNet', [None])[0] != old.get('univentionOpenvpnNet', [None])[0]:
             ccd = '/etc/openvpn/ccd-' + portnew + '/'
             fn_ips = '/etc/openvpn/ips-' + portnew
-            network = new.get('univentionOpenvpnNet', [None])[0] + '/24'
-            netmask = '255.255.255.0'
 
             if not os.path.exists(ccd):
                 create_dir(ccd)
@@ -250,8 +252,6 @@ push "redirect-gateway"
         if new.get('univentionOpenvpnUserAddress', [None]) != old.get('univentionOpenvpnUserAddress', [None]):
             ccd = '/etc/openvpn/ccd-' + portnew + '/'
             fn_ips = '/etc/openvpn/ips-' + portnew
-            network = new.get('univentionOpenvpnNet', [None])[0] + '/24'
-            netmask = '255.255.255.0'
 
             if not os.path.exists(ccd):
                 create_dir(ccd)

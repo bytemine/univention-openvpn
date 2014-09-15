@@ -97,8 +97,8 @@ def handler(dn, new, old, command):
 
     ccd = '/etc/openvpn/ccd-' + port + '/'
     fn_ips = '/etc/openvpn/ips-' + port
-    network = net + '/24'
-    netmask = '255.255.255.0'
+    network = net
+    netmask = str(IPNetwork(network).netmask)
 
     if not os.path.exists(ccd):
         os.makedirs(ccd)
