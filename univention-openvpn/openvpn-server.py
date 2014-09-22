@@ -261,26 +261,37 @@ push "redirect-gateway"
                 open(fn_ips, 'a').close()
                 listener.unsetuid()
 
-            ip_map_old = load_ip_map(fn_ips)
-            useraddresses = map(lambda x: tuple(x.split(":")), new.get('univentionOpenvpnUserAddress', [None]))
+        ip_map_old = load_ip_map(fn_ips)
 
-            ip_map_new = useraddresses
-            lost_users = []
-            for (name, ip) in ip_map_old:
-                if not(name in map(lambda (u,i): u, useraddresses)):
-                    if not(ip in map(lambda (u,i): i, useraddresses)):
-                        ip_map_new.append((name, ip))
-                    else:
-                        lost_users.append(name)
-            for name in lost_users:
-                ip_new = generate_ip(network, ip_map_new)
-                ip_map_new.append((name, ip_new))
+        useraddresses_raw = new.get('univentionOpenvpnUserAddress', [None])
+        useraddresses_clean = [x for x in useraddresses_raw if x is not None]
+        useraddresses = map(lambda x: tuple(x.split(":")), useraddresses_clean)
 
-            for (name, ip) in ip_map_new:
-                delete_file(ccd + name + ".openvpn")
-                line = "ifconfig-push " + ip + " " + netmask
-                write_rc(line, ccd + name + ".openvpn")
-            write_ip_map(ip_map_new, fn_ips)
+        ip_map_new = useraddresses
+
+        del_users = []
+        lost_users = []
+
+        for (name, ip) in ip_map_old:
+            if not(name in map(lambda (u,i): u, useraddresses)):
+                if not(ip in map(lambda (u,i): i, useraddresses)):
+                    del_users.append(name)
+                else:
+                    lost_users.append(name)
+
+        for name in del_users:
+            delete_file(ccd + name + ".openvpn")
+
+        for name in lost_users:
+            ip_new = generate_ip(network, ip_map_new)
+            ip_map_new.append((name, ip_new))
+
+        for (name, ip) in ip_map_new:
+            delete_file(ccd + name + ".openvpn")
+            line = "ifconfig-push " + ip + " " + netmask
+            write_rc(line, ccd + name + ".openvpn")
+
+        write_ip_map(ip_map_new, fn_ips)
 
     else:
 
