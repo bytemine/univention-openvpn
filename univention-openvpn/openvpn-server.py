@@ -204,11 +204,11 @@ push "redirect-gateway"
         network = new.get('univentionOpenvpnNet', [None])[0]
         network_pure = str(IPNetwork(network).network)
         netmask = str(IPNetwork(network).netmask)
-        if IPNetwork(network).version == 4:
-            server_option = "server"
-        else:
-            server_option = "server-ipv6"
-        flist.append("%s %s %s\n" % (server_option, network_pure, netmask))
+        flist.append("server %s %s\n" % (network_pure, netmask))
+
+        networkipv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
+        if networkipv6 is not None:
+            flist.append("server-ipv6 %s\n" % (networkipv6))
 
         redirect = new.get('univentionOpenvpnRedirect', [None])[0]
         if redirect == '1':
