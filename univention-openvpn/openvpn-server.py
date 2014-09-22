@@ -202,9 +202,13 @@ push "redirect-gateway"
         flist.append("port %s\n" % new.get('univentionOpenvpnPort', [None])[0])
 
         network = new.get('univentionOpenvpnNet', [None])[0]
-        network_pure = str(list(IPNetwork(network))[0])
+        network_pure = str(IPNetwork(network).network)
         netmask = str(IPNetwork(network).netmask)
-        flist.append("server %s %s\n" % (network_pure, netmask))
+        if IPNetwork(network).version == 4:
+            server_option = "server"
+        else:
+            server_option = "server-ipv6"
+        flist.append("%s %s %s\n" % (server_option, network_pure, netmask))
 
         redirect = new.get('univentionOpenvpnRedirect', [None])[0]
         if redirect == '1':
@@ -261,37 +265,37 @@ push "redirect-gateway"
                 open(fn_ips, 'a').close()
                 listener.unsetuid()
 
-        ip_map_old = load_ip_map(fn_ips)
+            ip_map_old = load_ip_map(fn_ips)
 
-        useraddresses_raw = new.get('univentionOpenvpnUserAddress', [None])
-        useraddresses_clean = [x for x in useraddresses_raw if x is not None]
-        useraddresses = map(lambda x: tuple(x.split(":")), useraddresses_clean)
+            useraddresses_raw = new.get('univentionOpenvpnUserAddress', [None])
+            useraddresses_clean = [x for x in useraddresses_raw if x is not None]
+            useraddresses = map(lambda x: tuple(x.split(":")), useraddresses_clean)
 
-        ip_map_new = useraddresses
+            ip_map_new = useraddresses
 
-        del_users = []
-        lost_users = []
+            del_users = []
+            lost_users = []
 
-        for (name, ip) in ip_map_old:
-            if not(name in map(lambda (u,i): u, useraddresses)):
-                if not(ip in map(lambda (u,i): i, useraddresses)):
-                    del_users.append(name)
-                else:
-                    lost_users.append(name)
+            for (name, ip) in ip_map_old:
+                if not(name in map(lambda (u,i): u, useraddresses)):
+                    if not(ip in map(lambda (u,i): i, useraddresses)):
+                        del_users.append(name)
+                    else:
+                        lost_users.append(name)
 
-        for name in del_users:
-            delete_file(ccd + name + ".openvpn")
+            for name in del_users:
+                delete_file(ccd + name + ".openvpn")
 
-        for name in lost_users:
-            ip_new = generate_ip(network, ip_map_new)
-            ip_map_new.append((name, ip_new))
+            for name in lost_users:
+                ip_new = generate_ip(network, ip_map_new)
+                ip_map_new.append((name, ip_new))
 
-        for (name, ip) in ip_map_new:
-            delete_file(ccd + name + ".openvpn")
-            line = "ifconfig-push " + ip + " " + netmask
-            write_rc(line, ccd + name + ".openvpn")
+            for (name, ip) in ip_map_new:
+                delete_file(ccd + name + ".openvpn")
+                line = "ifconfig-push " + ip + " " + netmask
+                write_rc(line, ccd + name + ".openvpn")
 
-        write_ip_map(ip_map_new, fn_ips)
+            write_ip_map(ip_map_new, fn_ips)
 
     else:
 
