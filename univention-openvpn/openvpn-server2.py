@@ -93,12 +93,14 @@ def handler(dn, new, old, command):
     lo = ul.getBackupConnection()
     server = lo.search('(cn=' + myname + ')')[0]
     port = server[1].get('univentionOpenvpnPort', [None])[0]
-    net = server[1].get('univentionOpenvpnNet', [None])[0]
+    network = server[1].get('univentionOpenvpnNet', [None])[0]
+    networkv6 = server[1].get('univentionOpenvpnNetv6', [None])[0]
+    netmask = str(IPNetwork(network).netmask)
+    netmaskv6 = str(IPNetwork(networkv6).netmask)
 
     ccd = '/etc/openvpn/ccd-' + port + '/'
     fn_ips = '/etc/openvpn/ips-' + port
-    network = net
-    netmask = str(IPNetwork(network).netmask)
+    fn_ipsv6 = '/etc/openvpn/ipsv6-' + port
 
     if not os.path.exists(ccd):
         os.makedirs(ccd)
@@ -113,15 +115,15 @@ def handler(dn, new, old, command):
     if command == 'd':
         action = 'restart'
         client_cn = old.get('uid', [None])[0]
+
         delete_file(ccd + client_cn + ".openvpn")
-        ip_map = load_ip_map(fn_ips)
-        i = 0
-        for (name, ip) in ip_map:
-            if name == client_cn:
-                del ip_map[i]
-                break
-            i = i + 1
+
+        ip_map = filter(lambda (name,_): name != client_cn, load_ip_map(fn_ips))
         write_ip_map(ip_map, fn_ips)
+
+        ipv6_map = filter(lambda (name,_): name != client_cn, load_ip_map(fn_ipsv6))
+        write_ip_map(ipv6_map, fn_ipsv6)
+
         return
 
     client_cn = new.get('uid', [None])[0]
@@ -129,31 +131,36 @@ def handler(dn, new, old, command):
     if 'univentionOpenvpnAccount' in new and not 'univentionOpenvpnAccount' in old:
         action = 'restart'
 
+        lines = []
 
         ip_map = load_ip_map(fn_ips)
-        for (name, ip) in ip_map:
-            if name == client_cn:
-                return
         ip = generate_ip(network, ip_map)
         ip_map.append((client_cn, ip))
         write_ip_map(ip_map, fn_ips)
+        lines.append("ifconfig-push " + ip + " " netmask + "\n")
 
-        line = "ifconfig-push " + ip + " " + netmask
-        write_rc(line, ccd + client_cn + ".openvpn")
+        ip_mapv6 = load_ip_map(fn_ipsv6)
+        ipv6 = generate_ip(networkv6, ip_mapv6)
+        ip_mapv6.append((client_cn, ipv6))
+        write_ip_map(ip_mapv6, fn_ipsv6)
+        lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n") # TODO: only, if ipv6 enabled?
+
+        write_rc(lines, ccd + client_cn + ".openvpn")
+
+        return
 
     elif not 'univentionOpenvpnAccount' in new and 'univentionOpenvpnAccount' in old:
         action = 'restart'
 
         delete_file(ccd + client_cn + ".openvpn")
 
-        ip_map = load_ip_map(fn_ips)
-        i = 0
-        for (name, ip) in ip_map:
-            if name == client_cn:
-                del ip_map[i]
-                break
-            i = i + 1
+        ip_map = filter(lambda (name,_): name != client_cn, load_ip_map(fn_ips))
         write_ip_map(ip_map, fn_ips)
+
+        ipv6_map = filter(lambda (name,_): name != client_cn, load_ip_map(fn_ipsv6))
+        write_ip_map(ip_map, fn_ips)
+
+        return
 
 def generate_ip(network, ip_map):
     ips = list(IPNetwork(network))
