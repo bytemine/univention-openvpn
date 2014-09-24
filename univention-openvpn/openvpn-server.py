@@ -11,6 +11,7 @@ import re
 import univention_baseconfig
 import os
 import csv
+import univention.uldap as ul
 from netaddr import *
 
 name = "openvpn-server"
@@ -221,21 +222,37 @@ push "redirect-gateway"
         portold = old.get('univentionOpenvpnPort', [None])[0]
         portnew = new.get('univentionOpenvpnPort', [None])[0]
 
+        ccd = '/etc/openvpn/ccd-' + portnew + '/'
+        fn_ips = '/etc/openvpn/ips-' + portnew
+
         fixedaddresses = new.get('univentionOpenvpnFixedAddresses', [None])[0]
         if fixedaddresses == '1':
-            flist.append('client-config-dir /etc/openvpn/ccd-%s\n' % portnew)
-            if not os.path.exists('/etc/openvpn/ccd-%s' % portnew):
+            flist.append('client-config-dir %s\n' % ccd)
+            if not os.path.exists(ccd):
                 if not os.path.exists('/etc/openvpn/ccd-%s' % portold):
-                    create_dir('/etc/openvpn/ccd-%s' % portnew)
+                    create_dir(ccd)
                 else:
                     rename_dir('/etc/openvpn/ccd-%s' % portold, '/etc/openvpn/ccd-%s' % portnew)
+
+            ip_map = load_ip_map(fn_ips)
+            mapped_names = [name for (name,ip) in ip_map]
+            ip_map_new = load_ip_map(fn_ips)
+            listener.setuid(0)
+            lo = ul.getBackupConnection()
+            users = lo.search('univentionOpenvpnAccount=1')
+            for user in users:
+                name = user[1].get('uid', [None])[0]
+                if name not in mapped_names:
+                    ip_new = generate_ip(network, ip_map_new)
+                    ip_map_new.append((name, ip_new))
+                    delete_file(ccd + name + ".openvpn")
+                    line = "ifconfig-push " + ip_new + " " + netmask
+                    write_rc(line, ccd + name + ".openvpn")
+            write_ip_map(ip_map_new, fn_ips)
 
         write_rc(flist, fn_serverconf)
 
         if new.get('univentionOpenvpnNet', [None])[0] != old.get('univentionOpenvpnNet', [None])[0]:
-            ccd = '/etc/openvpn/ccd-' + portnew + '/'
-            fn_ips = '/etc/openvpn/ips-' + portnew
-
             if not os.path.exists(ccd):
                 create_dir(ccd)
 
