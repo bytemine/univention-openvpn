@@ -54,6 +54,14 @@ def delete_file(fn):
         univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
     listener.unsetuid()
 
+def delete_dir(fn):
+    listener.setuid(0)
+    try:
+        os.rmdir(fn)
+    except Exception, e:
+        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
+    listener.unsetuid()
+
 # ----- function to open the ip map with setuid(0) for root-action
 def load_ip_map(path):
     ip_map = []
@@ -92,10 +100,13 @@ def handler(dn, new, old, command):
     listener.setuid(0)
     lo = ul.getBackupConnection()
     server = lo.search('(cn=' + myname + ')')[0]
+    listener.unsetuid()
     port = server[1].get('univentionOpenvpnPort', [None])[0]
     network = server[1].get('univentionOpenvpnNet', [None])[0]
-    networkv6 = server[1].get('univentionOpenvpnNetv6', [None])[0]
     netmask = str(IPNetwork(network).netmask)
+    networkv6 = server[1].get('univentionOpenvpnNetIPv6', [None])[0]
+    if networkv6 is None:
+        networkv6 = "2001:db8:0:123::/64"
     netmaskv6 = str(IPNetwork(networkv6).netmask)
 
     ccd = '/etc/openvpn/ccd-' + port + '/'
@@ -110,19 +121,37 @@ def handler(dn, new, old, command):
             write_rc(line, ccd + name + ".openvpn")
 
     if not os.path.exists(fn_ips):
+        listener.setuid(0)
         open(fn_ips, 'a').close()
+        listener.unsetuid()
+
+    if not os.path.exists(fn_ipsv6):
+        listener.setuid(0)
+        open(fn_ipsv6, 'a').close()
+        listener.unsetuid()
 
     if command == 'd':
         action = 'restart'
         client_cn = old.get('uid', [None])[0]
 
         delete_file(ccd + client_cn + ".openvpn")
+        delete_file("/var/www/" + client_cn + "/.htaccess")
+        delete_file("/var/www/" + client_cn + "/openvpn-" + myname + "-" + client_cn + ".zip")
+        delete_dir("/var/www/" + client_cn + "/")
 
-        ip_map = filter(lambda (name,_): name != client_cn, load_ip_map(fn_ips))
-        write_ip_map(ip_map, fn_ips)
+        ip_map_old = load_ip_map(fn_ips)
+        ip_map_new = []
+        for (name, ip) in ip_map_old:
+            if name != client_cn:
+                ip_map_new.append((name, ip))
+        write_ip_map(ip_map_new, fn_ips)
 
-        ipv6_map = filter(lambda (name,_): name != client_cn, load_ip_map(fn_ipsv6))
-        write_ip_map(ipv6_map, fn_ipsv6)
+        ip_map_old = load_ip_map(fn_ipsv6)
+        ip_map_new = []
+        for (name, ip) in ip_map_old:
+            if name != client_cn:
+                ip_map_new.append((name, ip))
+        write_ip_map(ip_map_new, fn_ipsv6)
 
         return
 
@@ -137,7 +166,7 @@ def handler(dn, new, old, command):
         ip = generate_ip(network, ip_map)
         ip_map.append((client_cn, ip))
         write_ip_map(ip_map, fn_ips)
-        lines.append("ifconfig-push " + ip + " " netmask + "\n")
+        lines.append("ifconfig-push " + ip + " " + netmask + "\n")
 
         ip_mapv6 = load_ip_map(fn_ipsv6)
         ipv6 = generate_ip(networkv6, ip_mapv6)
@@ -154,21 +183,29 @@ def handler(dn, new, old, command):
 
         delete_file(ccd + client_cn + ".openvpn")
 
-        ip_map = filter(lambda (name,_): name != client_cn, load_ip_map(fn_ips))
-        write_ip_map(ip_map, fn_ips)
+        ip_map_old = load_ip_map(fn_ips)
+        ip_map_new = []
+        for (name, ip) in ip_map_old:
+            if name != client_cn:
+                ip_map_new.append((name, ip))
+        write_ip_map(ip_map_new, fn_ips)
 
-        ipv6_map = filter(lambda (name,_): name != client_cn, load_ip_map(fn_ipsv6))
-        write_ip_map(ip_map, fn_ips)
+        ip_map_old = load_ip_map(fn_ipsv6)
+        ip_map_new = []
+        for (name, ip) in ip_map_old:
+            if name != client_cn:
+                ip_map_new.append((name, ip))
+        write_ip_map(ip_map_new, fn_ipsv6)
 
         return
 
 def generate_ip(network, ip_map):
-    ips = list(IPNetwork(network))
-    length = len(ips)
-    del ips[length - 1]
-    del ips[0]
-    del ips[0]
-    for newip in list(ips):
+    ips = IPNetwork(network)
+    first = ips[0]
+    second = ips[1]
+    for newip in ips.iter_hosts():
+        if newip == first or newip == second:
+            continue
         use = True
         for (name, ip) in ip_map:
             if str(newip) == ip:
