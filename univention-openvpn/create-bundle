@@ -83,6 +83,7 @@ eval "$(ucr shell ldap/base)"
 # zip all required files into home or apache directory of user
 if [ -d "$home" ]; then
     bundle="${home}/openvpn-${server}-${uid}.zip"
+    umask 077
 else
     mkdir -p "/var/www/${uid}/"
     cat > "/var/www/${uid}/.htaccess" <<-ENDOFHTACCESS
@@ -104,9 +105,9 @@ ENDOFHTACCESS
     fi
 
     bundle="/var/www/${uid}/openvpn-${server}-${uid}.zip"
+    umask 033
 fi
 
-umask 077
 zip -j "$bundle" \
     "${ssl}/ucsCA/CAcert.pem" \
     "${ssl}/${uid}.openvpn/cert.pem" \
