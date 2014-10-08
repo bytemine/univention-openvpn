@@ -1,5 +1,5 @@
 #
-#	Univention OpenVPN integration -- openvpn-master.py
+#       Univention OpenVPN integration -- openvpn-master.py
 #
 
 
@@ -32,13 +32,13 @@ def handler(dn, new, old, cmd):
         listener.setuid(0)
         lo = ul.getAdminConnection()
 
-	# create a bundle for each openvpn server
+    # create a bundle for each openvpn server
         for server in lo.search('(univentionOpenvpnActive=1)'):
             name = server[1].get('cn', [None])[0]
             port = server[1].get('univentionOpenvpnPort', [None])[0]
             addr = server[1].get('univentionOpenvpnAddress', [None])[0]
 
-	    if not name or not port or not addr:
+            if not name or not port or not addr:
                 continue
             try:
                 listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'yes', uid, home, name, addr, port], uid=0)

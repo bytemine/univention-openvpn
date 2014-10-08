@@ -1,5 +1,5 @@
 #
-#	Univention OpenVPN integration -- openvpn-master2.py
+#       Univention OpenVPN integration -- openvpn-master2.py
 #
 
 
@@ -38,7 +38,7 @@ def handler(dn, new, old, cmd):
         ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: create new certificate for %s in %s' % (uid, home))
 
         if uid and home:
-	    # update bundle for this openvpn server with new config
+        # update bundle for this openvpn server with new config
             try:
                 listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'no', uid, home, name, addr, port], uid=0)
             finally:
