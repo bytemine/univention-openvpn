@@ -15,14 +15,16 @@ import univention.uldap as ul
 from netaddr import *
 
 name        = 'openvpn-server2'
-description = 'manage fixed ip addresses'
-filter = "(objectClass=univentionOpenvpnUser)"
-attribute = []
-modrdn = "1" # first rewrite whole config
+description = 'manage fixed ip addresses on user actions'
+filter      = '(objectClass=univentionOpenvpnUser)'
+attribute   = []
+modrdn      = 1
 
 action = None
 
-# ----- function to open an textfile with setuid(0) for root-action
+fn_serverconf = '/etc/openvpn/server.conf'
+
+# function to open a textfile with setuid(0) for root-action
 def load_rc(ofile):
     l = None
     listener.setuid(0)
@@ -35,7 +37,7 @@ def load_rc(ofile):
     listener.unsetuid()
     return l
 
-# ----- function to write to an textfile with setuid(0) for root-action
+# function to write to a textfile with setuid(0) for root-action
 def write_rc(flist, wfile):
     listener.setuid(0)
     try:
@@ -46,6 +48,7 @@ def write_rc(flist, wfile):
         univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to write to file "%s": %s' % (wfile, str(e)))
     listener.unsetuid()
 
+# function to delete a textfile with setuid(0) for root-action
 def delete_file(fn):
     listener.setuid(0)
     try:
@@ -54,6 +57,7 @@ def delete_file(fn):
         univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
     listener.unsetuid()
 
+# function to delete a directory with setuid(0) for root-action
 def delete_dir(fn):
     listener.setuid(0)
     try:
@@ -62,7 +66,7 @@ def delete_dir(fn):
         univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
     listener.unsetuid()
 
-# ----- function to open the ip map with setuid(0) for root-action
+# function to open an ip map with setuid(0) for root-action
 def load_ip_map(path):
     ip_map = []
     listener.setuid(0)
@@ -76,7 +80,7 @@ def load_ip_map(path):
     listener.unsetuid()
     return ip_map
 
-# ----- function to write the ip map with setuid(0) for root-action
+# function to write an ip map with setuid(0) for root-action
 def write_ip_map(ip_map, path):
     listener.setuid(0)
     try:
@@ -89,7 +93,6 @@ def write_ip_map(ip_map, path):
     listener.unsetuid()
 
 def handler(dn, new, old, command):
-    univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'openvpn-server2.handler() invoked')
     global action
     if command == 'n':
         action = None
@@ -130,8 +133,8 @@ def handler(dn, new, old, command):
         open(fn_ipsv6, 'a').close()
         listener.unsetuid()
 
+    # delete entries and ready2go packet in /var/www/ on user deletion
     if command == 'd':
-        action = 'restart'
         client_cn = old.get('uid', [None])[0]
 
         delete_file(ccd + client_cn + ".openvpn")
@@ -139,66 +142,53 @@ def handler(dn, new, old, command):
         delete_file("/var/www/" + client_cn + "/openvpn-" + myname + "-" + client_cn + ".zip")
         delete_dir("/var/www/" + client_cn + "/")
 
-        ip_map_old = load_ip_map(fn_ips)
-        ip_map_new = []
-        for (name, ip) in ip_map_old:
-            if name != client_cn:
-                ip_map_new.append((name, ip))
-        write_ip_map(ip_map_new, fn_ips)
-
-        ip_map_old = load_ip_map(fn_ipsv6)
-        ip_map_new = []
-        for (name, ip) in ip_map_old:
-            if name != client_cn:
-                ip_map_new.append((name, ip))
-        write_ip_map(ip_map_new, fn_ipsv6)
+        delete_entry(client_cn, fn_ips)
+        delete_entry(client_cn, fn_ipsv6)
 
         return
 
     client_cn = new.get('uid', [None])[0]
 
+    # generate and write entries on account activation
     if 'univentionOpenvpnAccount' in new and not 'univentionOpenvpnAccount' in old:
-        action = 'restart'
-
         lines = []
 
-        ip_map = load_ip_map(fn_ips)
-        ip = generate_ip(network, ip_map)
-        ip_map.append((client_cn, ip))
-        write_ip_map(ip_map, fn_ips)
-        lines.append("ifconfig-push " + ip + " " + netmask + "\n")
+        ip = write_entry(client_cn, fn_ips, network)
+        ipv6 = write_entry(client_cn, fn_ipsv6, networkv6)
 
-        ip_mapv6 = load_ip_map(fn_ipsv6)
-        ipv6 = generate_ip(networkv6, ip_mapv6)
-        ip_mapv6.append((client_cn, ipv6))
-        write_ip_map(ip_mapv6, fn_ipsv6)
-        lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n") # TODO: only, if ipv6 enabled?
+        lines.append("ifconfig-push " + ip + " " + netmask + "\n")
+        lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
 
         write_rc(lines, ccd + client_cn + ".openvpn")
 
         return
 
+    # delete entries on account deactiviation
     elif not 'univentionOpenvpnAccount' in new and 'univentionOpenvpnAccount' in old:
-        action = 'restart'
-
         delete_file(ccd + client_cn + ".openvpn")
-
-        ip_map_old = load_ip_map(fn_ips)
-        ip_map_new = []
-        for (name, ip) in ip_map_old:
-            if name != client_cn:
-                ip_map_new.append((name, ip))
-        write_ip_map(ip_map_new, fn_ips)
-
-        ip_map_old = load_ip_map(fn_ipsv6)
-        ip_map_new = []
-        for (name, ip) in ip_map_old:
-            if name != client_cn:
-                ip_map_new.append((name, ip))
-        write_ip_map(ip_map_new, fn_ipsv6)
+        delete_entry(client_cn, fn_ips)
+        delete_entry(client_cn, fn_ipsv6)
 
         return
 
+# generate and write entry for given user and return generated ip
+def write_entry(client_cn, fn_ips, network):
+    ip_map = load_ip_map(fn_ips)
+    ip = generate_ip(network, ip_map)
+    ip_map.append((client_cn, ip))
+    write_ip_map(ip_map, fn_ips)
+    return ip
+
+# delete entry of given user in corresponding ip_map
+def delete_entry(client_cn, fn_ips):
+    ip_map_old = load_ip_map(fn_ips)
+    ip_map_new = []
+    for (name, ip) in ip_map_old:
+        if name != client_cn:
+            ip_map_new.append((name, ip))
+    write_ip_map(ip_map_new, fn_ips)
+
+# generate ip for given network which does not exist in ip_map
 def generate_ip(network, ip_map):
     ips = IPNetwork(network)
     first = ips[0]
@@ -233,10 +223,13 @@ def postrun():
         # deactivate config
         try:
             listener.setuid(0)
-            os.rename (fn_serverconf, fn_serverconf + '-disabled');
+            os.rename (fn_serverconf, fn_serverconf + '-disabled')
         except Exception, e:
             listener.unsetuid()
             univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to deactivate server config: %s' % str(e))
             return
 
     listener.unsetuid()
+
+
+### end ###
