@@ -10,7 +10,7 @@ def parent():
 def child():
     while True:
         cmd = raw_input('> ')
-        s.sendall(cmd)
+        s.sendall(cmd + '\n')
 
 def forker():
     newpid = os.fork()
