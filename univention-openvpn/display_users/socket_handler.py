@@ -14,15 +14,29 @@ def userlist():
 
     s.close()
 
-    data = filter(lambda d: d.startswith('CLIENT_LIST\t'), data)
+    cl = filter(lambda d: d.startswith('CLIENT_LIST\t'), data)
+    rt = filter(lambda d: d.startswith('ROUTING_TABLE\t'), data)
 
-    newdata = []
+    result = []
 
-    for d in data:
-        entries = d.split('\t')
-        newdata.append({'name': entries[1], 'connected': 'True', 'ips': '%s\n%s' % (entries[2], entries[3]), 'recv': entries[4], 'sent': entries[5], 'cons': entries[6], 'cont': entries[7]})
+    for c in cl:
+        centries = c.split('\t')
+        name = centries[1]
+        realaddress = centries[2]
 
-    return newdata
+        virtaddresses = ""
+
+        for r in rt:
+            rentries = r.split('\t')
+            rname = rentries[2]
+            rrealaddress = rentries[3]
+            
+            if name == rname and realaddress == rrealaddress:
+                virtaddresses += rentries[1] + "\n"
+
+        result.append({'name': name, 'connected': 'True', 'realip': realaddress, 'virtips': virtaddresses, 'recv': centries[4], 'sent': centries[5], 'cons': centries[6], 'cont': centries[7]})
+
+    return result
 
 def killuser(id):
     socket_address = '/var/run/management-udp'
