@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Connected Users</title>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+</head>
+  
+<body>
+  <table id="test" border=1>
+    <tr>
+      <th>name</th>
+      <th>conn</th>
+      <th>real</th>
+      <th>virt</th>
+      <th>recv</th>
+      <th>sent</th>
+      <th>cons</th>
+      <th>cont</th>
+      <th>kill</th>
+    </tr>
+
+<script type="text/javascript">
+  jQuery.getJSON( "//10.100.165.189:8080/connected_users?callback=?");
+  function jsonCallback(data) {
+
+    var items = [];
+
+    var length = data.length;
+    for (var i = 0; i < length; i++) {
+      entry = "<tr>"
+      entry += "<td>" + data[i].name + "</td>"
+      entry += "<td>" + data[i].connected + "</td>"
+      entry += "<td>" + data[i].realip + "</td>"
+      entry += "<td>" + data[i].virtips + "</td>"
+      entry += "<td>" + data[i].recv + "</td>"
+      entry += "<td>" + data[i].sent + "</td>"
+      entry += "<td>" + data[i].cons + "</td>"
+      entry += "<td>" + data[i].cont + "</td>"
+      entry += "<td><a href='//10.100.165.189:8080/kill_user/" + data[i].realip + "'>kill</a></td>"
+      entry += "</tr>"
+      console.log(entry);
+      document.getElementById("test").innerHTML += entry;
+    }
+  }
+</script>
+
+  </table>
+</body>
+</html>
