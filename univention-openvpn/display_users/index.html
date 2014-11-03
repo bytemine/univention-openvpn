@@ -29,35 +29,36 @@
   <script>
 $(document).ready(function() {
     $('#test').dataTable( {
-	"processing": true,
-	"paging": false,
-	"searching": false,
+        "processing": true,
+        "paging": false,
+        "searching": false,
         "ajax": {
-	    "url": "//10.100.165.212:8080/connected_users",
-	    "dataType": "jsonp",
-	    "dataSrc": function ( json ) {
-	      for (var i = 0, ien = json.data.length; i < ien; i++) {
+            "url": "//10.100.165.212:8080/connected_users",
+            "dataType": "jsonp",
+            "dataSrc": function ( json ) {
+                for (var i = 0, ien = json.data.length; i < ien; i++) {
 
-		// kill
-		realip = json.data[i].realip
-//		if realip:
-		    json.data[i].kill = '<a href="//10.100.165.212:8080/kill_user/' + realip + '">kill</a>'
-//		else:
-//		    json.data[i].kill = ''
+                    // kill
+                    realip = json.data[i].realip
+                    if realip {
+                        json.data[i].kill = '<a href="//10.100.165.212:8080/kill_user/' + realip + '">kill</a>'
+                    } else {
+                        json.data[i].kill = ''
+                    }
 
-		// conn
-		connected = json.data[i].connected
-//		if connected == 0:
-		    json.data[i].connected = '<img src="graphics/red.png" alt="not connected" style="width:20px;height:20px">'
-//		else:
-//		    json.data[i].connected = '<img src="graphics/green.png" alt="connected" style="width:20px;height:20px">'
+                    // conn
+                    connected = json.data[i].connected
+                    if connected == 0 {
+                        json.data[i].connected = '<img src="graphics/red.png" alt="not connected" style="width:20px;height:20px">'
+                    } else {
+                        json.data[i].connected = '<img src="graphics/green.png" alt="connected" style="width:20px;height:20px">'
+                    }
 
-
-		console.log(json.data[i]);
-	      }
-	      return json.data;
-	    }
-	},
+                    console.log(json.data[i]);
+                }
+                return json.data;
+            }
+        },
         "columns": [
             { "data": "name" },
             { "data": "connected" },
