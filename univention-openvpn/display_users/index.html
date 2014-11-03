@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <title>Connected Users</title>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js" type="text/javascript"></script>
-  <script src="//cdn.datatables.net/1.10.3/js/jquery.dataTables.min.js" type="text/javascript"></script>
-  <link href="//cdn.datatables.net/1.10.3/css/jquery.dataTables.css" rel="stylesheet" type="text/css">
+  <script src="lib/jquery-1.11.1.min.js" type="text/javascript"></script>
+  <script src="lib/jquery.dataTables.min.js" type="text/javascript"></script>
+  <link href="lib/jquery.dataTables.css" rel="stylesheet" type="text/css">
 </head>
 
-<body>
+<body style="font-size:small">
   <table id="test" class="display" with="100%" cellspacing="0" border=1>
     <thead>
       <tr>
@@ -33,25 +33,45 @@ $(document).ready(function() {
         "paging": false,
         "searching": false,
         "ajax": {
-            "url": "//10.100.165.212:8080/connected_users",
+            "url": "//server_ip:8080/connected_users",
             "dataType": "jsonp",
             "dataSrc": function ( json ) {
                 for (var i = 0, ien = json.data.length; i < ien; i++) {
 
                     // kill
                     realip = json.data[i].realip
-                    if realip {
-                        json.data[i].kill = '<a href="//10.100.165.212:8080/kill_user/' + realip + '">kill</a>'
+                    if (realip != "") {
+                        json.data[i].kill = '<a href="//server_ip:8080/kill_user/' + realip + '">kill</a>'
                     } else {
                         json.data[i].kill = ''
                     }
 
                     // conn
                     connected = json.data[i].connected
-                    if connected == 0 {
-                        json.data[i].connected = '<img src="graphics/red.png" alt="not connected" style="width:20px;height:20px">'
+                    if (connected == 0) {
+                        json.data[i].connected = '<img src="graphics/green_off.png" alt="not connected" style="width:20px;height:20px"><img src="graphics/red.png" alt="not connected" style="width:20px;height:20px">'
                     } else {
-                        json.data[i].connected = '<img src="graphics/green.png" alt="connected" style="width:20px;height:20px">'
+                        json.data[i].connected = '<img src="graphics/green.png" alt="connected" style="width:20px;height:20px"><img src="graphics/red_off.png" alt="connected" style="width:20px;height:20px">'
+                    }
+
+                    // ipv
+                    ipv = json.data[i].type
+                    console.log("type: " + json.data[i].type)
+                    switch(ipv) {
+                        case 0:
+                            json.data[i].type = '<img src="graphics/v4_off.png" alt="ipv4 off" style="width:20px;height:20px"><img src="graphics/v6_off.png" alt="ipv6 off" style="width:20px;height:20px">'
+                            break;
+                        case 1:
+                            json.data[i].type = '<img src="graphics/v4.png" alt="ipv4 on" style="width:20px;height:20px"><img src="graphics/v6_off.png" alt="ipv6 off" style="width:20px;height:20px">'
+                            break;
+                        case 2:
+                            json.data[i].type = '<img src="graphics/v4_off.png" alt="ipv4 off" style="width:20px;height:20px"><img src="graphics/v6.png" alt="ipv6 on" style="width:20px;height:20px">'
+                            break;
+                        case 3:
+                            json.data[i].type = '<img src="graphics/v4.png" alt="ipv4 on" style="width:20px;height:20px"><img src="graphics/v6.png" alt="ipv6 on" style="width:20px;height:20px">'
+                            break;
+                        default:
+                            json.data[i].type = 'unknown ipv'
                     }
 
                     console.log(json.data[i]);
@@ -61,15 +81,15 @@ $(document).ready(function() {
         },
         "columns": [
             { "data": "name" },
-            { "data": "connected" },
-            { "data": "type" },
+            { "data": "connected", "orderable": false },
+            { "data": "type", "orderable": false },
             { "data": "realip" },
             { "data": "virtips" },
             { "data": "cons" },
             { "data": "cont" },
             { "data": "recv" },
             { "data": "sent" },
-            { "data": "kill" },
+            { "data": "kill", "orderable": false },
         ]
     } );
 } );
