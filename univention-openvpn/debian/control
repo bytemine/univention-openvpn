@@ -9,6 +9,11 @@ Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn, python-netaddr
 Description: Server package for OpenVPN
 
+Package: univention-openvpn-sitetosite
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn
+Description: Site-to-Site package for OpenVPN
+
 Package: univention-openvpn-master
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), univention-openvpn-schema

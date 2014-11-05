@@ -1,0 +1,16 @@
+#!/bin/sh
+
+#DEBHELPER#
+
+ui=/usr/lib/univention-install/06univention-openvpn-sitetosite-uninstall.uinst
+if [ "$1" = "configure" ]; then
+	[ -e "$ui" ] && rm "$ui"
+	invoke-rc.d univention-directory-listener restart
+fi
+
+# --------------------------------------------------------------
+
+. /usr/share/univention-lib/base.sh
+call_joinscript 94univention-openvpn-sitetosite.inst
+
+exit 0

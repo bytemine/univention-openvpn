@@ -1,0 +1,3 @@
+openvpn-sitetosite.py usr/lib/univention-directory-listener/system
+94univention-openvpn-sitetosite.inst usr/lib/univention-install
+06univention-openvpn-sitetosite-uninstall.uinst usr/lib/univention-uninstall
