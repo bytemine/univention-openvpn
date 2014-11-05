@@ -10,10 +10,10 @@ class openvpnUserandAddress( complex ):
         delimiter = ':'
         all_required = 0
         description=_('Openvpn user')
-        subsyntaxes = ( ( _( 'Openvpn user' ), openvpnUser ), ( _( 'IPv4 address' ), ipv4Address ), ( _( 'IPv6 address' ), ipAddress ), )
+        subsyntaxes = [ ( _( 'Openvpn user' ), openvpnUser ), ( _( 'IPv4 address' ), ipv4Address ), ( _( 'IPv6 address' ), ipAddress ) ]
 
 class IPTuple( complex ):
         delimiter = ':'
         all_required = 0
         description=_('Openvpn ifconfig')
-        subsyntaxes = ( ( _( 'Local IP address' ), ipAddress ), ( _( 'Remote IP address' ), ipAddress ), )
+        subsyntaxes = [ ( _( 'Local IP address' ), ipAddress ), ( _( 'Remote IP address' ), ipAddress ) ]
