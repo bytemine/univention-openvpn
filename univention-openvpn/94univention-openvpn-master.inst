@@ -25,6 +25,61 @@ univention-directory-manager container/cn create "$@" --ignore_exists \
     --position "cn=custom attributes,cn=univention,$ldap_base" \
     --set name=openvpn || die
 
+# udm settings/extended_attribute remove "$@" \
+#     --dn "cn=UniventionOpenvpn-Remote,${eabas}" >/dev/null 2>&1
+# univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+#     --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+#     --append module="computers/domaincontroller_master" \
+#     --append module="computers/domaincontroller_slave" \
+#     --append module="computers/domaincontroller_backup" \
+#     --append module="computers/memberserver" \
+#     --set ldapMapping='univentionOpenvpnRemote' \
+#     --set objectClass='univentionOpenvpn' \
+#     --set name='UniventionOpenvpn-Remote' \
+#     --set shortDescription='OpenVPN remote address' \
+#     --set longDescription='The address of the remote OpenVPN endpoint which is used for site-to-site VPNs.' \
+#     --set translationShortDescription='"de_DE" "OpenVPN remote Adresse' \
+#     --set translationLongDescription='"de_DE" "Die Adresse des entfernten OpenVPN Endpunkts. Diese wird fuer site-to-site VPNs verwendet."' \
+#     --set default='0.0.0.0' \
+#     --set tabName='OpenVPN' \
+#     --set overwriteTab='0' \
+#     --set valueRequired='0' \
+#     --set CLIName='openvpnRemote' \
+#     --set syntax='hostOrIP' \
+#     --set tabAdvanced='1' \
+#     --set mayChange='1' \
+#     --set multivalue='0' \
+#     --set deleteObjectClass='0' \
+#     --set doNotSearch='0' \
+#     --set hook='None' || die
+# 
+# udm settings/extended_attribute remove "$@" \
+#     --dn "cn=UniventionOpenvpn-Ifconfig,${eabas}" >/dev/null 2>&1
+# univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+#     --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+#     --append module="computers/domaincontroller_master" \
+#     --append module="computers/domaincontroller_slave" \
+#     --append module="computers/domaincontroller_backup" \
+#     --append module="computers/memberserver" \
+#     --set ldapMapping='univentionOpenvpnIfconfig' \
+#     --set objectClass='univentionOpenvpn' \
+#     --set name='UniventionOpenvpn-Ifconfig' \
+#     --set shortDescription='OpenVPN ifconfig preferences' \
+#     --set longDescription='The local and the remote VPN endpoint address for site-to-site vpns.' \
+#     --set translationShortDescription='"de_DE" "OpenVPN ifconfig Einstellungen' \
+#     --set translationLongDescription='"de_DE" "Die Adressen des lokalen und entfernten VPN Endpunkts. Dies wird fuer site-to-site VPNs verwendet."' \
+#     --set tabName='OpenVPN' \
+#     --set overwriteTab='0' \
+#     --set valueRequired='0' \
+#     --set CLIName='openvpnIfconfig' \
+#     --set syntax='IPTuple' \
+#     --set tabAdvanced='1' \
+#     --set mayChange='1' \
+#     --set multivalue='0' \
+#     --set deleteObjectClass='0' \
+#     --set doNotSearch='0' \
+#     --set hook='None' || die
+
 udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-UserAddress,${eabas}" >/dev/null 2>&1
 univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
