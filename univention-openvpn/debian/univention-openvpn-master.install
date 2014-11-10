@@ -2,7 +2,7 @@ create-bundle usr/lib/openvpn-int
 display_users/socket_handler.py usr/lib/openvpn-int/display_users
 display_users/service.py usr/lib/openvpn-int/display_users
 display_users/index.html var/www/display_users
-display_users/graphics var/www/display_users
+display_users/images var/www/display_users
 display_users/lib var/www/display_users
 openvpn-master.py usr/lib/univention-directory-listener/system
 openvpn-master2.py usr/lib/univention-directory-listener/system
