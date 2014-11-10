@@ -12,6 +12,7 @@ clean:
 	rm -rf debian/univention-openvpn-master
 	rm -rf debian/univention-openvpn-schema
 	rm -rf debian/univention-openvpn-server
+	rm -rf debian/univention-openvpn-sitetosite
 
 tidy: clean
 	rm -f ../univention-openvpn-*.deb
