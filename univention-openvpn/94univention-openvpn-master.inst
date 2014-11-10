@@ -47,7 +47,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnSecret' \
-    --set syntax='string' \
+    --set syntax='TextArea' \
     --set tabAdvanced='1' \
     --set mayChange='1' \
     --set multivalue='0' \

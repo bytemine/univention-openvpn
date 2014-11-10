@@ -4,7 +4,7 @@ VERSION=4
 
 SERVICE="OpenVPN Site-to-Site"
 
-EASUFXS="Port Tun Net Redirect Duplicate Active Address Account FixedAddresses UserAddress Remote Ifconfig Secret"
+EASUFXS="SitetoSiteActive Remote SitetoSitePort Ifconfig Secret"
 
 . /usr/share/univention-join/joinscripthelper.lib
 joinscript_init
@@ -26,7 +26,7 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 	stop_udm_cli_server
 fi
 
-joinscript_remove_script_from_status_file univention-openvpn-server
+joinscript_remove_script_from_status_file univention-openvpn-sitetosite
 
 exit 0
 
