@@ -368,12 +368,6 @@ def postrun():
         return
     univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'OpenVPN-Server %s' % (action))
 
-    try:
-        listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', action], uid=0)
-    finally:
-        listener.unsetuid()
-
     if action == 'stop':
         # deactivate config
         try:
@@ -383,6 +377,12 @@ def postrun():
             listener.unsetuid()
             univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to deactivate server config: %s' % str(e))
             return
+
+    try:
+        listener.setuid(0)
+        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart'], uid=0)
+    finally:
+        listener.unsetuid()
 
     listener.unsetuid()
 

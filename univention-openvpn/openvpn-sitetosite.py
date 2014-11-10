@@ -143,8 +143,8 @@ persist-key
 persist-tun
 verb 1
 mute 5
-status /var/log/openvpn/openvpn-status.log
-management /var/run/management-udp unix
+status /var/log/openvpn/openvpn-sitetosite-status.log
+management /var/run/management-udp-sitetosite unix
 plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/kcheckpass
 dev tun
 secret {fn_secret}
@@ -227,12 +227,6 @@ def postrun():
         return
     univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'OpenVPN-Server Site-to-Site %s' % (action))
 
-    try:
-        listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', action], uid=0)
-    finally:
-        listener.unsetuid()
-
     if action == 'stop':
         # deactivate config
         try:
@@ -242,6 +236,12 @@ def postrun():
             listener.unsetuid()
             univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to deactivate site-to-site config: %s' % str(e))
             return
+
+    try:
+        listener.setuid(0)
+        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart'], uid=0)
+    finally:
+        listener.unsetuid()
 
     listener.unsetuid()
 
