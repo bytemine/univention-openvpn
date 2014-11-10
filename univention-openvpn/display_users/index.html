@@ -9,19 +9,19 @@
 </head>
 
 <body style="font-size:small">
+  <h1>OpenVPN4UCS: Users</h1>
   <table id="test" class="display" with="100%" cellspacing="0" border=1>
     <thead>
       <tr>
-        <th>name</th>
-        <th>conn</th>
-        <th>type</th>
-        <th>real</th>
-        <th>virt</th>
-        <th>cons</th>
-        <th>cont</th>
-        <th>recv</th>
-        <th>sent</th>
-        <th>kill</th>
+        <th>Name</th>
+        <th>Connected</th>
+        <th>Type</th>
+        <th>Real Address</th>
+        <th>Virtual Addresses</th>
+        <th>Connected since</th>
+        <th>Received</th>
+        <th>Sent</th>
+        <th>Disconnect</th>
       </tr>
     </thead>
   </table>
@@ -31,6 +31,8 @@ $(document).ready(function() {
     $('#test').dataTable( {
         "processing": true,
         "paging": false,
+        "bPaginate": false,
+        "bInfo": false,
         "searching": false,
         "ajax": {
             "url": "//server_ip:8080/connected_users",
@@ -41,17 +43,25 @@ $(document).ready(function() {
                     // kill
                     realip = json.data[i].realip
                     if (realip != "") {
-                        json.data[i].kill = '<a href="//server_ip:8080/kill_user/' + realip + '">kill</a>'
+                        json.data[i].kill = '<a href="//server_ip:8080/kill_user/' + realip + '">Disconnect</a>'
                     } else {
                         json.data[i].kill = ''
                     }
 
+                    // recv
+                    recv = json.data[i].recv
+                    json.data[i].recv = '<div align="right">' + recv + '</div>'
+
+                    // sent
+                    sent = json.data[i].sent
+                    json.data[i].sent = '<div align="right">' + sent + '</div>'
+
                     // conn
                     connected = json.data[i].connected
                     if (connected == 0) {
-                        json.data[i].connected = '<img src="graphics/green_off.png" alt="not connected" style="width:20px;height:20px"><img src="graphics/red.png" alt="not connected" style="width:20px;height:20px">'
+                        json.data[i].connected = '<div align="center"><img src="graphics/green_off.png" alt="not connected" style="width:20px;height:20px" align="center"> <img src="graphics/red.png" alt="not connected" style="width:20px;height:20px" align="center"></div>'
                     } else {
-                        json.data[i].connected = '<img src="graphics/green.png" alt="connected" style="width:20px;height:20px"><img src="graphics/red_off.png" alt="connected" style="width:20px;height:20px">'
+                        json.data[i].connected = '<div align="center"><img src="graphics/green.png" alt="connected" style="width:20px;height:20px" align="center"> <img src="graphics/red_off.png" alt="connected" style="width:20px;height:20px" align="center"></div>'
                     }
 
                     // ipv
@@ -59,16 +69,16 @@ $(document).ready(function() {
                     console.log("type: " + json.data[i].type)
                     switch(ipv) {
                         case 0:
-                            json.data[i].type = '<img src="graphics/v4_off.png" alt="ipv4 off" style="width:20px;height:20px"><img src="graphics/v6_off.png" alt="ipv6 off" style="width:20px;height:20px">'
+                            json.data[i].type = '<div align="center"><img src="graphics/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="graphics/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 1:
-                            json.data[i].type = '<img src="graphics/v4.png" alt="ipv4 on" style="width:20px;height:20px"><img src="graphics/v6_off.png" alt="ipv6 off" style="width:20px;height:20px">'
+                            json.data[i].type = '<div align="center"><img src="graphics/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="graphics/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 2:
-                            json.data[i].type = '<img src="graphics/v4_off.png" alt="ipv4 off" style="width:20px;height:20px"><img src="graphics/v6.png" alt="ipv6 on" style="width:20px;height:20px">'
+                            json.data[i].type = '<div align="center"><img src="graphics/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="graphics/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 3:
-                            json.data[i].type = '<img src="graphics/v4.png" alt="ipv4 on" style="width:20px;height:20px"><img src="graphics/v6.png" alt="ipv6 on" style="width:20px;height:20px">'
+                            json.data[i].type = '<div align="center"><img src="graphics/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="graphics/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
                             break;
                         default:
                             json.data[i].type = 'unknown ipv'
@@ -86,7 +96,6 @@ $(document).ready(function() {
             { "data": "realip" },
             { "data": "virtips" },
             { "data": "cons" },
-            { "data": "cont" },
             { "data": "recv" },
             { "data": "sent" },
             { "data": "kill", "orderable": false },
@@ -95,5 +104,6 @@ $(document).ready(function() {
 } );
   </script>
 
+  <p style="position: absolute; bottom: 5px; right: 5px; text-align: right">Brought to you by bytemine.</p>
 </body>
 </html>
