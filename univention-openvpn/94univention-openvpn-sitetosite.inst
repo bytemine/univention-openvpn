@@ -1,8 +1,8 @@
 #!/bin/sh
 
-VERSION=4
+VERSION=5
 
-SERVICE="OpenVPN Site-to-Site"
+SERVICE="OpenVPNSitetoSite"
 
 . /usr/share/univention-lib/ldap.sh
 . /usr/share/univention-join/joinscripthelper.lib

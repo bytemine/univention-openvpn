@@ -93,18 +93,24 @@ attributetype ( 1.3.6.1.4.1.10176.99998.7697.1.13
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
 attributetype ( 1.3.6.1.4.1.10176.99998.7697.1.14
-	Name 'univentionOpenvpnIfconfig'
-	DESC 'Set adapter parameters'
+	Name 'univentionOpenvpnLocalAddress'
+	DESC 'Set internal local address'
 	EQUALITY caseExactIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.3.6.1.4.1.10176.99998.7697.1.15
+	Name 'univentionOpenvpnRemoteAddress'
+	DESC 'Set internal remote address'
+	EQUALITY caseExactIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.10176.99998.7697.1.16
 	Name 'univentionOpenvpnSecret'
 	DESC 'Set secret'
 	EQUALITY caseExactIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
 
-attributetype ( 1.3.6.1.4.1.10176.99998.7697.1.16
+attributetype ( 1.3.6.1.4.1.10176.99998.7697.1.17
 	NAME 'univentionOpenvpnSitetoSiteActive'
 	DESC 'OpenVPN site-to-site enabled'
 	EQUALITY integerMatch
@@ -115,5 +121,5 @@ objectclass ( 1.3.6.1.4.1.10176.99998.7697.2.3
 	DESC 'OpenVPN sitetosite config'
 	SUP top AUXILIARY
 	MAY ( univentionOpenvpnSitetoSitePort $ univentionOpenvpnRemote $
-		univentionOpenvpnIfconfig $ univentionOpenvpnSecret $
-		univentionOpenvpnSitetoSiteActive ) )
+		univentionOpenvpnLocalAddress $ univentionOpenvpnRemoteAddress $
+		univentionOpenvpnSecret $ univentionOpenvpnSitetoSiteActive ) )

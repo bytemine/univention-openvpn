@@ -119,7 +119,7 @@ def handler(dn, new, old, command):
         action = 'stop'
 
     # activate config
-    if not 'univentionOpenvpnActive' in old:
+    if not 'univentionOpenvpnActive' in old and os.path.exists(fn_serverconf + '-disabled'):
         listener.setuid(0)
         try:
             os.rename (fn_serverconf + '-disabled', fn_serverconf)

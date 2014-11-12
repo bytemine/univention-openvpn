@@ -1,10 +1,10 @@
 #!/bin/sh
 
-VERSION=4
+VERSION=5
 
-SERVICE="OpenVPN Site-to-Site"
+SERVICE="OpenVPNSitetoSite"
 
-EASUFXS="SitetoSiteActive Remote SitetoSitePort Ifconfig Secret"
+EASUFXS="SitetoSiteActive Remote SitetoSitePort LocalAddress RemoteAddress Secret"
 
 . /usr/share/univention-join/joinscripthelper.lib
 joinscript_init

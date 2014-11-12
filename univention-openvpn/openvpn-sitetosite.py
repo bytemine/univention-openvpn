@@ -119,7 +119,7 @@ def handler(dn, new, old, command):
         action = 'stop'
 
     # activate config
-    if not 'univentionOpenvpnSitetoSiteActive' in old:
+    if not 'univentionOpenvpnSitetoSiteActive' in old and os.path.exists(fn_sitetositeconf + '-disabled'):
         listener.setuid(0)
         try:
             os.rename (fn_sitetositeconf + '-disabled', fn_sitetositeconf)
@@ -206,11 +206,9 @@ ifconfig 10.0.0.1 10.0.0.2
     remote = new.get('univentionOpenvpnRemote', [None])[0]
     flist.append("remote %s\n" % remote)
 
-    ifconfig0 = new.get('univentionOpenvpnIfconfig', [None])[0]
-    ifconfig1 = new.get('univentionOpenvpnIfconfig', [None])[1]
-    univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'ifconfig0: %s' % (ifconfig0))
-    univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'ifconfig1: %s' % (ifconfig1))
-    flist.append("ifconfig %s %s\n" % (ifconfig0, ifconfig1))
+    localaddress = new.get('univentionOpenvpnLocalAddress', [None])[0]
+    remoteaddress = new.get('univentionOpenvpnRemoteAddress', [None])[0]
+    flist.append("ifconfig %s %s\n" % (localaddress, remoteaddress))
 
     secret = new.get('univentionOpenvpnSecret', [None])[0]
     univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'secret: %s' % (secret))

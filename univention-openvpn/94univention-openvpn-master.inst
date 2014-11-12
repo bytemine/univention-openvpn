@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=4
+VERSION=5
 
 SERVICE="OpenVPN"
 
@@ -56,32 +56,58 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set hook='None' || die
 
 udm settings/extended_attribute remove "$@" \
-    --dn "cn=UniventionOpenvpn-Ifconfig,${eabas}" >/dev/null 2>&1
+    --dn "cn=UniventionOpenvpn-RemoteAddress,${eabas}" >/dev/null 2>&1
 univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
     --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
     --append module="computers/domaincontroller_master" \
     --append module="computers/domaincontroller_slave" \
     --append module="computers/domaincontroller_backup" \
     --append module="computers/memberserver" \
-    --set ldapMapping='univentionOpenvpnIfconfig' \
+    --set ldapMapping='univentionOpenvpnRemoteAddress' \
     --set objectClass='univentionOpenvpnSitetoSite' \
-    --set name='UniventionOpenvpn-Ifconfig' \
-    --set shortDescription='OpenVPN ifconfig preferences' \
-    --set longDescription='The local and the remote VPN endpoint address for site-to-site vpns.' \
-    --set translationShortDescription='"de_DE" "OpenVPN ifconfig Einstellungen' \
-    --set translationLongDescription='"de_DE" "Die Adressen des lokalen und entfernten VPN Endpunkts. Dies wird für site-to-site VPNs verwendet."' \
+    --set name='UniventionOpenvpn-RemoteAddress' \
+    --set shortDescription='OpenVPN internal remote address' \
+    --set longDescription='The remote VPN endpoint address for site-to-site vpns.' \
+    --set translationShortDescription='"de_DE" "OpenVPN interne entfernte Adresse' \
+    --set translationLongDescription='"de_DE" "Die Adresse des entfernten VPN Endpunkts. Dies wird für site-to-site VPNs verwendet."' \
     --set tabName='OpenVPN Site-to-Site' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
-    --set CLIName='openvpnIfconfig' \
-    --set syntax='IPTuple' \
+    --set CLIName='openvpnRemoteAddress' \
+    --set syntax='ipAddress' \
     --set tabAdvanced='1' \
     --set mayChange='1' \
     --set multivalue='0' \
     --set deleteObjectClass='0' \
     --set doNotSearch='0' \
     --set hook='None' || die
-#    --set hook='univentionOpenVpnIfconfig' || die
+
+udm settings/extended_attribute remove "$@" \
+    --dn "cn=UniventionOpenvpn-LocalAddress,${eabas}" >/dev/null 2>&1
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+    --append module="computers/domaincontroller_master" \
+    --append module="computers/domaincontroller_slave" \
+    --append module="computers/domaincontroller_backup" \
+    --append module="computers/memberserver" \
+    --set ldapMapping='univentionOpenvpnLocalAddress' \
+    --set objectClass='univentionOpenvpnSitetoSite' \
+    --set name='UniventionOpenvpn-LocalAddress' \
+    --set shortDescription='OpenVPN internal local address' \
+    --set longDescription='The local VPN endpoint address for site-to-site vpns.' \
+    --set translationShortDescription='"de_DE" "OpenVPN interne lokale Adresse' \
+    --set translationLongDescription='"de_DE" "Die Adresse des lokalen VPN Endpunkts. Dies wird für site-to-site VPNs verwendet."' \
+    --set tabName='OpenVPN Site-to-Site' \
+    --set overwriteTab='0' \
+    --set valueRequired='0' \
+    --set CLIName='openvpnLocalAddress' \
+    --set syntax='ipAddress' \
+    --set tabAdvanced='1' \
+    --set mayChange='1' \
+    --set multivalue='0' \
+    --set deleteObjectClass='0' \
+    --set doNotSearch='0' \
+    --set hook='None' || die
 
 udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-SitetoSitePort,${eabas}" >/dev/null 2>&1
