@@ -19,6 +19,7 @@
         <th>Real Address</th>
         <th>Virtual Addresses</th>
         <th>Connected since</th>
+        <th>Connected for</th>
         <th>Received</th>
         <th>Sent</th>
         <th>Disconnect</th>
@@ -56,12 +57,16 @@ $(document).ready(function() {
                     sent = json.data[i].sent
                     json.data[i].sent = '<div align="right">' + sent + '</div>'
 
+                    // conr
+                    conr = json.data[i].conr
+                    json.data[i].conr = '<div align="right">' + conr + '</div>'
+
                     // conn
                     connected = json.data[i].connected
                     if (connected == 0) {
-                        json.data[i].connected = '<div align="center"><img src="graphics/green_off.png" alt="not connected" style="width:20px;height:20px" align="center"> <img src="graphics/red.png" alt="not connected" style="width:20px;height:20px" align="center"></div>'
+                        json.data[i].connected = '<div align="center"><img src="images/green_off.png" alt="not connected" style="width:20px;height:20px" align="center"> <img src="images/red.png" alt="not connected" style="width:20px;height:20px" align="center"></div>'
                     } else {
-                        json.data[i].connected = '<div align="center"><img src="graphics/green.png" alt="connected" style="width:20px;height:20px" align="center"> <img src="graphics/red_off.png" alt="connected" style="width:20px;height:20px" align="center"></div>'
+                        json.data[i].connected = '<div align="center"><img src="images/green.png" alt="connected" style="width:20px;height:20px" align="center"> <img src="images/red_off.png" alt="connected" style="width:20px;height:20px" align="center"></div>'
                     }
 
                     // ipv
@@ -69,16 +74,16 @@ $(document).ready(function() {
                     console.log("type: " + json.data[i].type)
                     switch(ipv) {
                         case 0:
-                            json.data[i].type = '<div align="center"><img src="graphics/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="graphics/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
+                            json.data[i].type = '<div align="center"><img src="images/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="images/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 1:
-                            json.data[i].type = '<div align="center"><img src="graphics/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="graphics/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
+                            json.data[i].type = '<div align="center"><img src="images/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="images/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 2:
-                            json.data[i].type = '<div align="center"><img src="graphics/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="graphics/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
+                            json.data[i].type = '<div align="center"><img src="images/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="images/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 3:
-                            json.data[i].type = '<div align="center"><img src="graphics/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="graphics/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
+                            json.data[i].type = '<div align="center"><img src="images/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="images/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
                             break;
                         default:
                             json.data[i].type = 'unknown ipv'
@@ -96,6 +101,7 @@ $(document).ready(function() {
             { "data": "realip" },
             { "data": "virtips" },
             { "data": "cons" },
+            { "data": "conr" },
             { "data": "recv" },
             { "data": "sent" },
             { "data": "kill", "orderable": false },

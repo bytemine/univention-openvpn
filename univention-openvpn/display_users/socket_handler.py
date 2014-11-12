@@ -2,6 +2,8 @@ import socket
 import sys
 import os
 import json
+import datetime
+import time
 from netaddr import *
 
 def userlist():
@@ -29,6 +31,8 @@ def userlist():
         conntype = 0
         virtaddresses = ""
 
+        reltime = str(datetime.timedelta(seconds=(int(time.time()) - int(centries[7]))))
+
         # iterate over routing table to get all virtual addresses for each client
         for r in rt:
             rentries = r.split('\t')
@@ -43,7 +47,7 @@ def userlist():
                     conntype |= 2
                 virtaddresses += rvirtaddress + "\n"
 
-        result.append({'name': name, 'conn': 1, 'type': conntype, 'realip': realaddress, 'virtips': virtaddresses, 'cons': centries[6], 'cont': centries[7], 'recv': centries[4], 'sent': centries[5]})
+        result.append({'name': name, 'conn': 1, 'type': conntype, 'realip': realaddress, 'virtips': virtaddresses, 'cons': centries[6], 'conr': reltime, 'recv': centries[4], 'sent': centries[5]})
 
     return result
 

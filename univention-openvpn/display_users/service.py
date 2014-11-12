@@ -27,7 +27,7 @@ class display_users:
             # append not connected users
             for user in users:
                 if not any(u['name'] == user for u in connected_users):
-                    connected_users.append({'name': user, 'connected': 0, 'type': 0, 'realip': '', 'virtips': '', 'cons': '', 'cont': '', 'recv': 0, 'sent': 0})
+                    connected_users.append({'name': user, 'connected': 0, 'type': 0, 'realip': '', 'virtips': '', 'cons': '', 'conr': '', 'recv': 0, 'sent': 0})
             count = str(len(connected_users))
 
             query = web.ctx.query
