@@ -8,8 +8,11 @@ from netaddr import *
 
 def userlist():
     socket_address = '/var/run/management-udp'
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    s.connect(socket_address)
+    try:
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        s.connect(socket_address)
+    except socket.error as msg:
+        return []
 
     s.recv(1024)
     s.sendall('status 3\n')
@@ -53,8 +56,11 @@ def userlist():
 
 def killuser(id):
     socket_address = '/var/run/management-udp'
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    s.connect(socket_address)
+    try:
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        s.connect(socket_address)
+    except socket.error as msg:
+        return "socket not found"
 
     s.recv(1024)
     s.sendall('kill %s\n' % id)
