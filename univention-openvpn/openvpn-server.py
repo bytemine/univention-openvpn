@@ -373,6 +373,7 @@ def postrun():
         try:
             listener.setuid(0)
             os.rename (fn_serverconf, fn_serverconf + '-disabled')
+            listener.run('/etc/init.d/display_users', ['display_users', 'stop'], uid=0)
         except Exception, e:
             listener.unsetuid()
             univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to deactivate server config: %s' % str(e))
@@ -381,6 +382,8 @@ def postrun():
     try:
         listener.setuid(0)
         listener.run('/etc/init.d/openvpn', ['openvpn', 'restart'], uid=0)
+        if action == 'restart':
+            listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
     finally:
         listener.unsetuid()
 

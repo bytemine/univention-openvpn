@@ -24,6 +24,5 @@ call_joinscript 94univention-openvpn-server.inst
 
 ip=$(ucr get interfaces/eth0/address)
 sed -i s/server_ip/$ip/g /var/www/display_users/index.html
-python /usr/lib/openvpn-int/display_users/service.py &
 
 exit 0
