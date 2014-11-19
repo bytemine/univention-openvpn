@@ -12,6 +12,7 @@ import univention_baseconfig
 import os
 import csv
 import univention.uldap as ul
+from univention.config_registry import handler_set, handler_unset
 
 name        = 'openvpn-sitetosite'
 description = 'write configuration to sitetosite.conf'
@@ -196,12 +197,23 @@ ifconfig 10.0.0.1 10.0.0.2
 
         write_rc(config.format(**context), fn_sitetositeconf)
 
+
+    portold = old.get('univentionOpenvpnSitetoSitePort', [None])[0]
+    portnew = new.get('univentionOpenvpnSitetoSitePort', [None])[0]
+
+    if portold is not portnew:
+        listener.setuid(0)
+        handler_unset(["security/packetfilter/package/univention-openvpn-sitetosite/udp/" + portold + "/all"])
+        if 'univentionOpenvpnSitetoSiteActive' in new:
+            handler_set(["security/packetfilter/package/univention-openvpn-sitetosite/udp/" + portnew + "/all=ACCEPT"])
+        listener.unsetuid()
+
     # write new sitetosite config
     flist = load_rc(fn_sitetositeconf)
 
     flist = [x for x in flist if not re.search("remote", x) and not re.search("port", x) and not re.search("ifconfig", x)]
 
-    flist.append("port %s\n" % new.get('univentionOpenvpnSitetoSitePort', [None])[0])
+    flist.append("port %s\n" % portnew)
 
     remote = new.get('univentionOpenvpnRemote', [None])[0]
     flist.append("remote %s\n" % remote)
@@ -238,6 +250,7 @@ def postrun():
     try:
         listener.setuid(0)
         listener.run('/etc/init.d/openvpn', ['openvpn', 'restart'], uid=0)
+        listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
     finally:
         listener.unsetuid()
 

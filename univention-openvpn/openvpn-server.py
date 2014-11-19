@@ -13,6 +13,7 @@ import os
 import csv
 import univention.uldap as ul
 from netaddr import *
+from univention.config_registry import handler_set, handler_unset
 
 name        = 'openvpn-server'
 description = 'write server-configuration to server.conf and handle address assignment'
@@ -204,6 +205,13 @@ push "redirect-gateway"
     portold = old.get('univentionOpenvpnPort', [None])[0]
     portnew = new.get('univentionOpenvpnPort', [None])[0]
 
+    if portold is not portnew:
+        listener.setuid(0)
+        handler_unset(["security/packetfilter/package/univention-openvpn-server/udp/" + portold + "/all"])
+        if 'univentionOpenvpnActive' in new:
+            handler_set(["security/packetfilter/package/univention-openvpn-server/udp/" + portnew + "/all=ACCEPT"])
+        listener.unsetuid()
+
     ccd = '/etc/openvpn/ccd-' + portnew + '/'
     fn_ips = '/etc/openvpn/ips-' + portnew
     fn_ipsv6 = '/etc/openvpn/ipsv6-' + portnew
@@ -213,7 +221,7 @@ push "redirect-gateway"
 
     flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x)]
 
-    flist.append("port %s\n" % new.get('univentionOpenvpnPort', [None])[0])
+    flist.append("port %s\n" % portnew)
 
     network = new.get('univentionOpenvpnNet', [None])[0]
     network_pure = str(IPNetwork(network).network)
@@ -382,6 +390,7 @@ def postrun():
     try:
         listener.setuid(0)
         listener.run('/etc/init.d/openvpn', ['openvpn', 'restart'], uid=0)
+        listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
         if action == 'restart':
             listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
     finally:
