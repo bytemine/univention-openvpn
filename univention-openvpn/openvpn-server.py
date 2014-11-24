@@ -207,8 +207,9 @@ push "redirect-gateway"
 
     if portold is not portnew:
         listener.setuid(0)
-        handler_unset(["security/packetfilter/package/univention-openvpn-server/udp/" + portold + "/all"])
-        if 'univentionOpenvpnActive' in new:
+        if portold:
+            handler_unset(["security/packetfilter/package/univention-openvpn-server/udp/" + portold + "/all"])
+        if portnew and 'univentionOpenvpnActive' in new:
             handler_set(["security/packetfilter/package/univention-openvpn-server/udp/" + portnew + "/all=ACCEPT"])
         listener.unsetuid()
 

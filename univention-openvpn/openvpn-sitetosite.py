@@ -203,8 +203,9 @@ ifconfig 10.0.0.1 10.0.0.2
 
     if portold is not portnew:
         listener.setuid(0)
-        handler_unset(["security/packetfilter/package/univention-openvpn-sitetosite/udp/" + portold + "/all"])
-        if 'univentionOpenvpnSitetoSiteActive' in new:
+        if portold:
+            handler_unset(["security/packetfilter/package/univention-openvpn-sitetosite/udp/" + portold + "/all"])
+        if portnew and 'univentionOpenvpnSitetoSiteActive' in new:
             handler_set(["security/packetfilter/package/univention-openvpn-sitetosite/udp/" + portnew + "/all=ACCEPT"])
         listener.unsetuid()
 
