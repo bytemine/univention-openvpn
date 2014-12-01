@@ -1,0 +1,15 @@
+#!/bin/sh
+
+host=$(ucr get ldap/hostdn)
+port=$(udm computers/domaincontroller_master list --dn "$host"|grep openvpnPort)
+port=$(echo $port|cut -f 2 -d " ")
+
+cp /etc/openvpn/ips-$port /tmp/ips-$port
+
+while read p; do
+    name=$(echo $p|cut -f 1 -d " ")
+    ip=$(echo ${p%?}|cut -f 2 -d " ")
+    udm computers/domaincontroller_master modify --dn "$host" --remove "openvpnuseraddress=$name $ip"
+done < /etc/openvpn/ips-$port
+
+exit 0
