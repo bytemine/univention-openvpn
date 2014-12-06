@@ -276,10 +276,13 @@ push "redirect-gateway"
     if new.get('univentionOpenvpnUserAddress', [None]) != old.get('univentionOpenvpnUserAddress', [None]):
         useraddresses_raw = new.get('univentionOpenvpnUserAddress', [None])
         useraddresses_clean = [x for x in useraddresses_raw if x is not None]
-        useraddresses = map(lambda x: tuple(x.split(":", 2)), useraddresses_clean)
+        useraddresses = map(lambda x: tuple(x.split(":", 1)), useraddresses_clean)
+
+        useraddresses = filter(lambda x: IPAddress(useraddress[1]).version == 4, useraddresses)
+        useraddressesv6 = filter(lambda x: IPAddress(useraddress[1]).version == 6, useraddresses)
 
         assign_addresses(fn_ips, useraddresses, network, netmask, ccd, False)
-        assign_addresses(fn_ipsv6, useraddresses, networkv6, netmaskv6, ccd, True)
+        assign_addresses(fn_ipsv6, useraddressesv6, networkv6, netmaskv6, ccd, True)
 
 # adapt all stored addresses to new network
 def change_net(network, netmask, ccd, fn_ips, ipv6):
@@ -320,11 +323,11 @@ def assign_addresses(fn_ips, useraddresses, network, netmask, ccd, ipv6):
     if ipv6:
         option = "ifconfig-ipv6-push"
         appendix = "/" + network.split('/')[1] + "\n"
-        ip_map_new = map(lambda (name, ipv4, ipv6): (name, ipv6), useraddresses)
+        ip_map_new = useraddresses
     else:
         option = "ifconfig-push"
         appendix = " " + netmask + "\n"
-        ip_map_new = map(lambda (name, ipv4, ipv6): (name, ipv4), useraddresses)
+        ip_map_new = useraddresses
 
     conflict_users = []
 
