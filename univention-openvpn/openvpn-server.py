@@ -278,10 +278,16 @@ push "redirect-gateway"
         useraddresses_clean = [x for x in useraddresses_raw if x is not None]
         useraddresses = map(lambda x: tuple(x.split(":", 1)), useraddresses_clean)
 
-        useraddresses = filter(lambda x: IPAddress(useraddress[1]).version == 4, useraddresses)
-        useraddressesv6 = filter(lambda x: IPAddress(useraddress[1]).version == 6, useraddresses)
+        useraddressesv4 = []
+        useraddressesv6 = []
 
-        assign_addresses(fn_ips, useraddresses, network, netmask, ccd, False)
+        for useraddress in useraddresses:
+            if IPAddress(useraddress[1]).version == 4:
+                useraddressesv4.append(useraddress)
+            elif IPAddress(useraddress[1]).version == 6:
+                useraddressesv6.append(useraddress)
+
+        assign_addresses(fn_ips, useraddressesv4, network, netmask, ccd, False)
         assign_addresses(fn_ipsv6, useraddressesv6, networkv6, netmaskv6, ccd, True)
 
 # adapt all stored addresses to new network
