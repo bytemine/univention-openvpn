@@ -8,7 +8,5 @@ class openvpnUser( UDM_Objects ):
 
 class openvpnUserandAddress( complex ):
         delimiter = ':'
-        all_required = False
-        min_elements = 2
         description=_('Openvpn user')
-        subsyntaxes = [ ( _( 'Openvpn user' ), openvpnUser ), ( _( 'IPv4 address' ), string ), ( _( 'IPv6 address' ), string ) ]
+        subsyntaxes = [ ( _( 'Openvpn user' ), openvpnUser ), ( _( 'IP address' ), string ) ]

@@ -2,21 +2,26 @@ from univention.admin.hook import simpleHook
 
 class univentionOpenVpn(simpleHook):
 	type = 'univentionOpenVpn'
-	delimiter = ':'
+	delimiter = ': '
 	ldapAttribute = 'univentionOpenvpnUserAddress'
 	udmAtribute = 'openvpnuseraddress'
 
 	def __convert(self, obj):
 
+		# map
+		# [['uid=join-backup,cn=users,dc=w2k12,dc=test', '10.200.7.66'], ['uid=Administrator,cn=users,dc=w2k12,dc=test', '10.200.7.11']]
+		# to
+		# ['uid=join-backup,cn=users,dc=w2k12,dc=test: 10.200.7.66', 'uid=Administrator,cn=users,dc=w2k12,dc=test: 10.200.7.11']
+		# in openvpnuseraddress
 		changed = False
 		new = []
 		if type(obj) == type([]) and len(obj) >= 1:
 			for i in obj:
-				if type(i) == type([]) and len(i) == 3:
+				if type(i) == type([]) and len(i) == 2:
 					new.append(self.delimiter.join(i))
 					changed = True
 				else:
-					new.append(self.delimiter.join(i) + ':')
+					new.append(i)
 		if changed:
 			return new
 
@@ -52,15 +57,17 @@ class univentionOpenVpn(simpleHook):
 
 	def hook_open(self, module):
 
+		# map
+		# ['uid=join-backup,cn=users,dc=w2k12,dc=test: 10.200.7.66', 'uid=Administrator,cn=users,dc=w2k12,dc=test: 10.200.7.11']
+		# to
+		# [['uid=join-backup,cn=users,dc=w2k12,dc=test', '10.200.7.66'], ['uid=Administrator,cn=users,dc=w2k12,dc=test', '10.200.7.11']]
+		# in openvpnuseraddress
 		if module.get(self.udmAtribute):
 			if type(module[self.udmAtribute]) == type([]) and len(module[self.udmAtribute]) >= 1:
 				newValue = []
 				for i in module[self.udmAtribute]:
 					if type(i) == type('') and self.delimiter in i:
-                                                new = i.split(self.delimiter, 2)
-                                                if len(new) == 2:
-                                                        new.append('')
-                                                newValue.append(new)
+						newValue.append(i.split(self.delimiter, 1))
 					else:
 						newValue.append(i)
 				module[self.udmAtribute] = newValue
