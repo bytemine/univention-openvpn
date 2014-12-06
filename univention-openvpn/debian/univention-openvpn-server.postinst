@@ -25,4 +25,14 @@ call_joinscript 94univention-openvpn-server.inst
 ip=$(ucr get interfaces/eth0/address)
 sed -i s/server_ip/$ip/g /var/www/display_users/index.html
 
+ucr set security/packetfilter/package/univention-openvpn-server/tcp/38081/all='ACCEPT'
+/etc/init.d/univention-firewall restart
+/etc/init.d/display_users start
+
+ucr set ucs/web/overview/entries/service/openvpn4ucs/description="Display active users"
+ucr set ucs/web/overview/entries/service/openvpn4ucs/description/de="Aktive VPN Benutzer anzeigen"
+ucr set ucs/web/overview/entries/service/openvpn4ucs/label="Active VPN users"
+ucr set ucs/web/overview/entries/service/openvpn4ucs/label/de="Aktive VPN Benutzer"
+ucr set ucs/web/overview/entries/service/openvpn4ucs/link="/display_users"
+
 exit 0
