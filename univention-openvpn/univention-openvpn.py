@@ -2,7 +2,7 @@ from univention.admin.hook import simpleHook
 
 class univentionOpenVpn(simpleHook):
 	type = 'univentionOpenVpn'
-	delimiter = ': '
+	delimiter = ':'
 	ldapAttribute = 'univentionOpenvpnUserAddress'
 	udmAtribute = 'openvpnuseraddress'
 
