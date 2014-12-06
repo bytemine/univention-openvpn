@@ -16,7 +16,7 @@ class univentionOpenVpn(simpleHook):
 					new.append(self.delimiter.join(i))
 					changed = True
 				else:
-					new.append(i)
+					new.append(self.delimiter.join(i) + ':')
 		if changed:
 			return new
 
@@ -57,7 +57,10 @@ class univentionOpenVpn(simpleHook):
 				newValue = []
 				for i in module[self.udmAtribute]:
 					if type(i) == type('') and self.delimiter in i:
-						newValue.append(i.split(self.delimiter, 2))
+                                                new = i.split(self.delimiter, 2)
+                                                if len(new) == 2:
+                                                        new.append('')
+                                                newValue.append(new)
 					else:
 						newValue.append(i)
 				module[self.udmAtribute] = newValue
