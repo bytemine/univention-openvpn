@@ -1,3 +1,19 @@
+univention-openvpn (1.0) unstable; urgency=low
+
+  * ipv6 support
+  * sitetosite vpn support
+  * display active users
+
+ -- Fedor Scholz <scholz@bytemine.net>  Mon, 24 Nov 2014 16:27:32 +0100
+
+
+univention-openvpn (0.10-1) unstable; urgency=low
+
+  * do not iterate over nontype object
+  * delete user entries properly
+
+ -- Fedor Scholz <scholz@bytemine.net>  Mon, 27 Oct 2014 11:28:01 +0100
+
 
 univention-openvpn (0.10) unstable; urgency=low
 
