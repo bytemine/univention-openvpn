@@ -25,17 +25,4 @@ call_joinscript 94univention-openvpn-server.inst
 ip=$(ucr get interfaces/eth0/address)
 sed -i s/server_ip/$ip/g /var/www/display_users/index.html
 
-host=$(ucr get ldap/hostdn)
-port=$(udm computers/domaincontroller_master list --dn "$host"|grep openvpnPort)
-port=$(echo $port|cut -f 2 -d " ")
-
-if [ -f "/etc/openvpn/ips-$port" ]; then
-    while read p; do
-        name=$(echo $p|cut -f 1 -d " ")
-        ip=$(echo ${p%?}|cut -f 2 -d " ")
-        ipv6="abc::2"
-        udm computers/domaincontroller_master modify --dn "$host" --append "openvpnuseraddress=\"$name\" \"$ip\" \"$ipv6\""
-    done < /tmp/ips-$port
-fi
-
 exit 0
