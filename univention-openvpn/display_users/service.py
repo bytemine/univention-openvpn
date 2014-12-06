@@ -6,10 +6,15 @@ import listener
 import univention.uldap as ul
 from socket_handler import *
 
+class MyApplication(web.application):
+    def run(self, port=8080, *middleware):
+        func = self.wsgifunc(*middleware)
+        return web.httpserver.runsimple(func, ('0.0.0.0', port))
+
 urls = (
     '/(.*)', 'display_users'
 )
-app = web.application(urls, globals())
+app = MyApplication(urls, globals())
 
 class display_users:
     def GET(self, name):
@@ -49,4 +54,4 @@ class display_users:
             return "{'message': 'unknown command'}"
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=38081)
