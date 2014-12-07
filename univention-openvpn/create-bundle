@@ -78,20 +78,20 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 
 ENDOFWINCLIENTCONFIG
 
-eval "$(ucr shell ldap/base)"
+eval "$(ucr shell)"
 
 # zip all required files into home or apache directory of user
 if [ -d "$home" ]; then
     bundle="${home}/openvpn-${server}-${uid}.zip"
     umask 077
 else
-    mkdir -p "/var/www/${uid}/"
-    cat > "/var/www/${uid}/.htaccess" <<-ENDOFHTACCESS
+    mkdir -p "/var/www/readytogo/${uid}/"
+    cat > "/var/www/readytogo/${uid}/.htaccess" <<-ENDOFHTACCESS
 AuthBasicProvider ldap
 AuthType Basic
 AuthName "secret"
 AuthzLDAPAuthoritative off
-AuthLDAPURL "ldap://localhost:7389/$ldap_base?uid"
+AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
 AuthLDAPBindDN "uid=ldapper,cn=users,$ldap_base"
 AuthLDAPBindPassword "ldapperssecret"
 Require ldap-user ${uid}
@@ -104,7 +104,7 @@ ENDOFHTACCESS
         /etc/init.d/apache2 restart
     fi
 
-    bundle="/var/www/${uid}/openvpn-${server}-${uid}.zip"
+    bundle="/var/www/readytogo/${uid}/openvpn-${server}-${uid}.zip"
     umask 033
 fi
 
