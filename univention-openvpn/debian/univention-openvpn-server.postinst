@@ -22,8 +22,29 @@ fi
 . /usr/share/univention-lib/base.sh
 call_joinscript 94univention-openvpn-server.inst
 
-ip=$(ucr get interfaces/eth0/address)
-sed -i s/server_ip/$ip/g /var/www/display_users/index.html
+
+# configure display active users
+eval $(ucr shell)
+
+sed -i s/server_ip/$interfaces_eth0_address/g /var/www/display_users/index.html
+
+cat > /var/www/display_users/.htaccess <<-ENDOFHTACCESS
+    AuthBasicProvider ldap
+    AuthType Basic
+    AuthName "Please login as Administrator"
+    AuthzLDAPAuthoritative off
+    AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
+    AuthLDAPBindDN "uid=ldapper,cn=users,$ldap_base"
+    AuthLDAPBindPassword "ldapperssecret"
+    Require ldap-user Administrator
+
+ENDOFHTACCESS
+
+if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
+    a2enmod ldap
+    a2enmod authnz_ldap
+    /etc/init.d/apache2 restart
+fi
 
 ucr set security/packetfilter/package/univention-openvpn-server/tcp/38081/all='ACCEPT'
 /etc/init.d/univention-firewall restart
