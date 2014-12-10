@@ -41,14 +41,14 @@ a:hover {
 }
 
 .more {
-    background: url("../images/more_arrow.png") 100% 0 no-repeat;
+    background: url("images/more_arrow.png") 100% 0 no-repeat;
     float: right;
     margin-top: 10px;
     padding-right: 20px;
 }
 
 .prev {
-    background: url("../images/prev_arrow.png") no-repeat scroll left center rgba(0, 0, 0, 0);
+    background: url("images/prev_arrow.png") no-repeat scroll left center rgba(0, 0, 0, 0);
     float: right;
     margin-top: 10px;
     padding-left: 20px;
@@ -58,7 +58,6 @@ a:hover {
 p,
 ul,
 a {
-    font-size: 12px;
 }
 
 ul {
@@ -66,7 +65,7 @@ ul {
 }
 
 ul.char li {
-    list-style-image: url("../images/bullet_point.png");
+    list-style-image: url("images/bullet_point.png");
     line-height: 20px;
 }
 
@@ -119,7 +118,7 @@ h1, h2, h3, h4, h5, .headline {
 }
 
 /* #nav a  */
-nav li a, .side-navigation li a, p, nav li a, .side-navigation li a, .char, span {
+nav li a, .side-navigation li a, p, nav li a, .side-navigation li a, .char, span, td {
     color: #333949;
 }
 

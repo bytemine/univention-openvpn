@@ -81,7 +81,7 @@ $(document).ready(function() {
                     // kill
                     realip = json.data[i].realip
                     if (realip != "") {
-                        json.data[i].kill = '<a href="//server_ip:38081/kill_user/' + realip + '">Disconnect</a>'
+                        json.data[i].kill = '<div align="center"><a href="//server_ip:38081/kill_user/' + realip + '">Disconnect</a></div>'
                     } else {
                         json.data[i].kill = ''
                     }
