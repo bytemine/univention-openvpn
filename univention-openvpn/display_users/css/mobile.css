@@ -1,0 +1,521 @@
+@media (max-width: 1023px) {
+    #lang {
+        left: 115px;
+        position: absolute;
+        top: 62px;
+    }
+
+
+    .hotline_icon {
+        float: left;
+        margin-left: -30px;
+        margin-right: 15px;
+        width: 35px;
+    }
+
+    p,
+    ul,
+    a {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3,
+    h4,
+    h5 {
+        font-size: 18px;
+    }
+
+    .content-box-right,
+    .content-box,
+    .content-box-examples,
+    #services .content-box-examples,
+    .content-left,
+    .content-right,
+    .content-left-bg,
+    .content-right-large,
+    .content-left-large,
+    .product-box,
+    .slider,
+    .button {
+        float: none;
+    }
+
+    .content-box:nth-child(2n+1) {
+        float: none;
+        margin: 25px auto;
+    }
+
+    .content-right-large{
+        width: 100% !important;
+    }
+
+    .content-box-right,
+    .content-box,
+    .content-box-examples,
+    #services .content-box-examples,
+    .content-left,
+    .content-right,
+    .content-left-bg,
+    .content-right-large,
+    .content-left-large,
+    .product-box,
+    .slider {
+        width: 80%;
+        margin: 25px auto;
+    }
+
+    .content-right {
+        float: left;
+        margin: 0;
+    }
+
+    .header_content {
+        width: 100%;
+    }
+
+    #logo {
+        margin: 10px;
+        width: 230px;
+    }
+
+    #menu_sub {
+        position: absolute;
+    }
+
+    .footer-navigation,
+    .sub,
+    .nav-subtext {
+        display: none;
+    }
+
+    .footer-wrapper {
+        width: 100%;
+    }
+
+    .footer_content {
+        width: 90%;
+        float: left;
+        margin: 30px 5% 0 5%;
+    }
+
+    .footer_content_left {
+        display: none;
+    }
+
+    .footer-imprint {
+        display: none;
+    }
+
+    #contact .content-left-bg {
+        margin-left: 0;
+    }
+
+    #contact .content-left-bg span {
+        width: 30%;
+    }
+
+    #contact input {
+        width: 60%;
+    }
+
+    .content-left  {
+        width: 100%;
+        margin: 0;
+    }
+
+
+}
+
+@media (max-width: 639px) {
+    #lang {
+        left: 115px;
+        position: absolute;
+        top: 62px;
+    }
+
+    header {
+        min-height: 100px;
+    }
+
+    .content-left-large,
+    nav,
+
+    #sub li {
+        float: none;
+    }
+
+    #hotline {
+        margin: 10px auto;
+        font-size: 20px !important;
+        width: 250px;
+    }
+
+    .hotline_icon {
+        margin-top: 8px;
+    }
+
+    .headline_icon {
+        margin-left: 5%;
+    }
+
+    .pagination{
+        float: none;
+        margin: 0 auto 75px;
+        position: relative;
+        width: 300px;
+    }
+
+    .prev {
+        float: left;
+    }
+
+    hr {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .content-box-hr {
+        width: 100%;
+    }
+
+    #home hr {
+        width: 100%;
+    }
+
+    #examples .content-box {
+        width: 80%;
+    }
+
+    hr.smart {
+        width: 100%;
+    }
+
+    #container,
+    .content,
+    footer,
+    .header_content {
+        width: 100%;
+    }
+
+    .content-left  {
+        margin: 25px auto;
+        width: 90%;
+    }
+
+    #contact .content-right {
+        margin-left: 30px;
+    }
+
+    .content-right-large{
+        margin: 25px auto;
+        width: 90% !important;
+    }
+
+    #contact ul {
+        margin: 0;
+        padding: 0;
+    }
+
+    #menu_sub {
+        background: url("../images/mobile_nav_60.png") top left no-repeat;
+        height: 60px;
+        right: 10px;
+        top: 13px;
+        width: 60px;
+    }
+
+    #sub {
+        display: none;
+        margin: 60px 0 0 -140px;
+    }
+
+    #menu_sub {
+        text-align: center;
+    }
+
+    #menu_sub:hover #sub {
+        display: block;
+    }
+
+    #sub {
+        background: rgba(247, 247, 247, 0.95);
+        box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.3);
+        width: 200px;
+    }
+
+    #sub a {
+        line-height: 50px;
+    }
+
+    #sub ul {
+        padding: 0;
+        margin: 0;
+    }
+
+    #sub li {
+        display: block;
+        width: 200px;
+        height: 50px;
+        border-bottom: 1px solid rgba(174, 174, 174, 0.4);
+    }
+
+    #sub li:last-child {
+        border: none;
+    }
+
+    #menu_sub:hover #sub {
+        display: block;
+    }
+
+    .side-div {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .side-div .mobile640 {
+        background: #9B0E31;
+        color: #fff;
+        font: 20px 'PT_Serif', serif;
+        line-height: 50px;
+        text-align: center;
+    }
+
+    .side-navigation {
+        margin: 14px;
+        padding: 0;
+        text-align: center;
+    }
+
+    .side-navigation a {
+        display: block;
+        line-height: 40px;
+        width: 100%;
+    }
+
+    .side-div:hover .side-navigation {
+        display: block;
+    }
+
+    .footer_content {
+        width: 90%;
+    }
+
+    .slider-circle {
+        margin: 40px auto;
+    }
+
+    #leistungen_auswahl {
+        margin: 0;
+    }
+
+    .more-arrow {
+        padding: 0;
+        margin: 0;
+        position: relative;
+        top: 2px;
+    }
+}
+
+@media (max-width: 360px) {
+
+    #lang {
+        left: 115px;
+        position: absolute;
+        top: 62px;
+    }
+
+
+    .content {
+        margin-bottom: 550px;
+    }
+
+}
+
+@media (max-width: 495px) {
+    #lang {
+        left: 115px;
+        position: absolute;
+        top: 62px;
+    }
+
+    .team-img{
+        float: left;
+        margin: 10px;
+    }
+}
+
+
+@media (min-width: 361px) and (max-width: 1023px) {
+    #lang {
+        left: 115px;
+        position: absolute;
+        top: 62px;
+    }
+
+
+    .content {
+        margin-bottom: 500px;
+    }
+
+}
+
+@media (min-width: 640px) {
+    header {
+        height: 100px;
+    }
+
+    #hotline {
+        font-size: 15px;
+        width: 220px;
+    }
+
+    .hot {
+        display: none
+    }
+
+    .mobile640 {
+        display: none;
+    }
+
+    .content {
+        margin: 30px auto 500px;
+    }
+
+
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+    #lang {
+        left: 115px;
+        position: absolute;
+        top: 62px;
+    }
+
+    header {
+        height: 157px;
+    }
+
+    .content {
+        width: 90%;
+    }
+
+    #hotline {
+        position: absolute;
+        top: 25px;
+        right: 0;
+        margin: 0;
+    }
+
+    #menu_sub {
+        top: 100px;
+        left: 20px;
+        width: 95%;
+    }
+
+    #sub {
+        float: none;
+        margin: 0 auto;
+        width: 95%;
+        text-align: center;
+    }
+
+    .side-div {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .side-div ul {
+        padding: 0;
+    }
+
+    .side-div ul li {
+        height: 40px;
+        line-height: 40px;
+    }
+
+    .slider {
+        width: 100%;
+        margin: 0 0 50px 0;
+    }
+
+    .slider p,
+    .slider h2,
+    .slider hr {
+        margin-left: 180px;
+    }
+
+
+
+    .slider-circle {
+        float: left;
+        position: absolute;
+    }
+
+    #examples .content-box-examples, #services .content-box-examples {
+        width: 90%;
+    }
+
+    #leistungen .content-box {
+        float: left;
+        width: 42%;
+    }
+
+    #leistungen .content-right-large {
+        width: 100%;
+    }
+
+    .content-right-large{
+        margin-left: -15px;
+    }
+
+    #leistungen .content-left {
+        width: 80%;
+    }
+
+    #consulting .content-box-right, #products .content-box-right, #open_source .content-box-right, #hosting .content-box-right  {
+        float: left;
+    }
+
+    .content-left-large {
+    }
+
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    #lang {
+        left: 115px;
+        position: absolute;
+        top: 62px;
+    }
+
+    #services .content-box {
+        float: left;
+        width: 43%;
+        margin-left: 2%;
+    }
+
+    #examples .content-box-examples, #services .content-box-examples {
+        width: 40%;
+        margin-left: 2.5%;
+        margin-right: 2.5%;
+        float: left;
+    }
+
+    #contact .content-left-large {
+        width: 90%;
+    }
+
+    #contact .content-right {
+        width: 35%;
+        margin: 30px 0 0 30px;
+    }
+
+}
