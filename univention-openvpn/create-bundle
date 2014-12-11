@@ -101,7 +101,6 @@ ENDOFHTACCESS
     if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
         a2enmod ldap
         a2enmod authnz_ldap
-        /etc/init.d/apache2 restart
     fi
 
     bundle="/var/www/readytogo/${uid}/openvpn-${server}-${uid}.zip"
@@ -115,5 +114,9 @@ zip -j "$bundle" \
     "${ssl}/${uid}.openvpn/${server}.ovpn" \
     "${ssl}/${uid}.openvpn/win-${server}.ovpn"
 chown "$uid" "$bundle"
+
+if [[ $bundle == /var/www* ]]; then
+    /etc/init.d/apache2 restart
+fi
 
 exit 0
