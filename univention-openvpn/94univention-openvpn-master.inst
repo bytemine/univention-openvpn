@@ -176,10 +176,10 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnSitetoSiteActive' \
     --set objectClass='univentionOpenvpnSitetoSite' \
     --set name='UniventionOpenvpn-SitetoSiteActive' \
-    --set shortDescription='OpenVPN site-to-site active' \
-    --set longDescription='OpenVPN site-to-site active. In order to start the OpenVPN service in site-to-site mode on this computer, this option has to be enabled.' \
+    --set shortDescription='OpenVPN site-to-site active.' \
+    --set longDescription='OpenVPN site-to-site active. In order to start the OpenVPN service in site-to-site mode on this computer, this option has to be enabled. IMPORTANT: you need a valid license to activate this option.' \
     --set translationShortDescription='"de_DE" "OpenVPN Site-to-Site aktiviert"' \
-    --set translationLongDescription='"de_DE" "OpenVPN Site-to-Site aktiviert. Um den OpenVPN Dienst im Site-to-Site Modus auf diesem Rechner laufen zu lassen, muss diese Option aktiviert werden."' \
+    --set translationLongDescription='"de_DE" "OpenVPN Site-to-Site aktiviert. Um den OpenVPN Dienst im Site-to-Site Modus auf diesem Rechner laufen zu lassen, muss diese Option aktiviert werden. WICHTIG: eine gueltige Lizenz ist fuer die Aktivierung erforderlich."' \
     --set tabName='OpenVPN Site-to-Site' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
@@ -192,6 +192,33 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set doNotSearch='0' \
     --set hook='None' || die
 
+udm settings/extended_attribute remove "$@" \
+    --dn "cn=UniventionOpenvpn-License,${eabas}" >/dev/null 2>&1
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+    --append module="computers/domaincontroller_master" \
+    --append module="computers/domaincontroller_slave" \
+    --append module="computers/domaincontroller_backup" \
+    --append module="computers/memberserver" \
+    --set ldapMapping='univentionOpenvpnLicense' \
+    --set objectClass='univentionOpenvpnSitetoSite' \
+    --set name='UniventionOpenvpn-License' \
+    --set shortDescription='openvpn4ucs license key' \
+    --set longDescription='openvpn4ucs license key. This is required in order to activate the site-to-site VPN' \
+    --set translationShortDescription='"de_DE" "openvpn4ucs Lizenzschlüssel"' \
+    --set translationLongDescription='"de_DE" "openvpn4ucs Lizenschlüssel. Dieser ist notwendig, um das Site-to-Site VPN zu aktivieren."' \
+    --set default='' \
+    --set tabName='OpenVPN Site-to-Site' \
+    --set overwriteTab='0' \
+    --set valueRequired='0' \
+    --set CLIName='openvpnLicense' \
+    --set syntax='TextArea' \
+    --set tabAdvanced='1' \
+    --set mayChange='1' \
+    --set multivalue='0' \
+    --set deleteObjectClass='0' \
+    --set doNotSearch='0' \
+    --set hook='None' || die
 # extension of computer objects
 
 udm settings/extended_attribute remove "$@" \
