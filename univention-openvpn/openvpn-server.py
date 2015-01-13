@@ -13,7 +13,7 @@ import os
 import csv
 import univention.uldap as ul
 from netaddr import *
-from univention.config_registry import handler_set, handler_unset
+from univention.config_registry import ConfigRegistry
 
 name        = 'openvpn-server'
 description = 'write server-configuration to server.conf and handle address assignment'
@@ -207,10 +207,13 @@ push "redirect-gateway"
 
     if portold is not portnew:
         listener.setuid(0)
+        ucr = ConfigRegistry()
+        ucr.load()
         if portold:
-            handler_unset(["security/packetfilter/package/univention-openvpn-server/udp/" + portold + "/all"])
+            ucr.update({'security/packetfilter/package/univention-openvpn-server/udp/'+portold+'/all': None})
         if portnew and 'univentionOpenvpnActive' in new:
-            handler_set(["security/packetfilter/package/univention-openvpn-server/udp/" + portnew + "/all=ACCEPT"])
+            ucr.update({'security/packetfilter/package/univention-openvpn-server/udp/'+portnew+'/all': 'ACCEPT'})
+        ucr.save()
         listener.unsetuid()
 
     ccd = '/etc/openvpn/ccd-' + portnew + '/'

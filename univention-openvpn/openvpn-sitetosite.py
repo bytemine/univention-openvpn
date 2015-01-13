@@ -12,7 +12,7 @@ import univention_baseconfig
 import os
 import csv
 import univention.uldap as ul
-from univention.config_registry import handler_set, handler_unset
+from univention.config_registry import ConfigRegistry
 
 from datetime import date
 from M2Crypto import RSA, BIO
@@ -271,10 +271,13 @@ ifconfig 10.0.0.1 10.0.0.2
 
     if portold is not portnew:
         listener.setuid(0)
+        ucr = ConfigRegistry()
+        ucr.load()
         if portold:
-            handler_unset(["security/packetfilter/package/univention-openvpn-sitetosite/udp/" + portold + "/all"])
+            ucr.update({'security/packetfilter/package/univention-openvpn-sitetosite/udp/'+portold+'/all': None})
         if portnew and 'univentionOpenvpnSitetoSiteActive' in new:
-            handler_set(["security/packetfilter/package/univention-openvpn-sitetosite/udp/" + portnew + "/all=ACCEPT"])
+            ucr.update({'security/packetfilter/package/univention-openvpn-sitetosite/udp/'+portnew+'/all': 'ACCEPT'})
+        ucr.save()
         listener.unsetuid()
 
     # write new sitetosite config
