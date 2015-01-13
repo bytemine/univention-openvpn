@@ -14,6 +14,11 @@ import csv
 import univention.uldap as ul
 from univention.config_registry import handler_set, handler_unset
 
+from datetime import date
+from M2Crypto import RSA, BIO
+from base64 import b64decode
+
+
 name        = 'openvpn-sitetosite'
 description = 'write configuration to sitetosite.conf'
 filter      = '(objectClass=univentionOpenvpnSitetoSite)'
@@ -24,6 +29,44 @@ action = None
 
 fn_sitetositeconf = '/etc/openvpn/sitetosite.conf'
 fn_secret = '/etc/openvpn/sitetosite.key'
+
+
+pubbio = BIO.MemoryBuffer('''
+-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAN0VVx22Oou8UTDsrug/UnZLiX2UcXeE
+GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==
+-----END PUBLIC KEY-----
+''')
+pub = RSA.load_pub_key_bio(pubbio)
+pbs = pub.__len__() / 8
+
+def license(key):
+  try:
+    enc = b64decode(key)
+    raw = ''
+    while len(enc) > pbs:
+      d, key = (enc[:pbs], enc[pbs:])
+      raw = raw + pub.public_decrypt(d, 1)
+    if len(enc) != pbs:
+      return None		# invalid license
+    raw = raw + pub.public_decrypt(enc, 1)
+    #
+    items = raw.rstrip().split('\n')
+    if not items:
+      return None		# invalid license
+    vdate = int(items.pop(0))
+    if date.today().toordinal() > vdate:
+      return None		# expired 
+    l = {'valid': True}
+    while items:
+      kv = items.pop(0).split('=', 1)
+      kv.append(True)
+      l[kv[0]] = kv[1]
+    return l
+  except:
+    return None			# invalid license
+
+
 
 # function to open a textfile with setuid(0) for root-action
 def load_rc(ofile):
@@ -113,6 +156,31 @@ def handler(dn, new, old, command):
     if cn != myname:
         action = None
         return
+
+    univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'new: %s' % str(new))
+    # check if license is valid whenever 'active' is set
+    if 'univentionOpenvpnSitetoSiteActive' in new:
+        key = new.get('univentionOpenvpnLicense', [None])[0]
+	if not key:
+            univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'No license key.')
+            action = None
+            return
+        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Key = %s' % key)
+        lic = license(key)
+        if not lic:
+            univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Invalid license.')
+            action = None
+            return
+        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'LIC: %s' % str(lic))
+        if not lic['valid']:
+            univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'License has expired.')
+            action = None
+            return
+        if not lic['s2s']:
+            univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'License does not contain site-to-site.')
+            action = None
+            return
+        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, '** LICENSE VALID, WITH S2S FEATRUE, OK')
 
     if 'univentionOpenvpnSitetoSiteActive' in new:
         action = 'restart'
