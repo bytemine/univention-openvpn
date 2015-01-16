@@ -1,3 +1,11 @@
+univention-openvpn (1.0.2) unstable; urgency=low
+
+  * fix ucr handling in listener
+  * missing files for display_users page
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 13 Jan 2015 19:00:00 +0100
+
+
 univention-openvpn (1.0.1) unstable; urgency=low
 
   * license key field
