@@ -1,9 +1,11 @@
 display_users/socket_handler.py usr/lib/openvpn-int/display_users
 display_users/service.py usr/lib/openvpn-int/display_users
 display_users/display_users etc/init.d
-display_users/index.html var/www/display_users
+display_users/css var/www/display_users
+display_users/files var/www/display_users
 display_users/images var/www/display_users
-display_users/lib var/www/display_users
+display_users/impressum.html var/www/display_users
+display_users/index.html var/www/display_users
 openvpn-server.py usr/lib/univention-directory-listener/system
 openvpn-server2.py usr/lib/univention-directory-listener/system
 94univention-openvpn-server.inst usr/lib/univention-install
