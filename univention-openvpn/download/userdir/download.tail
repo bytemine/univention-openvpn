@@ -1,0 +1,32 @@
+
+        <div class="clear">&nbsp;</div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-wrapper">
+        <div class="footer_content_left">
+            <img class="footer_icon" src="/download/images/footer-buddy-icon.png" alt="Icon"/>
+            <h4>Kontakt</h4>
+            <hr class="smart">
+            <p>bytemine GmbH<br/>Im Technologiepark 4<br/>26129 Oldenburg</p>
+            <p>
+                <span class="phone_desktop">+49 441.309197-69</span>
+                <a href="tel://004944130919769" class="phone_mobile">+49 441.309197-69</a>
+                <br/>
+                <a href="mailto:info@bytemine.net">info@bytemine.net</a></p>
+        </div>
+    </div>
+    <div class="clear">&nbsp;</div>
+    <div class="footer-wrapper">
+        <hr>
+        <ul class="footer-imprint">
+            <li>
+                <a href="/download/impressum.html">Impressum</a>
+            </li>
+            <li>&copy; by bytemine</li>
+        </ul>
+    </div>
+</footer>
+</body>
+</html>
