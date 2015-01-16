@@ -15,7 +15,7 @@ function submit_username() {
         alert("Please enter your username");
         return false;
     }
-    window.location.href = "../"+document.getElementById("username").value+"/download.html";
+    window.location.href = "../readytogo/"+document.getElementById("username").value+"/openvpn4ucs-download.html";
 }
 
 function redirectpage(dest) {
