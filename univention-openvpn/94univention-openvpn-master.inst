@@ -305,6 +305,8 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set longDescription='OpenVPN account for users' \
     --set translationShortDescription='"de_DE" "OpenVPN Account"' \
     --set translationLongDescription='"de_DE" "OpenVPN Account für Benutzer. Wenn diese Option bei einem Konto gesetzt wird, so wird für den Nutzer ein Zertifikat generiert und zusammen mit den anderen notwendigen Dateien, einschliesslich einer Client Konfiguration fuer OpenVPN, als Zip-Datei im Heimatverzeichnis den Nutzers abgelegt. Pro aktiviertem Server wird ein solches Paket erzeugt."' \
+    --set tabAdvanced='1' \
+    --set tabName='OpenVPN' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnAccount' \
@@ -451,6 +453,10 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set longDescription='The address of the remote OpenVPN endpoint which is used for site-to-site VPNs.' \
     --set translationShortDescription='"de_DE" "OpenVPN remote Adresse' \
     --set translationLongDescription='"de_DE" "Die Adresse des entfernten OpenVPN Endpunkts. Diese wird für Site-to-Site VPNs verwendet."' \
+    --set tabAdvanced='1' \
+    --set tabName='OpenVPN' \
+    --set groupName='Site-to-Site VPN' \
+    --set groupPosition='3' \
     --set default='0.0.0.0' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
