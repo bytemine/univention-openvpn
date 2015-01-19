@@ -80,13 +80,11 @@ ENDOFWINCLIENTCONFIG
 
 eval "$(ucr shell)"
 
-# zip all required files into home or apache directory of user
-if [ -d "$home" ]; then
-    bundle="${home}/openvpn-${server}-${uid}.zip"
-    umask 077
-else
-    mkdir -p "/var/www/readytogo/${uid}/"
-    cat > "/var/www/readytogo/${uid}/.htaccess" <<-ENDOFHTACCESS
+# zip all required files into home if it exists,
+# always put a copy into download directory for user
+readytogo="/var/www/readytogo/${uid}/"
+mkdir -p "{readytogo}"
+cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
 AuthBasicProvider ldap
 AuthType Basic
 AuthName "secret"
@@ -98,15 +96,14 @@ Require ldap-user ${uid}
 
 ENDOFHTACCESS
 
-    if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
-        a2enmod ldap
-        a2enmod authnz_ldap
-        /etc/init.d/apache2 restart
-    fi
-
-    bundle="/var/www/readytogo/${uid}/openvpn-${server}-${uid}.zip"
-    umask 033
+if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
+    a2enmod ldap
+    a2enmod authnz_ldap
+    /etc/init.d/apache2 restart
 fi
+
+bundle="/var/www/readytogo/${uid}/openvpn-${server}-${uid}.zip"
+umask 037
 
 zip -j "$bundle" \
     "${ssl}/ucsCA/CAcert.pem" \
@@ -114,6 +111,24 @@ zip -j "$bundle" \
     "${ssl}/${uid}.openvpn/private.key" \
     "${ssl}/${uid}.openvpn/${server}.ovpn" \
     "${ssl}/${uid}.openvpn/win-${server}.ovpn"
-chown "$uid" "$bundle"
+chown "$uid".www-data "$bundle"
+
+if [ -d "$home" ]; then
+    umask 077
+    bundle2="${home}/openvpn-${server}-${uid}.zip"
+    cp "$bundle" "${bundle2}"
+    chown "$uid"."Domain Users" "${bundle2}"
+fi
+
+# insert a list of all available packages for the user into download.html
+templates=/usr/lib/oopenvpn-int
+cp ${templates}/download.head > "${readytogo}/download.html"
+for rtgp in $(cd /var/www/readytogo/"${uid}" && echo "openvpn-"*"-${uid}.zip"); do
+    echo "<p><a href=\"/readytogo/${uid}/${rtpg}\">${rtpg}</a><hr/></p>"
+done >> "${readytogo}/download.html"
+cat ${templates}/download.tail >> "${readytogo}/download.html"
+
+
+
 
 exit 0
