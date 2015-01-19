@@ -536,6 +536,7 @@ ldapper_mail=listener.baseConfig['mail/alias/root']
 
 univention-directory-manager users/user create \
     --position "cn=users,$ldap_base" \
+    --option "ldap_pwd" \
     --set username="ldapper" \
     --set firstname="ldapper" \
     --set lastname="ldapper" \
