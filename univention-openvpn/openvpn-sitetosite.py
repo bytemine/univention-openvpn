@@ -296,7 +296,7 @@ ifconfig 10.0.0.1 10.0.0.2
 
     secret = new.get('univentionOpenvpnSecret', [None])[0]
     univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'secret: %s' % (secret))
-    write_rc([secret], fn_secret)
+    write_rc([secret] if secret else [''], fn_secret)
 
     write_rc(flist, fn_sitetositeconf)
 
