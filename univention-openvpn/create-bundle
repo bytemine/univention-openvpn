@@ -83,7 +83,7 @@ eval "$(ucr shell)"
 # zip all required files into home if it exists,
 # always put a copy into download directory for user
 readytogo="/var/www/readytogo/${uid}/"
-mkdir -p "{readytogo}"
+mkdir -p "${readytogo}"
 cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
 AuthBasicProvider ldap
 AuthType Basic
