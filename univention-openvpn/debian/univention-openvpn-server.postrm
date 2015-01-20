@@ -10,7 +10,4 @@ if [ "$1" = "remove" ]; then
 	invoke-rc.d univention-directory-listener restart
 fi
 
-ucr unset security/packetfilter/package/univention-openvpn-server/tcp/38081/all
-/etc/init.d/univention-firewall restart
-
 exit 0
