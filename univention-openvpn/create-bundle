@@ -121,7 +121,7 @@ if [ -d "$home" ]; then
 fi
 
 # insert a list of all available packages for the user into download.html
-templates=/usr/lib/oopenvpn-int
+templates=/usr/lib/openvpn-int
 cp ${templates}/download.head > "${readytogo}/download.html"
 for rtgp in $(cd /var/www/readytogo/"${uid}" && echo "openvpn-"*"-${uid}.zip"); do
     echo "<p><a href=\"/readytogo/${uid}/${rtpg}\">${rtpg}</a><hr/></p>"
