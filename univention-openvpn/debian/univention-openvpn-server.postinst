@@ -22,6 +22,8 @@ fi
 . /usr/share/univention-lib/base.sh
 call_joinscript 94univention-openvpn-server.inst
 
+mkdir /var/log/openvpn
+
 
 # configure display active users
 eval $(ucr shell)
