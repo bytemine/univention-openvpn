@@ -3,6 +3,7 @@ Section: univention
 Maintainer: bytemine GmbH <code@bytemine.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.2
+Priority: optional
 
 Package: univention-openvpn-server
 Architecture: all
