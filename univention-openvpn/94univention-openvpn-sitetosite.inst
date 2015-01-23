@@ -12,8 +12,8 @@ joinscript_init
 
 # initial site2site secret generation
 eval "$(ucr shell server/role ldap/hostdn)"
-openvpn --genkey --secret "${S@SNEWKEY}"
-udm computers/${server_role} modify --dn "${ldap_hostdn}" \
+openvpn --genkey --secret "${S2SNEWKEY}"
+udm computers/${server_role} modify "$@" --dn "${ldap_hostdn}" \
 	--set openvpnSecret="$(<${S2SNEWKEY})"
 
 ucs_addServiceToLocalhost "$SERVICE" "$@"
