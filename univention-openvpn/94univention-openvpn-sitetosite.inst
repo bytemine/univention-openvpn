@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 VERSION=6
 
 SERVICE="OpenVPNSitetoSite"
 
-S2SNEWKEY="/etc/openvpn/sitetosite.newkey"
+NEWKEY="/etc/openvpn/sitetosite.newkey"
 
 . /usr/share/univention-lib/ldap.sh
 . /usr/share/univention-join/joinscripthelper.lib
@@ -12,9 +12,9 @@ joinscript_init
 
 # initial site2site secret generation
 eval "$(ucr shell server/role ldap/hostdn)"
-openvpn --genkey --secret "${S2SNEWKEY}"
+openvpn --genkey --secret "${NEWKEY}"
 udm computers/${server_role} modify "$@" --dn "${ldap_hostdn}" \
-	--set openvpnSecret="$(<${S2SNEWKEY})"
+	--set openvpnSecret="$(<${NEWKEY})"
 
 ucs_addServiceToLocalhost "$SERVICE" "$@"
 
