@@ -83,7 +83,6 @@ def handler(dn, new, old, cmd):
 
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
-    licuc = 5
 
     maxu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
 
