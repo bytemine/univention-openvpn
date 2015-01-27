@@ -90,6 +90,7 @@ def handler(dn, new, old, cmd):
     ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
 
     if vpnuc > maxu:
+        listener.unsetuid()
         return			# do nothing
 
     for user in vpnusers:
