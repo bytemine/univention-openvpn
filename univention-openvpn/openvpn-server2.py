@@ -6,7 +6,7 @@
 __package__ = ''  # workaround for PEP 366
 
 import listener
-import univention.debug
+import univention.debug as ud
 import re
 import univention_baseconfig
 import os
@@ -33,7 +33,7 @@ def load_rc(ofile):
         l = f.readlines()
         f.close()
     except Exception, e:
-        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to open "%s": %s' % (ofile, str(e)) )
+        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to open "%s": %s' % (ofile, str(e)) )
     listener.unsetuid()
     return l
 
@@ -45,7 +45,7 @@ def write_rc(flist, wfile):
         f.writelines(flist)
         f.close()
     except Exception, e:
-        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to write to file "%s": %s' % (wfile, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write to file "%s": %s' % (wfile, str(e)))
     listener.unsetuid()
 
 # function to delete a textfile with setuid(0) for root-action
@@ -54,7 +54,7 @@ def delete_file(fn):
     try:
         os.remove(fn)
     except Exception, e:
-        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
     listener.unsetuid()
 
 # function to delete a directory with setuid(0) for root-action
@@ -63,7 +63,7 @@ def delete_dir(fn):
     try:
         os.rmdir(fn)
     except Exception, e:
-        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
     listener.unsetuid()
 
 # function to open an ip map with setuid(0) for root-action
@@ -76,7 +76,7 @@ def load_ip_map(path):
             for row in r:
                 ip_map.append(row)
     except Exception, e:
-        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to load ip map: %s' % str(e))
+        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to load ip map: %s' % str(e))
     listener.unsetuid()
     return ip_map
 
@@ -89,7 +89,7 @@ def write_ip_map(ip_map, path):
             for i in ip_map:
                 w.writerow(i)
     except Exception, e:
-        univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to write ip map: %s' % str(e))
+        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write ip map: %s' % str(e))
     listener.unsetuid()
 
 def handler(dn, new, old, command):
@@ -211,7 +211,7 @@ def postrun():
     global action
     if not action:
         return
-    univention.debug.debug(univention.debug.LISTENER, univention.debug.INFO, 'OpenVPN-Server %s' % (action))
+    ud.debug(ud.LISTENER, ud.INFO, 'OpenVPN-Server %s' % (action))
 
     if action == 'stop':
         # deactivate config
@@ -220,7 +220,7 @@ def postrun():
             os.rename (fn_serverconf, fn_serverconf + '-disabled')
         except Exception, e:
             listener.unsetuid()
-            univention.debug.debug(univention.debug.LISTENER, univention.debug.ERROR, 'Failed to deactivate server config: %s' % str(e))
+            ud.debug(ud.LISTENER, ud.ERROR, 'Failed to deactivate server config: %s' % str(e))
             return
 
     try:
