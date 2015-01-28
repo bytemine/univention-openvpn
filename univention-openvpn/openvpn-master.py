@@ -46,6 +46,7 @@ def license(key):
       return None		# invalid license
     vdate = int(items.pop(0))
     if date.today().toordinal() > vdate:
+      ud.debug(ud.LISTENER, ud.ERROR, 'License has expired')
       return None		# expired
     l = {'valid': True}		# at least one feature returned
     while items:
@@ -61,6 +62,7 @@ def maxvpnusers(key):
   try:
     return max(int(license(key)['u']), mnlu)
   except:
+    ud.debug(ud.LISTENER, ud.ERROR, 'Invalid license')
     return mnlu			# invalid license
 
 
