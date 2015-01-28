@@ -15,6 +15,11 @@ import univention.uldap as ul
 from netaddr import *
 from univention.config_registry import ConfigRegistry
 
+from datetime import date
+from M2Crypto import RSA, BIO
+from base64 import b64decode
+
+
 name        = 'openvpn-server'
 description = 'write server-configuration to server.conf and handle address assignment'
 filter      = '(objectClass=univentionOpenvpn)'
@@ -24,6 +29,52 @@ modrdn      = 1
 action = None
 
 fn_serverconf = '/etc/openvpn/server.conf'
+
+
+pubbio = BIO.MemoryBuffer('''
+-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAN0VVx22Oou8UTDsrug/UnZLiX2UcXeE
+GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==
+-----END PUBLIC KEY-----
+''')
+pub = RSA.load_pub_key_bio(pubbio)
+pbs = pub.__len__() / 8
+
+def license(key):
+  try:
+    enc = b64decode(key)
+    raw = ''
+    while len(enc) > pbs:
+      d, key = (enc[:pbs], enc[pbs:])
+      raw = raw + pub.public_decrypt(d, 1)
+    if len(enc) != pbs:
+      return None		# invalid license
+    raw = raw + pub.public_decrypt(enc, 1)
+    #
+    items = raw.rstrip().split('\n')
+    if not items:
+      return None		# invalid license
+    vdate = int(items.pop(0))
+    if date.today().toordinal() > vdate:
+      ud.debug(ud.LISTENER, ud.ERROR, 'License has expired')
+      return None		# expired
+    l = {'valid': True}		# at least one feature returned
+    while items:
+      kv = items.pop(0).split('=', 1)
+      kv.append(True)
+      l[kv[0]] = kv[1]
+    return l			# valid license
+  except:
+    return None			# invalid license
+
+def maxvpnusers(key):
+  mnlu = 5
+  try:
+    return max(int(license(key)['u']), mnlu)
+  except:
+    ud.debug(ud.LISTENER, ud.ERROR, 'Invalid license')
+    return mnlu			# invalid license
+
 
 # function to open a textfile with setuid(0) for root-action
 def load_rc(ofile):
@@ -118,6 +169,19 @@ def handler(dn, new, old, command):
         action = 'restart'
     else:
         action = 'stop'
+
+    listener.setuid(0)
+    lo = ul.getAdminConnection()
+
+    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
+    vpnuc = len(vpnusers)
+    maxu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
+    ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
+    if vpnuc > maxu:
+        listener.unsetuid()
+        action = None
+        return			# do nothing
+
 
     # activate config
     if not 'univentionOpenvpnActive' in old and os.path.exists(fn_serverconf + '-disabled'):
