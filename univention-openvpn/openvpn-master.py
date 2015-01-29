@@ -46,7 +46,7 @@ def license(key):
       return None		# invalid license
     vdate = int(items.pop(0))
     if date.today().toordinal() > vdate:
-      ud.debug(ud.LISTENER, ud.ERROR, 'License has expired')
+      ud.debug(ud.LISTENER, ud.ERROR, '1 License has expired')
       return None		# expired
     l = {'valid': True}		# at least one feature returned
     while items:
@@ -62,19 +62,19 @@ def maxvpnusers(key):
   try:
     return max(int(license(key)['u']), mnlu)
   except:
-    ud.debug(ud.LISTENER, ud.ERROR, 'Invalid license')
+    ud.debug(ud.LISTENER, ud.ERROR, '1 Invalid license')
     return mnlu			# invalid license
 
 
 # called to create (update) bundle for user when openvpn is activated
 def handler(dn, new, old, cmd):
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn-master.handler() invoked')
+    ud.debug(ud.LISTENER, ud.INFO, '1 openvpn-master.handler() invoked')
 
     if cmd == 'n':
         return
 
     uid = new.get('uid', [None])[0]
-    home = new.get('homeDirectory', [None])[0]
+    home = new.get('homeDirectory', ['/dev/null'])[0]
     trigger = 'univentionOpenvpnAccount'
 
     listener.setuid(0)
@@ -83,13 +83,14 @@ def handler(dn, new, old, cmd):
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
     maxu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
+    ud.debug(ud.LISTENER, ud.INFO, '1 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
         listener.unsetuid()
+        ud.debug(ud.LISTENER, ud.INFO, '1 skipping actions)
         return			# do nothing
 
     if trigger in new and not trigger in old and uid and home:
-        ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: create new certificate for %s in %s' % (uid, home))
+        ud.debug(ud.LISTENER, ud.INFO, '1 create new certificate for %s in %s' % (uid, home))
 
         # create a bundle for each openvpn server
         for server in lo.search('(univentionOpenvpnActive=1)'):
@@ -105,7 +106,7 @@ def handler(dn, new, old, cmd):
                 listener.unsetuid()
 
     if trigger in old and not trigger in new and uid:
-        ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: revoke certificate for %s' % (uid))
+        ud.debug(ud.LISTENER, ud.INFO, '1 revoke certificate for %s' % (uid))
         listener.setuid(0)
         try:
             listener.run('/usr/sbin/univention-certificate', ['univention-certificate', 'revoke', '-name', uid + '.openvpn'], uid=0)

@@ -46,7 +46,7 @@ def license(key):
       return None		# invalid license
     vdate = int(items.pop(0))
     if date.today().toordinal() > vdate:
-      ud.debug(ud.LISTENER, ud.ERROR, 'License has expired')
+      ud.debug(ud.LISTENER, ud.ERROR, '2 License has expired')
       return None		# expired
     l = {'valid': True}		# at least one feature returned
     while items:
@@ -62,13 +62,13 @@ def maxvpnusers(key):
   try:
     return max(int(license(key)['u']), mnlu)
   except:
-    ud.debug(ud.LISTENER, ud.ERROR, 'Invalid license')
+    ud.debug(ud.LISTENER, ud.ERROR, '2 Invalid license')
     return mnlu			# invalid license
 
 
 # called to create (update) bundle for user when openvpn is activated
 def handler(dn, new, old, cmd):
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn-master2.handler() invoked')
+    ud.debug(ud.LISTENER, ud.INFO, '2 openvpn-master2.handler() invoked')
 
     if cmd == 'n':
         return
@@ -88,16 +88,17 @@ def handler(dn, new, old, cmd):
 
     maxu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
 
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
+    ud.debug(ud.LISTENER, ud.INFO, '2 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
 
     if vpnuc > maxu:
         listener.unsetuid()
+        ud.debug(ud.LISTENER, ud.INFO, '2 skipping actions')
         return			# do nothing
 
     for user in vpnusers:
         uid = user[1].get('uid', [None])[0]
-        home = user[1].get('homeDirectory', [None])[0]
-        ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: create new certificate for %s in %s' % (uid, home))
+        home = user[1].get('homeDirectory', ['/dev/null'])[0]
+        ud.debug(ud.LISTENER, ud.INFO, '2 create new certificate for %s in %s' % (uid, home))
 
         if uid and home:
         # update bundle for this openvpn server with new config

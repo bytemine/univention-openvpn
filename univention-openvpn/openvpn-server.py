@@ -56,7 +56,7 @@ def license(key):
       return None		# invalid license
     vdate = int(items.pop(0))
     if date.today().toordinal() > vdate:
-      ud.debug(ud.LISTENER, ud.ERROR, 'License has expired')
+      ud.debug(ud.LISTENER, ud.ERROR, '3 License has expired')
       return None		# expired
     l = {'valid': True}		# at least one feature returned
     while items:
@@ -72,7 +72,7 @@ def maxvpnusers(key):
   try:
     return max(int(license(key)['u']), mnlu)
   except:
-    ud.debug(ud.LISTENER, ud.ERROR, 'Invalid license')
+    ud.debug(ud.LISTENER, ud.ERROR, '3 Invalid license')
     return mnlu			# invalid license
 
 
@@ -85,7 +85,7 @@ def load_rc(ofile):
         l = f.readlines()
         f.close()
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to open "%s": %s' % (ofile, str(e)) )
+        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to open "%s": %s' % (ofile, str(e)) )
     listener.unsetuid()
     return l
 
@@ -97,7 +97,7 @@ def write_rc(flist, wfile):
         f.writelines(flist)
         f.close()
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write to file "%s": %s' % (wfile, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to write to file "%s": %s' % (wfile, str(e)))
     listener.unsetuid()
 
 # function to create a directory with setuid(0) for root-action
@@ -106,7 +106,7 @@ def create_dir(path):
     try:
         os.makedirs(path)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to make directory "%s": %s' % (path, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to make directory "%s": %s' % (path, str(e)))
     listener.unsetuid()
 
 # function to rename a directory with setuid(0) for root-action
@@ -115,7 +115,7 @@ def rename_dir(pathold, pathnew):
     try:
         os.rename(pathold, pathnew)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to rename directory "%s" to "%s": %s' % (pathold, pathnew, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to rename directory "%s" to "%s": %s' % (pathold, pathnew, str(e)))
     listener.unsetuid()
 
 # function to delete a textfile with setuid(0) for root-action
@@ -124,7 +124,7 @@ def delete_file(fn):
     try:
         os.remove(fn)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to remove file "%s": %s' % (fn, str(e)))
     listener.unsetuid()
 
 # function to open an ip map with setuid(0) for root-action
@@ -137,7 +137,7 @@ def load_ip_map(path):
             for row in r:
                 ip_map.append(row)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to load ip map: %s' % str(e))
+        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to load ip map: %s' % str(e))
     listener.unsetuid()
     return ip_map
 
@@ -150,7 +150,7 @@ def write_ip_map(ip_map, path):
             for i in ip_map:
                 w.writerow(i)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write ip map: %s' % str(e))
+        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to write ip map: %s' % str(e))
     listener.unsetuid()
 
 def handler(dn, new, old, command):
@@ -176,10 +176,11 @@ def handler(dn, new, old, command):
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
     maxu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn/handler: found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
+    ud.debug(ud.LISTENER, ud.INFO, '3 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
         listener.unsetuid()
         action = None
+        ud.debug(ud.LISTENER, ud.INFO, '3 skipping actions')
         return			# do nothing
 
 
@@ -190,7 +191,7 @@ def handler(dn, new, old, command):
             os.rename (fn_serverconf + '-disabled', fn_serverconf)
         except Exception, e:
             listener.unsetuid()
-            ud.debug(ud.LISTENER, ud.ERROR, 'Failed to activate server config: %s' % str(e))
+            ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to activate server config: %s' % str(e))
             return
         listener.unsetuid()
 
@@ -451,7 +452,7 @@ def postrun():
     global action
     if not action:
         return
-    ud.debug(ud.LISTENER, ud.INFO, 'OpenVPN-Server %s' % (action))
+    ud.debug(ud.LISTENER, ud.INFO, '3 OpenVPN-Server %s' % (action))
 
     if action == 'stop':
         # deactivate config
@@ -461,7 +462,7 @@ def postrun():
             listener.run('/etc/init.d/display_users', ['display_users', 'stop'], uid=0)
         except Exception, e:
             listener.unsetuid()
-            ud.debug(ud.LISTENER, ud.ERROR, 'Failed to deactivate server config: %s' % str(e))
+            ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to deactivate server config: %s' % str(e))
             return
 
     try:

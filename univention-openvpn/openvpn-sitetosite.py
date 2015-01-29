@@ -56,7 +56,7 @@ def license(key):
       return None		# invalid license
     vdate = int(items.pop(0))
     if date.today().toordinal() > vdate:
-      ud.debug(ud.LISTENER, ud.ERROR, 'License has expired.')
+      ud.debug(ud.LISTENER, ud.ERROR, '5 License has expired.')
       return None		# expired 
     l = {'valid': True}
     while items:
@@ -78,7 +78,7 @@ def load_rc(ofile):
         l = f.readlines()
         f.close()
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to open "%s": %s' % (ofile, str(e)) )
+        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to open "%s": %s' % (ofile, str(e)) )
     listener.unsetuid()
     return l
 
@@ -90,7 +90,7 @@ def write_rc(flist, wfile):
         f.writelines(flist)
         f.close()
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write to file "%s": %s' % (wfile, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to write to file "%s": %s' % (wfile, str(e)))
     listener.unsetuid()
 
 # function to create a directory with setuid(0) for root-action
@@ -99,7 +99,7 @@ def create_dir(path):
     try:
         os.makedirs(path)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to make directory "%s": %s' % (path, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to make directory "%s": %s' % (path, str(e)))
     listener.unsetuid()
 
 # function to rename a directory with setuid(0) for root-action
@@ -108,7 +108,7 @@ def rename_dir(pathold, pathnew):
     try:
         os.rename(pathold, pathnew)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to rename directory "%s" to "%s": %s' % (pathold, pathnew, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to rename directory "%s" to "%s": %s' % (pathold, pathnew, str(e)))
     listener.unsetuid()
 
 # function to delete a textfile with setuid(0) for root-action
@@ -117,7 +117,7 @@ def delete_file(fn):
     try:
         os.remove(fn)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to remove file "%s": %s' % (fn, str(e)))
     listener.unsetuid()
 
 # function to open an ip map with setuid(0) for root-action
@@ -130,7 +130,7 @@ def load_ip_map(path):
             for row in r:
                 ip_map.append(row)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to load ip map: %s' % str(e))
+        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to load ip map: %s' % str(e))
     listener.unsetuid()
     return ip_map
 
@@ -143,7 +143,7 @@ def write_ip_map(ip_map, path):
             for i in ip_map:
                 w.writerow(i)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write ip map: %s' % str(e))
+        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to write ip map: %s' % str(e))
     listener.unsetuid()
 
 def handler(dn, new, old, command):
@@ -162,23 +162,19 @@ def handler(dn, new, old, command):
     if 'univentionOpenvpnSitetoSiteActive' in new:
         key = new.get('univentionOpenvpnLicense', [None])[0]
 	if not key:
-            ud.debug(ud.LISTENER, ud.INFO, 'No license key.')
+            ud.debug(ud.LISTENER, ud.INFO, '5 No license key. Skipping actions.')
             action = None
             return
         lic = license(key)
         if not lic:
-            ud.debug(ud.LISTENER, ud.ERROR, 'Invalid license.')
+            ud.debug(ud.LISTENER, ud.ERROR, '5 Invalid license. Skipping actions.')
             action = None
             return
-        if not lic['valid']:
-            ud.debug(ud.LISTENER, ud.ERROR, 'License has expired.')
+        if not lic.get('s2s')
+            ud.debug(ud.LISTENER, ud.INFO, '5 License does not contain site-to-site. Skipping actions.')
             action = None
             return
-        if not lic['s2s']:
-            ud.debug(ud.LISTENER, ud.INFO, 'License does not contain site-to-site.')
-            action = None
-            return
-        ud.debug(ud.LISTENER, ud.INFO, '** license valid, site2site enabled')
+        ud.debug(ud.LISTENER, ud.INFO, '5 ** license valid, site2site enabled')
 
     if 'univentionOpenvpnSitetoSiteActive' in new:
         action = 'restart'
@@ -192,7 +188,7 @@ def handler(dn, new, old, command):
             os.rename (fn_sitetositeconf + '-disabled', fn_sitetositeconf)
         except Exception, e:
             listener.unsetuid()
-            ud.debug(ud.LISTENER, ud.ERROR, 'Failed to activate site-to-site config: %s' % str(e))
+            ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to activate site-to-site config: %s' % str(e))
             return
         listener.unsetuid()
 
@@ -293,7 +289,7 @@ ifconfig 10.0.0.1 10.0.0.2
     flist.append("ifconfig %s %s\n" % (localaddress, remoteaddress))
 
     secret = new.get('univentionOpenvpnSecret', [None])[0]
-    ud.debug(ud.LISTENER, ud.INFO, 'secret: %s' % (secret))
+    ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
     write_rc([secret] if secret else [''], fn_secret)
 
     write_rc(flist, fn_sitetositeconf)
@@ -305,7 +301,7 @@ def postrun():
     global action
     if not action:
         return
-    ud.debug(ud.LISTENER, ud.INFO, 'OpenVPN-Server Site-to-Site %s' % (action))
+    ud.debug(ud.LISTENER, ud.INFO, '5 OpenVPN-Server Site-to-Site %s' % (action))
 
     if action == 'stop':
         # deactivate config
@@ -314,7 +310,7 @@ def postrun():
             os.rename (fn_sitetositeconf, fn_sitetositeconf + '-disabled')
         except Exception, e:
             listener.unsetuid()
-            ud.debug(ud.LISTENER, ud.ERROR, 'Failed to deactivate site-to-site config: %s' % str(e))
+            ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to deactivate site-to-site config: %s' % str(e))
             return
 
     try:
