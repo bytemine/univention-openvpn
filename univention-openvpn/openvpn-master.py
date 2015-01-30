@@ -86,7 +86,7 @@ def handler(dn, new, old, cmd):
     ud.debug(ud.LISTENER, ud.INFO, '1 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
         listener.unsetuid()
-        ud.debug(ud.LISTENER, ud.INFO, '1 skipping actions)
+        ud.debug(ud.LISTENER, ud.INFO, '1 skipping actions')
         return			# do nothing
 
     if trigger in new and not trigger in old and uid and home:
