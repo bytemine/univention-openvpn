@@ -372,7 +372,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnRemoteAddress' \
-    --set syntax='ipAddress' \
+    --set syntax='string' \
     --set mayChange='1' \
     --set multivalue='0' \
     --set deleteObjectClass='0' \
@@ -401,7 +401,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnLocalAddress' \
-    --set syntax='ipAddress' \
+    --set syntax='string' \
     --set mayChange='1' \
     --set multivalue='0' \
     --set deleteObjectClass='0' \
