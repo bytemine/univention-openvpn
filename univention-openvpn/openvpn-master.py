@@ -68,7 +68,7 @@ def maxvpnusers(key):
 
 # called to create (update) bundle for user when openvpn is activated
 def handler(dn, new, old, cmd):
-    ud.debug(ud.LISTENER, ud.INFO, '1 openvpn-master.handler() invoked')
+    ud.debug(ud.LISTENER, ud.INFO, '1 master handler')
 
     if cmd == 'n':
         return
