@@ -184,9 +184,12 @@ def handler(dn, new, old, command):
     ud.debug(ud.LISTENER, ud.INFO, '3 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
         listener.unsetuid()
-        action = None
-        ud.debug(ud.LISTENER, ud.INFO, '3 skipping actions')
-        return			# do nothing
+        if action == 'stop':
+            ud.debug(ud.LISTENER, ud.INFO, '3 allowing stop action')
+        else
+            ud.debug(ud.LISTENER, ud.INFO, '3 skipping actions')
+            action = None
+            return			# do nothing
 
 
     # activate config
