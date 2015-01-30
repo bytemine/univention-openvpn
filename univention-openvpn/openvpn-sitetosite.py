@@ -175,7 +175,7 @@ def handler(dn, new, old, command):
             ud.debug(ud.LISTENER, ud.ERROR, '5 Invalid license. Skipping actions.')
             action = None
             return
-        if not lic.get('s2s')
+        if not lic.get('s2s'):
             ud.debug(ud.LISTENER, ud.INFO, '5 License does not contain site-to-site. Skipping actions.')
             action = None
             return
