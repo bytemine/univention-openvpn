@@ -195,18 +195,12 @@ def handler(dn, new, old, command):
         open(fn_ipsv6, 'a').close()
         listener.unsetuid()
 
-    # delete entries and ready2go packet in /var/www/ on user deletion
+    # delete entries on user deletion
     if command == 'd':
         client_cn = old.get('uid', [None])[0]
-
         delete_file(ccd + client_cn + ".openvpn")
-        delete_file("/var/www/" + client_cn + "/.htaccess")
-        delete_file("/var/www/" + client_cn + "/openvpn-" + myname + "-" + client_cn + ".zip")
-        delete_dir("/var/www/" + client_cn + "/")
-
         delete_entry(client_cn, fn_ips)
         delete_entry(client_cn, fn_ipsv6)
-
         return
 
     client_cn = new.get('uid', [None])[0]
