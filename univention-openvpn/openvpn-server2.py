@@ -144,6 +144,7 @@ def write_ip_map(ip_map, path):
     listener.unsetuid()
 
 def handler(dn, new, old, command):
+    ud.debug(ud.LISTENER, ud.INFO, '4 server2 handler')
     global action
     if command == 'n':
         action = None
