@@ -163,16 +163,16 @@ def handler(dn, new, old, command):
         action = None
         return
 
+    if 'univentionOpenvpnActive' in new:
+        action = 'restart'
+    else:
+        action = 'stop'
+
     cn = new.get('cn', [None])[0]
     myname = listener.baseConfig['hostname']
     if cn != myname:
         action = None
         return
-
-    if 'univentionOpenvpnActive' in new:
-        action = 'restart'
-    else:
-        action = 'stop'
 
     listener.setuid(0)
     lo = ul.getAdminConnection()
