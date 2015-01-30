@@ -22,7 +22,7 @@ from base64 import b64decode
 name        = 'openvpn-server2'
 description = 'manage fixed ip addresses on user actions'
 filter      = '(objectClass=univentionOpenvpnUser)'
-attributes  = []
+attributes  = ['univentionOpenvpnAccount']
 modrdn      = 1
 
 action = None
