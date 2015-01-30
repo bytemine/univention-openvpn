@@ -186,7 +186,7 @@ def handler(dn, new, old, command):
         listener.unsetuid()
         if action == 'stop':
             ud.debug(ud.LISTENER, ud.INFO, '3 allowing stop action')
-        else
+        else:
             ud.debug(ud.LISTENER, ud.INFO, '3 skipping actions')
             action = None
             return			# do nothing
