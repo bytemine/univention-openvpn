@@ -153,7 +153,7 @@ def handler(dn, new, old, command):
     myname = listener.baseConfig['hostname']
 
     listener.setuid(0)
-    lo = ul.getBackupConnection()
+    lo = ul.getMachineConnection()
     server = lo.search('(cn=' + myname + ')')[0]
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     listener.unsetuid()

@@ -23,7 +23,7 @@ from base64 import b64decode
 name        = 'openvpn-server'
 description = 'write server-configuration to server.conf and handle address assignment'
 filter      = '(objectClass=univentionOpenvpn)'
-attribute   = [
+attributes   = [
     'univentionOpenvpnActive', 'univentionOpenvpnLicense',
     'univentionOpenvpnPort', 'univentionOpenvpnNet', 'univentionOpenvpnNetIPv6',
     'univentionOpenvpnRedirect', 'univentionOpenvpnDuplicate',
@@ -176,7 +176,7 @@ def handler(dn, new, old, command):
         return
 
     listener.setuid(0)
-    lo = ul.getAdminConnection()
+    lo = ul.getMachineConnection()
 
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
@@ -374,7 +374,7 @@ def change_net(network, netmask, ccd, fn_ips, ipv6):
 
     ip_map_new = []
     listener.setuid(0)
-    lo = ul.getBackupConnection()
+    lo = ul.getMachineConnection()
     users = lo.search('univentionOpenvpnAccount=1')
     listener.unsetuid()
 
