@@ -23,7 +23,11 @@ from base64 import b64decode
 name        = 'openvpn-server'
 description = 'write server-configuration to server.conf and handle address assignment'
 filter      = '(objectClass=univentionOpenvpn)'
-attribute   = ['univentionOpenvpnActive']
+attribute   = [
+    'univentionOpenvpnActive', 'univentionOpenvpnLicense',
+    'univentionOpenvpnPort', 'univentionOpenvpnNet', 'univentionOpenvpnNetIPv6',
+    'univentionOpenvpnRedirect', 'univentionOpenvpnDuplicate',
+    'univentionOpenvpnFixedAddresses', 'univentionOpenvpnUserAddress' ]
 modrdn      = 1
 
 action = None
