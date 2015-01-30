@@ -22,7 +22,7 @@ from base64 import b64decode
 name        = 'openvpn-sitetosite'
 description = 'write configuration to sitetosite.conf'
 filter      = '(objectClass=univentionOpenvpnSitetoSite)'
-attribute   = [
+attributes  = [
     'univentionOpenvpnSitetoSiteActive', 'univentionOpenvpnLicense',
     'univentionOpenvpnSitetoSitePort', 'univentionOpenvpnRemote',
     'univentionOpenvpnLocalAddress', 'univentionOpenvpnRemoteAddress',
