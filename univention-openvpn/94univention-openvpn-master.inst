@@ -125,7 +125,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnNetIPv6' \
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-NetIPv6' \
-    --set shortDescription='OpenVPN transfer network for IPv6' \
+    --set shortDescription='OpenVPN transfer network IPv6' \
     --set longDescription='OpenVPN will use this as transfer network within the virtual private network.' \
     --set translationShortDescription='"de_DE" "OpenVPN Transfernetzwerk für IPv6"' \
     --set translationLongDescription='"de_DE" "OpenVPN verwendet dieses Transfernetzwerk innerhalb des virtuellen privaten Netzes."' \
@@ -155,7 +155,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnNet' \
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-Net' \
-    --set shortDescription='OpenVPN transfer network' \
+    --set shortDescription='OpenVPN transfer network IPv4' \
     --set longDescription='OpenVPN will use this as transfer network within the virtual private network.' \
     --set translationShortDescription='"de_DE" "OpenVPN Transfernetzwerk"' \
     --set translationLongDescription='"de_DE" "OpenVPN verwendet dieses Transfernetzwerk innerhalb des virtuellen privaten Netzes."' \
