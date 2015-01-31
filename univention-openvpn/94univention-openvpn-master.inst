@@ -26,6 +26,65 @@ univention-directory-manager container/cn create "$@" --ignore_exists \
     --set name=openvpn || die
 
 udm settings/extended_attribute remove "$@" \
+    --dn "cn=UniventionOpenvpn-Duplicate,${eabas}" >/dev/null 2>&1
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+    --append module="computers/domaincontroller_master" \
+    --append module="computers/domaincontroller_slave" \
+    --append module="computers/domaincontroller_backup" \
+    --append module="computers/memberserver" \
+    --set ldapMapping='univentionOpenvpnDuplicate' \
+    --set objectClass='univentionOpenvpn' \
+    --set name='UniventionOpenvpn-Duplicate' \
+    --set shortDescription='OpenVPN duplicate' \
+    --set longDescription='Allow multiple clients with the same common name to connect simultaneously.' \
+    --set translationShortDescription='"de_DE" "OpenVPN Mehrfachverbindung"' \
+    --set translationLongDescription='"de_DE" "OpenVPN erlaubt mehrere gleichzeitige Verbindungen mit gleichem Zertifikat (CN im Zertifikat)."' \
+    --set tabAdvanced='1' \
+    --set tabName='OpenVPN' \
+    --set groupName='User VPN' \
+    --set groupPosition='2' \
+    --set overwriteTab='0' \
+    --set valueRequired='0' \
+    --set CLIName='openvpnDuplicate' \
+    --set syntax='boolean' \
+    --set mayChange='1' \
+    --set multivalue='0' \
+    --set deleteObjectClass='0' \
+    --set doNotSearch='0' \
+    --set hook='None' || die
+
+udm settings/extended_attribute remove "$@" \
+    --dn "cn=UniventionOpenvpn-Redirect,${eabas}" >/dev/null 2>&1
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+    --append module="computers/domaincontroller_master" \
+    --append module="computers/domaincontroller_slave" \
+    --append module="computers/domaincontroller_backup" \
+    --append module="computers/memberserver" \
+    --set default='1' \
+    --set ldapMapping='univentionOpenvpnRedirect' \
+    --set objectClass='univentionOpenvpn' \
+    --set name='UniventionOpenvpn-Redirect' \
+    --set shortDescription='OpenVPN redirect gateway' \
+    --set longDescription='OpenVPN will establish itself as the default gateway for the client. All internet traffic will be redirected through the virtual private network.' \
+    --set translationShortDescription='"de_DE" "OpenVPN Standard-Gateway Umleitung"' \
+    --set translationShortDescription='"de_DE" "OpenVPN setzt sich beim Client als Standard-Gateway ein. Jeglicher Internetverkehr wird über das virtuelle private Netz geleitet."' \
+    --set tabAdvanced='1' \
+    --set tabName='OpenVPN' \
+    --set groupName='User VPN' \
+    --set groupPosition='2' \
+    --set overwriteTab='0' \
+    --set valueRequired='0' \
+    --set CLIName='openvpnRedirect' \
+    --set syntax='boolean' \
+    --set mayChange='1' \
+    --set multivalue='0' \
+    --set deleteObjectClass='0' \
+    --set doNotSearch='0' \
+    --set hook='None' || die
+
+udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-UserAddress,${eabas}" >/dev/null 2>&1
 univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
     --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
@@ -174,58 +233,29 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set hook='None' || die
 
 udm settings/extended_attribute remove "$@" \
-    --dn "cn=UniventionOpenvpn-Redirect,${eabas}" >/dev/null 2>&1
+    --dn "cn=UniventionOpenvpn-Address,${eabas}" >/dev/null 2>&1
 univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
     --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
     --append module="computers/domaincontroller_master" \
     --append module="computers/domaincontroller_slave" \
     --append module="computers/domaincontroller_backup" \
     --append module="computers/memberserver" \
-    --set default='1' \
-    --set ldapMapping='univentionOpenvpnRedirect' \
+    --set ldapMapping='univentionOpenvpnAddress' \
     --set objectClass='univentionOpenvpn' \
-    --set name='UniventionOpenvpn-Redirect' \
-    --set shortDescription='OpenVPN redirect gateway' \
-    --set longDescription='OpenVPN will establish itself as the default gateway for the client. All internet traffic will be redirected through the virtual private network.' \
-    --set translationShortDescription='"de_DE" "OpenVPN Standard-Gateway Umleitung"' \
-    --set translationShortDescription='"de_DE" "OpenVPN setzt sich beim Client als Standard-Gateway ein. Jeglicher Internetverkehr wird über das virtuelle private Netz geleitet."' \
+    --set name='UniventionOpenvpn-Address' \
+    --set shortDescription='OpenVPN server address' \
+    --set longDescription='This address is used by clients to connect to the OpenVPN server. The server itself always listens on all available interfaces. This is useful if the actual OpenVPN server is in a private network behind a firewall which uses port-forwarding to pass VPN connections.' \
+    --set translationShortDescription='"de_DE" "OpenVPN Serveradresse' \
+    --set translationLongDescription='"de_DE" "Diese Adresse wird von Klienten benutzt um den OpenVPN Server zu erreichen. Der Server selber lauscht allerdings immmer auf allen verfügbaren Schnittstellen. Dies macht es möglich, den OpenVPN Server in einem lokalen Netz hinter einer Firewall, welche Port-Weiterleitung einsetzt um den OpenVPN Server von aussen erreichbar zu machen, zu betreiben."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
+    --set default='0.0.0.0' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
-    --set CLIName='openvpnRedirect' \
-    --set syntax='boolean' \
-    --set mayChange='1' \
-    --set multivalue='0' \
-    --set deleteObjectClass='0' \
-    --set doNotSearch='0' \
-    --set hook='None' || die
-
-udm settings/extended_attribute remove "$@" \
-    --dn "cn=UniventionOpenvpn-Duplicate,${eabas}" >/dev/null 2>&1
-univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
-    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
-    --append module="computers/domaincontroller_master" \
-    --append module="computers/domaincontroller_slave" \
-    --append module="computers/domaincontroller_backup" \
-    --append module="computers/memberserver" \
-    --set ldapMapping='univentionOpenvpnDuplicate' \
-    --set objectClass='univentionOpenvpn' \
-    --set name='UniventionOpenvpn-Duplicate' \
-    --set shortDescription='OpenVPN duplicate' \
-    --set longDescription='Allow multiple clients with the same common name to connect simultaneously.' \
-    --set translationShortDescription='"de_DE" "OpenVPN Mehrfachverbindung"' \
-    --set translationLongDescription='"de_DE" "OpenVPN erlaubt mehrere gleichzeitige Verbindungen mit gleichem Zertifikat (CN im Zertifikat)."' \
-    --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
-    --set groupName='User VPN' \
-    --set groupPosition='2' \
-    --set overwriteTab='0' \
-    --set valueRequired='0' \
-    --set CLIName='openvpnDuplicate' \
-    --set syntax='boolean' \
+    --set CLIName='openvpnAddress' \
+    --set syntax='hostOrIP' \
     --set mayChange='1' \
     --set multivalue='0' \
     --set deleteObjectClass='0' \
@@ -255,36 +285,6 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set valueRequired='0' \
     --set CLIName='openvpnActive' \
     --set syntax='boolean' \
-    --set mayChange='1' \
-    --set multivalue='0' \
-    --set deleteObjectClass='0' \
-    --set doNotSearch='0' \
-    --set hook='None' || die
-
-udm settings/extended_attribute remove "$@" \
-    --dn "cn=UniventionOpenvpn-Address,${eabas}" >/dev/null 2>&1
-univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
-    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
-    --append module="computers/domaincontroller_master" \
-    --append module="computers/domaincontroller_slave" \
-    --append module="computers/domaincontroller_backup" \
-    --append module="computers/memberserver" \
-    --set ldapMapping='univentionOpenvpnAddress' \
-    --set objectClass='univentionOpenvpn' \
-    --set name='UniventionOpenvpn-Address' \
-    --set shortDescription='OpenVPN server address' \
-    --set longDescription='This address is used by clients to connect to the OpenVPN server. The server itself always listens on all available interfaces. This is useful if the actual OpenVPN server is in a private network behind a firewall which uses port-forwarding to pass VPN connections.' \
-    --set translationShortDescription='"de_DE" "OpenVPN Serveradresse' \
-    --set translationLongDescription='"de_DE" "Diese Adresse wird von Klienten benutzt um den OpenVPN Server zu erreichen. Der Server selber lauscht allerdings immmer auf allen verfügbaren Schnittstellen. Dies macht es möglich, den OpenVPN Server in einem lokalen Netz hinter einer Firewall, welche Port-Weiterleitung einsetzt um den OpenVPN Server von aussen erreichbar zu machen, zu betreiben."' \
-    --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
-    --set groupName='User VPN' \
-    --set groupPosition='2' \
-    --set default='0.0.0.0' \
-    --set overwriteTab='0' \
-    --set valueRequired='0' \
-    --set CLIName='openvpnAddress' \
-    --set syntax='hostOrIP' \
     --set mayChange='1' \
     --set multivalue='0' \
     --set deleteObjectClass='0' \
