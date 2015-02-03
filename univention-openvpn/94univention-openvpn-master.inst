@@ -36,10 +36,10 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnUserAddress' \
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-UserAddress' \
-    --set shortDescription='OpenVPN users address' \
-    --set longDescription='Assign IP address to users' \
+    --set shortDescription='OpenVPN user's address' \
+    --set longDescription='Assign IP addresses to users.' \
     --set translationShortDescription='"de_DE" "Adresse des Benutzers"' \
-    --set translationLongDescription='"de_DE" "Weise Benutzer feste IP Adresse zu"' \
+    --set translationLongDescription='"de_DE" "Weise Benutzer feste IP Adresse zu."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
     --set groupName='User VPN' \
@@ -66,9 +66,9 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-FixedAddresses' \
     --set shortDescription='OpenVPN fixed addresses' \
-    --set longDescription='Use fixed IP addresses fuer users' \
+    --set longDescription='Use fixed IP addresses for users.' \
     --set translationShortDescription='"de_DE" "Feste Adressen"' \
-    --set translationLongDescription='"de_DE" "Benutze feste IP Adressen für Benutzer"' \
+    --set translationLongDescription='"de_DE" "Benutze feste IP Adressen für Benutzer."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
     --set groupName='User VPN' \
@@ -274,7 +274,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-Active' \
     --set shortDescription='OpenVPN server active' \
-    --set longDescription='OpenVPN server active. In order to start the OpenVPN service on this computer, this option has to be enabled.' \
+    --set longDescription='In order to start the OpenVPN service on this computer, this option has to be enabled.' \
     --set translationShortDescription='"de_DE" "OpenVPN Server aktiviert"' \
     --set translationLongDescription='"de_DE" "OpenVPN Server aktiviert. Um den OpenVPN Dienst auf diesem Rechner laufen zu lassen, muss diese Option aktiviert werden."' \
     --set tabAdvanced='1' \
@@ -362,7 +362,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set objectClass='univentionOpenvpnSitetoSite' \
     --set name='UniventionOpenvpn-RemoteAddress' \
     --set shortDescription='OpenVPN internal remote address' \
-    --set longDescription='The remote VPN endpoint address for site-to-site vpns.' \
+    --set longDescription='Defines the fixed IP for the remote endpoint, which is only used inside the virtual transfer network.' \
     --set translationShortDescription='"de_DE" "OpenVPN interne entfernte Adresse' \
     --set translationLongDescription='"de_DE" "Die Adresse des entfernten VPN Endpunkts. Dies wird für Site-to-Site VPNs verwendet."' \
     --set tabAdvanced='1' \
@@ -391,7 +391,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set objectClass='univentionOpenvpnSitetoSite' \
     --set name='UniventionOpenvpn-LocalAddress' \
     --set shortDescription='OpenVPN internal local address' \
-    --set longDescription='The local VPN endpoint address for site-to-site vpns.' \
+    --set longDescription='Defines the fixed IP for the local endpoint, which is only used inside the virtual transfer network.' \
     --set translationShortDescription='"de_DE" "OpenVPN interne lokale Adresse' \
     --set translationLongDescription='"de_DE" "Die Adresse des lokalen VPN Endpunkts. Dies wird für Site-to-Site VPNs verwendet."' \
     --set tabAdvanced='1' \
@@ -450,7 +450,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set objectClass='univentionOpenvpnSitetoSite' \
     --set name='UniventionOpenvpn-Remote' \
     --set shortDescription='OpenVPN remote address' \
-    --set longDescription='The address of the remote OpenVPN endpoint which is used for site-to-site VPNs.' \
+    --set longDescription='The remote VPN endpoint address for site-to-site vpns. This can be an IPv4 address or a resolvable DNS name.' \
     --set translationShortDescription='"de_DE" "OpenVPN remote Adresse' \
     --set translationLongDescription='"de_DE" "Die Adresse des entfernten OpenVPN Endpunkts. Diese wird für Site-to-Site VPNs verwendet."' \
     --set tabAdvanced='1' \
@@ -480,7 +480,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set objectClass='univentionOpenvpnSitetoSite' \
     --set name='UniventionOpenvpn-SitetoSiteActive' \
     --set shortDescription='OpenVPN site-to-site active.' \
-    --set longDescription='OpenVPN site-to-site active. In order to start the OpenVPN service in site-to-site mode on this computer, this option has to be enabled. IMPORTANT: you need a valid license to activate this option.' \
+    --set longDescription='In order to start the OpenVPN service in site-to-site mode on this computer, this option has to be enabled. IMPORTANT: you need a valid license to activate this option.' \
     --set translationShortDescription='"de_DE" "OpenVPN Site-to-Site aktiviert"' \
     --set translationLongDescription='"de_DE" "OpenVPN Site-to-Site aktiviert. Um den OpenVPN Dienst im Site-to-Site Modus auf diesem Rechner laufen zu lassen, muss diese Option aktiviert werden. WICHTIG: eine gueltige Lizenz ist fuer die Aktivierung erforderlich."' \
     --set tabAdvanced='1' \
@@ -508,10 +508,10 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnLicense' \
     --set objectClass='univentionOpenvpnSitetoSite' \
     --set name='UniventionOpenvpn-License' \
-    --set shortDescription='OpenVPN4UCS license key' \
-    --set longDescription='OpenVPN4UCS license key. This is required in order to activate the site-to-site VPN' \
-    --set translationShortDescription='"de_DE" "OpenVPN4UCS Lizenzschlüssel"' \
-    --set translationLongDescription='"de_DE" "OpenVPN4UCS Lizenschlüssel. Dieser ist notwendig, um das Site-to-Site VPN zu aktivieren."' \
+    --set shortDescription='OpenVPN4UCS license key (required to activate commercial features)' \
+    --set longDescription='Activates commercial features like: user amounts >5, site-to-site VPN - available through bytemine.net.' \
+    --set translationShortDescription='"de_DE" "OpenVPN4UCS Lizenzschlüssel (für kommerzielle Funktionen benötigt)' \
+    --set translationLongDescription='"de_DE" "Aktiviert kommerzielle Funktionen: Benutzeranzahl >5, Site-to-Site VPN - zu beziehen über bytemine.net."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
     --set default='' \
