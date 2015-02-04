@@ -38,8 +38,8 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set name='UniventionOpenvpn-UserAddress' \
     --set shortDescription='OpenVPN user's address' \
     --set longDescription='Assign IP addresses to users.' \
-    --set translationShortDescription='"de_DE" "Adresse des Benutzers"' \
-    --set translationLongDescription='"de_DE" "Weise Benutzer feste IP Adresse zu."' \
+    --set translationShortDescription='"de_DE" "Adresse des OpenVPN Benutzers"' \
+    --set translationLongDescription='"de_DE" "Weise Benutzern eine feste IP Adresse zu."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
     --set groupName='User VPN' \
@@ -364,7 +364,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set shortDescription='OpenVPN internal remote address' \
     --set longDescription='Defines the fixed IP for the remote endpoint, which is only used inside the virtual transfer network.' \
     --set translationShortDescription='"de_DE" "OpenVPN interne entfernte Adresse' \
-    --set translationLongDescription='"de_DE" "Die Adresse des entfernten VPN Endpunkts. Dies wird für Site-to-Site VPNs verwendet."' \
+    --set translationLongDescription='"de_DE" "Definiert die feste IP für den entfernten Endpunkt, welche nur innerhalb des virtuellen Transfernetzwerks verwendet wird."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
     --set groupName='Site-to-Site VPN' \
@@ -393,7 +393,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set shortDescription='OpenVPN internal local address' \
     --set longDescription='Defines the fixed IP for the local endpoint, which is only used inside the virtual transfer network.' \
     --set translationShortDescription='"de_DE" "OpenVPN interne lokale Adresse' \
-    --set translationLongDescription='"de_DE" "Die Adresse des lokalen VPN Endpunkts. Dies wird für Site-to-Site VPNs verwendet."' \
+    --set translationLongDescription='"de_DE" "Definiert die feste IP für den lokalen Endpunkt, welche nur innerhalb des virtuellen Transfernetzwerks verwendet wird."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
     --set groupName='Site-to-Site VPN' \
