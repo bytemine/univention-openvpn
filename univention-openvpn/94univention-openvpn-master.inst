@@ -36,7 +36,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnUserAddress' \
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-UserAddress' \
-    --set shortDescription='OpenVPN user's address' \
+    --set shortDescription="OpenVPN user's address" \
     --set longDescription='Assign IP addresses to users.' \
     --set translationShortDescription='"de_DE" "Adresse des OpenVPN Benutzers"' \
     --set translationLongDescription='"de_DE" "Weise Benutzern eine feste IP Adresse zu."' \
