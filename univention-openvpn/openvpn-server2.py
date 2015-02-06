@@ -168,7 +168,7 @@ def handler(dn, new, old, command):
 
     #### UCS 3 ('Borgfeld') uses openvpn 2.1 - no explicit ip6 support, later version are ok
     relnam =listener.baseConfig.get('version/releasename')
-    ip6ok = relname and relnam != 'Borgfeld'
+    ip6ok = relnam and relnam != 'Borgfeld'
     if not ip6ok:
         ud.debug(ud.LISTENER, ud.INFO, '4 ipv6 support DISABLED due to version')
     
