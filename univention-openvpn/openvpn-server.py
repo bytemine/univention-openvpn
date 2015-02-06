@@ -191,6 +191,11 @@ def handler(dn, new, old, command):
             action = None
             return			# do nothing
 
+    #### UCS 3 ('Borgfeld') uses openvpn 2.1 - no explicit ip6 support, later version are ok
+    relnam =listener.baseConfig.get('version/releasename')
+    ip6ok = relname and relnam != 'Borgfeld'
+    if not ip6ok:
+        ud.debug(ud.LISTENER, ud.INFO, '3 ipv6 support DISABLED due to version')
 
     # activate config
     if not 'univentionOpenvpnActive' in old and os.path.exists(fn_serverconf + '-disabled'):
@@ -289,6 +294,7 @@ push "redirect-gateway"
         ucr.save()
         listener.unsetuid()
 
+
     ccd = '/etc/openvpn/ccd-' + portnew + '/'
     fn_ips = '/etc/openvpn/ips-' + portnew
     fn_ipsv6 = '/etc/openvpn/ipsv6-' + portnew
@@ -305,12 +311,13 @@ push "redirect-gateway"
     netmask = str(IPNetwork(network).netmask)
     flist.append("server %s %s\n" % (network_pure, netmask))
 
-    networkv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
-    if networkv6 is not None:
-        flist.append("server-ipv6 %s\n" % (networkv6))
-    else:
-        networkv6 = "2001:db8:0:123::/64"
-    netmaskv6 = str(IPNetwork(networkv6).netmask)
+    if ip6ok:
+        networkv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
+        if networkv6 is not None:
+            flist.append("server-ipv6 %s\n" % (networkv6))
+        else:
+            networkv6 = "2001:db8:0:123::/64"
+        netmaskv6 = str(IPNetwork(networkv6).netmask)
 
     redirect = new.get('univentionOpenvpnRedirect', [None])[0]
     if redirect == '1':
@@ -337,17 +344,19 @@ push "redirect-gateway"
         open(fn_ips, 'a').close()
         listener.unsetuid()
 
-    if not os.path.exists(fn_ipsv6):
-        listener.setuid(0)
-        open(fn_ipsv6, 'a').close()
-        listener.unsetuid()
+    if ip6ok:
+        if not os.path.exists(fn_ipsv6):
+            listener.setuid(0)
+            open(fn_ipsv6, 'a').close()
+            listener.unsetuid()
 
     # adapt ip_maps and ccd
     if new.get('univentionOpenvpnNet', [None])[0] != old.get('univentionOpenvpnNet', [None])[0]:
         change_net(network, netmask, ccd, fn_ips, False)
 
-    if new.get('univentionOpenvpnNetIPv6', [None])[0] != old.get('univentionOpenvpnNetIPv6', [None])[0]:
-        change_net(networkv6, netmaskv6, ccd, fn_ipsv6, True)
+    if ip6ok:
+        if new.get('univentionOpenvpnNetIPv6', [None])[0] != old.get('univentionOpenvpnNetIPv6', [None])[0]:
+            change_net(networkv6, netmaskv6, ccd, fn_ipsv6, True)
 
     if new.get('univentionOpenvpnUserAddress', [None]) != old.get('univentionOpenvpnUserAddress', [None]):
         useraddresses_raw = new.get('univentionOpenvpnUserAddress', [None])
@@ -364,7 +373,8 @@ push "redirect-gateway"
                 useraddressesv6.append(useraddress)
 
         assign_addresses(fn_ips, useraddressesv4, network, netmask, ccd, False)
-        assign_addresses(fn_ipsv6, useraddressesv6, networkv6, netmaskv6, ccd, True)
+        if ip6ok:
+            assign_addresses(fn_ipsv6, useraddressesv6, networkv6, netmaskv6, ccd, True)
 
 # adapt all stored addresses to new network
 def change_net(network, netmask, ccd, fn_ips, ipv6):
