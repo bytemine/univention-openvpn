@@ -546,6 +546,14 @@ univention-directory-manager users/user create \
     --set lastname="ldapper" \
     --set password="ldapperssecret"
 
+
+
+# protect sitetosite secret with extra acl
+ucs_registerLDAPExtension "$@" \
+    --acl /usr/lib/openvpn-int/misc/63openvpn-sitetosite.acl
+
+
+
 stop_udm_cli_server
 
 joinscript_save_current_version

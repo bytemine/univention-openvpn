@@ -1,0 +1,5 @@
+# further restrict access to sitetosite secret
+access to attrs=univentionOpenvpnSecret
+    by self read
+    by * none
+
