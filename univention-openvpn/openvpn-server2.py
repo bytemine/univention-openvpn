@@ -293,7 +293,7 @@ def postrun():
 
     try:
         listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart'], uid=0)
+        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'server'], uid=0)
     finally:
         listener.unsetuid()
 

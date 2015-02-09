@@ -485,7 +485,7 @@ def postrun():
 
     try:
         listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart'], uid=0)
+        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'server'], uid=0)
         listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
         if action == 'restart':
             listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)

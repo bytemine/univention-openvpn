@@ -320,7 +320,7 @@ def postrun():
 
     try:
         listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart'], uid=0)
+        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'sitetosite'], uid=0)
         listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
     finally:
         listener.unsetuid()
