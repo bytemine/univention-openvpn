@@ -179,7 +179,11 @@ def handler(dn, new, old, command):
         action = None
         return			# invalid config, skip
     ipnw = IPNetwork(network)
-    netmask = str(ipnw.netmask) if ipnw.size > 1 else '255.255.255.0'
+    if ipnw.size == 1:
+        netmask = '255.255.255.0'
+        network = str(ipnw.network) + "/24"
+    else:
+        netmask = str(ipnw.netmask)
 
     if ip6ok:
         networkv6 = server[1].get('univentionOpenvpnNetIPv6', [None])[0]

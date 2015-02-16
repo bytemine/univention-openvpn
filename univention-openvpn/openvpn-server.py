@@ -312,7 +312,11 @@ push "redirect-gateway"
         action = None
         return                  # invalid config, skip 
     ipnw = IPNetwork(network)
-    netmask = str(ipnw.netmask) if ipnw.size > 1 else '255.255.255.0'
+    if ipnw.size == 1:
+        netmask = '255.255.255.0'
+        network = str(ipnw.network) + "/24"
+    else:
+        netmask = str(ipnw.netmask)
     network_pure = str(ipnw.network)
     flist.append("server %s %s\n" % (network_pure, netmask))
 
