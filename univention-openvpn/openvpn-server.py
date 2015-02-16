@@ -307,8 +307,13 @@ push "redirect-gateway"
     flist.append("port %s\n" % portnew)
 
     network = new.get('univentionOpenvpnNet', [None])[0]
-    network_pure = str(IPNetwork(network).network)
-    netmask = str(IPNetwork(network).netmask)
+    if not network:
+        ud.debug(ud.LISTENER, ud.INFO, '3 missing params, skipping actions')
+        action = None
+        return                  # invalid config, skip 
+    ipnw = IPNetwork(network)
+    netmask = str(ipnw.netmask) if ipnw.size > 1 else '255.255.255.0'
+    network_pure = str(ipnw.network)
     flist.append("server %s %s\n" % (network_pure, netmask))
 
     if ip6ok:

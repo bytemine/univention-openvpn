@@ -174,7 +174,13 @@ def handler(dn, new, old, command):
     
     port = server[1].get('univentionOpenvpnPort', [None])[0]
     network = server[1].get('univentionOpenvpnNet', [None])[0]
-    netmask = str(IPNetwork(network).netmask)
+    if not port or not network:
+        ud.debug(ud.LISTENER, ud.INFO, '4 missing params, skipping actions')
+        action = None
+        return			# invalid config, skip
+    ipnw = IPNetwork(network)
+    netmask = str(ipnw.netmask) if ipnw.size > 1 else '255.255.255.0'
+
     if ip6ok:
         networkv6 = server[1].get('univentionOpenvpnNetIPv6', [None])[0]
         if networkv6 is None:
