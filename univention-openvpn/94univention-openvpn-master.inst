@@ -188,9 +188,9 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnNet' \
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-Net' \
-    --set shortDescription='OpenVPN transfer network IPv4' \
+    --set shortDescription='OpenVPN transfer network IPv4 (default: /24)' \
     --set longDescription='OpenVPN will use this as transfer network within the virtual private network.' \
-    --set translationShortDescription='"de_DE" "OpenVPN Transfernetzwerk"' \
+    --set translationShortDescription='"de_DE" "OpenVPN Transfernetzwerk (Default: /24)"' \
     --set translationLongDescription='"de_DE" "OpenVPN verwendet dieses Transfernetzwerk innerhalb des virtuellen privaten Netzes."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
