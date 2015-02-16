@@ -126,12 +126,14 @@ if [ -d "$home" ]; then
 fi
 
 # insert a list of all available packages for the user into download.html
+umask 037
 templates=/usr/lib/openvpn-int/templates
 cp ${templates}/download.head "${readytogo}/download.html"
 for rtgp in $(cd "${readytogo}" && echo "openvpn-"*"-${uid}.zip"); do
     echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
 done >> "${readytogo}/download.html"
 cat ${templates}/download.tail >> "${readytogo}/download.html"
+chgrp www-data "${readytogo}/download.html"
 
 
 
