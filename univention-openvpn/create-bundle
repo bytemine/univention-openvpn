@@ -17,6 +17,11 @@ port=$5
 
 ssl=/etc/univention/ssl
 
+# ensure home directory exists
+if ! [ -d "$home" ]; then
+    HOME="$home" USER="$uid" /usr/sbin/univention-create-homedir
+fi
+
 # create or renew certificate for user
 if /usr/sbin/univention-certificate check -name "${uid}.openvpn"; then
   if [ "$crtcr" = yes ]; then
