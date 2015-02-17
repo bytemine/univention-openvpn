@@ -128,7 +128,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set shortDescription='OpenVPN redirect gateway' \
     --set longDescription='OpenVPN will establish itself as the default gateway for the client. All internet traffic will be redirected through the virtual private network.' \
     --set translationShortDescription='"de_DE" "OpenVPN Standard-Gateway Umleitung"' \
-    --set translationShortDescription='"de_DE" "OpenVPN setzt sich beim Client als Standard-Gateway ein. Jeglicher Internetverkehr wird über das virtuelle private Netz geleitet."' \
+    --set translationLongDescription='"de_DE" "OpenVPN setzt sich beim Client als Standard-Gateway ein. Jeglicher Internetverkehr wird über das virtuelle private Netz geleitet."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN' \
     --set groupName='User VPN' \
