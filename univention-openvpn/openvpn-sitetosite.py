@@ -294,6 +294,9 @@ ifconfig 10.0.0.1 10.0.0.2
     secret = new.get('univentionOpenvpnSecret', [None])[0]
     #ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
     write_rc([secret] if secret else [''], fn_secret)
+    listener.setuid(0)
+    os.chmod(fn_secret, 0600)
+    listener.unsetuid()
 
     write_rc(flist, fn_sitetositeconf)
 
