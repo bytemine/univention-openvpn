@@ -12,8 +12,8 @@ import univention_baseconfig
 import os
 import csv
 import univention.uldap as ul
+import univention.config_registry as ucr
 from netaddr import *
-from univention.config_registry import ConfigRegistry
 
 from datetime import date
 from M2Crypto import RSA, BIO
@@ -285,13 +285,12 @@ push "redirect-gateway"
 
     if portold is not portnew:
         listener.setuid(0)
-        ucr = ConfigRegistry()
-        ucr.load()
+        #ucr = ConfigRegistry()
+        #ucr.load()
         if portold:
-            ucr.update({'security/packetfilter/package/univention-openvpn-server/udp/'+portold+'/all': None})
+            ucr.handler_unset(['security/packetfilter/package/univention-openvpn-server/udp/'+portold+'/all'])
         if portnew and 'univentionOpenvpnActive' in new:
-            ucr.update({'security/packetfilter/package/univention-openvpn-server/udp/'+portnew+'/all': 'ACCEPT'})
-        ucr.save()
+            ucr.handler_set(['security/packetfilter/package/univention-openvpn-server/udp/'+portnew+'/all=ACCEPT'])
         listener.unsetuid()
 
 
