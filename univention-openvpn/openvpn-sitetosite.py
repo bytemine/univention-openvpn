@@ -213,7 +213,6 @@ verb 1
 mute 5
 status /var/log/openvpn/openvpn-sitetosite-status.log
 management /var/run/management-udp-sitetosite unix
-plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/kcheckpass
 dev tun
 secret {fn_secret}
 
