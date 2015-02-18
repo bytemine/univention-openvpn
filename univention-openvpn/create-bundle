@@ -87,6 +87,7 @@ eval "$(ucr shell)"
 
 # zip all required files into home if it exists,
 # always put a copy into download directory for user
+umask 037
 readytogo="/var/www/readytogo/${uid}/"
 mkdir -p "${readytogo}"
 cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
@@ -100,6 +101,8 @@ AuthLDAPBindPassword "ldapperssecret"
 Require ldap-user ${uid}
 
 ENDOFHTACCESS
+chgrp www-data "${readytogo}/.htaccess"
+chmod 640 "${readytogo}/.htaccess"
 
 if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
     a2enmod ldap
@@ -128,12 +131,14 @@ fi
 # insert a list of all available packages for the user into download.html
 umask 037
 templates=/usr/lib/openvpn-int/templates
+rm -f "${readytogo}/download.html"
 cp ${templates}/download.head "${readytogo}/download.html"
 for rtgp in $(cd "${readytogo}" && echo "openvpn-"*"-${uid}.zip"); do
     echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
 done >> "${readytogo}/download.html"
 cat ${templates}/download.tail >> "${readytogo}/download.html"
 chgrp www-data "${readytogo}/download.html"
+chmod 640 "${readytogo}/download.html"
 
 
 
