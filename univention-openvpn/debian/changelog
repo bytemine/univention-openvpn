@@ -1,3 +1,13 @@
+univention-openvpn (1.0.3) unstable; urgency=low
+
+  * fix umc labels and overview links
+  * fix license handling
+  * fix bundle creation
+  * explicit permissions for download page contents
+
+ -- Holger Rasch <rasch@bytemine.net>  Wed, 18 Feb 2015 19:00:00 +0100
+
+
 univention-openvpn (1.0.2) unstable; urgency=low
 
   * fix ucr handling in listener
