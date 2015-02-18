@@ -9,10 +9,10 @@ if [ "$1" = "configure" ]; then
 	invoke-rc.d univention-directory-listener restart
 fi
 
-ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/description='Download readytogo package'
-ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/description/de='Download readytogo Paket'
-ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/label='Download readytogo package'
-ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/label/de='Dowload readytogo Paket'
+ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/description='OpenVPN4UCS ready2go packages'
+ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/description/de='OpenVPN4UCS ready2go Pakete'
+ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/label='OpenVPN4UCS ready2go packages'
+ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/label/de='OpenVPN4UCS ready2go Pakete'
 ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/link='/download'
 
 . /usr/share/univention-lib/base.sh
