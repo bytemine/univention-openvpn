@@ -50,10 +50,10 @@ fi
 
 #/etc/init.d/display_users start
 
-ucr set ucs/web/overview/entries/service/openvpn4ucs/description="Display active users"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/description/de="Aktive VPN Benutzer anzeigen"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/label="Active VPN users"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/label/de="Aktive VPN Benutzer"
+ucr set ucs/web/overview/entries/service/openvpn4ucs/description="OpenVPN4UCS - active users"
+ucr set ucs/web/overview/entries/service/openvpn4ucs/description/de="OpenVPN4UCS - aktive Benutzer"
+ucr set ucs/web/overview/entries/service/openvpn4ucs/label="OpenVPN4UCS - active users"
+ucr set ucs/web/overview/entries/service/openvpn4ucs/label/de="OpenVPN4UCS - aktive Benutzer"
 ucr set ucs/web/overview/entries/service/openvpn4ucs/link="/display_users"
 
 exit 0
