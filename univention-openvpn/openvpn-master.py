@@ -80,9 +80,14 @@ def handler(dn, new, old, cmd):
     listener.setuid(0)
     lo = ul.getAdminConnection()
 
+    servers = lo.search('(univentionOpenvpnActive=1)'):
+
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
-    maxu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
+    maxu = 0
+    for server in servers:
+        mu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
+        if mu > maxu: maxu = mu
     ud.debug(ud.LISTENER, ud.INFO, '1 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
         listener.unsetuid()

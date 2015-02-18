@@ -159,7 +159,7 @@ def handler(dn, new, old, command):
     listener.unsetuid()
 
     vpnuc = len(vpnusers)
-    maxu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
+    maxu = maxvpnusers(server[1].get('univentionOpenvpnLicense', [None])[0])
     ud.debug(ud.LISTENER, ud.INFO, '4 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
         action = None
