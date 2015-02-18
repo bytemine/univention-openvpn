@@ -42,7 +42,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "Adresse des OpenVPN Benutzers"' \
     --set translationLongDescription='"de_DE" "Weise Benutzern eine feste IP Adresse zu."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
@@ -71,7 +71,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "Feste Adressen"' \
     --set translationLongDescription='"de_DE" "Benutze feste IP Adressen für Benutzer."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
@@ -100,7 +100,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Mehrfachverbindung"' \
     --set translationLongDescription='"de_DE" "OpenVPN erlaubt mehrere gleichzeitige Verbindungen mit gleichem Zertifikat (CN im Zertifikat)."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
@@ -130,7 +130,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Standard-Gateway Umleitung"' \
     --set translationLongDescription='"de_DE" "OpenVPN setzt sich beim Client als Standard-Gateway ein. Jeglicher Internetverkehr wird über das virtuelle private Netz geleitet."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
@@ -162,7 +162,7 @@ if [ "$(ucr get version/releasename)" != "Borgfeld" ]; then
 	--set translationShortDescription='"de_DE" "OpenVPN Transfernetzwerk für IPv6"' \
 	--set translationLongDescription='"de_DE" "OpenVPN verwendet dieses Transfernetzwerk innerhalb des virtuellen privaten Netzes."' \
 	--set tabAdvanced='1' \
-	--set tabName='OpenVPN' \
+	--set tabName='OpenVPN4UCS' \
 	--set groupName='User VPN' \
 	--set groupPosition='2' \
 	--set overwriteTab='0' \
@@ -193,7 +193,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Transfernetzwerk (Default: /24)"' \
     --set translationLongDescription='"de_DE" "OpenVPN verwendet dieses Transfernetzwerk innerhalb des virtuellen privaten Netzes."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
@@ -223,7 +223,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Port"' \
     --set translationLongDescription='"de_DE" "OpenVPN empfängt Verbindungen auf diesem Port."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
@@ -252,7 +252,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Serveradresse' \
     --set translationLongDescription='"de_DE" "Diese Adresse wird von Klienten benutzt um den OpenVPN Server zu erreichen. Der Server selber lauscht allerdings immmer auf allen verfügbaren Schnittstellen. Dies macht es möglich, den OpenVPN Server in einem lokalen Netz hinter einer Firewall, welche Port-Weiterleitung einsetzt um den OpenVPN Server von aussen erreichbar zu machen, zu betreiben."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set default='0.0.0.0' \
@@ -282,7 +282,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Server aktiviert"' \
     --set translationLongDescription='"de_DE" "OpenVPN Server aktiviert. Um den OpenVPN Dienst auf diesem Rechner laufen zu lassen, muss diese Option aktiviert werden."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
@@ -310,7 +310,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Account"' \
     --set translationLongDescription='"de_DE" "OpenVPN Account für Benutzer. Wenn diese Option bei einem Konto gesetzt wird, so wird für den Nutzer ein Zertifikat generiert und zusammen mit den anderen notwendigen Dateien, einschliesslich einer Client Konfiguration fuer OpenVPN, als Zip-Datei im Heimatverzeichnis den Nutzers abgelegt. Pro aktiviertem Server wird ein solches Paket erzeugt."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnAccount' \
@@ -340,7 +340,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "Geheimnis für Site-to-Site VPNs"' \
     --set translationLongDescription='"de_DE" "Dieses Geheimnis wird verwendet, um bei einem Site-to-Site VPN die Verbindung zu verschlüsseln."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
     --set groupPosition='3' \
     --set default='secret' \
@@ -370,7 +370,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN interne entfernte Adresse' \
     --set translationLongDescription='"de_DE" "Definiert die feste IP für den entfernten Endpunkt, welche nur innerhalb des virtuellen Transfernetzwerks verwendet wird."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
     --set groupPosition='3' \
     --set overwriteTab='0' \
@@ -399,7 +399,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN interne lokale Adresse' \
     --set translationLongDescription='"de_DE" "Definiert die feste IP für den lokalen Endpunkt, welche nur innerhalb des virtuellen Transfernetzwerks verwendet wird."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
     --set groupPosition='3' \
     --set overwriteTab='0' \
@@ -429,7 +429,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Site-to-Site Port"' \
     --set translationLongDescription='"de_DE" "OpenVPN empfängt Verbindungen auf diesem Port, wenn Site-to-Site verwendet wird."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
     --set groupPosition='3' \
     --set overwriteTab='0' \
@@ -458,7 +458,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN remote Adresse' \
     --set translationLongDescription='"de_DE" "Die Adresse des entfernten OpenVPN Endpunkts. Diese wird für Site-to-Site VPNs verwendet."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
     --set groupPosition='3' \
     --set default='0.0.0.0' \
@@ -488,7 +488,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN Site-to-Site aktiviert"' \
     --set translationLongDescription='"de_DE" "OpenVPN Site-to-Site aktiviert. Um den OpenVPN Dienst im Site-to-Site Modus auf diesem Rechner laufen zu lassen, muss diese Option aktiviert werden. WICHTIG: eine gueltige Lizenz ist fuer die Aktivierung erforderlich."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
     --set groupPosition='3' \
     --set overwriteTab='0' \
@@ -517,7 +517,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationShortDescription='"de_DE" "OpenVPN4UCS Lizenzschlüssel (für kommerzielle Funktionen benötigt)' \
     --set translationLongDescription='"de_DE" "Aktiviert kommerzielle Funktionen: Benutzeranzahl >5, Site-to-Site VPN - zu beziehen über bytemine.net."' \
     --set tabAdvanced='1' \
-    --set tabName='OpenVPN' \
+    --set tabName='OpenVPN4UCS' \
     --set default='' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
