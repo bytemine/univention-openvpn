@@ -367,8 +367,8 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set name='UniventionOpenvpn-RemoteAddress' \
     --set shortDescription='OpenVPN internal remote address' \
     --set longDescription='Defines the fixed IP for the remote endpoint, which is only used inside the virtual transfer network.' \
-    --set translationShortDescription='"de_DE" "OpenVPN interne entfernte Adresse' \
-    --set translationLongDescription='"de_DE" "Definiert die feste IP für den entfernten Endpunkt, welche nur innerhalb des virtuellen Transfernetzwerks verwendet wird."' \
+    --set translationShortDescription='"de_DE" "Interne Adresse der OpenVPN Gegenstelle' \
+    --set translationLongDescription='"de_DE" "Definiert die feste IP der Gegenstelle, welche nur innerhalb des virtuellen Transfernetzwerks verwendet wird."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
@@ -455,8 +455,8 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set name='UniventionOpenvpn-Remote' \
     --set shortDescription='OpenVPN remote address' \
     --set longDescription='The remote VPN endpoint address for site-to-site vpns. This can be an IPv4 address or a resolvable DNS name.' \
-    --set translationShortDescription='"de_DE" "OpenVPN remote Adresse' \
-    --set translationLongDescription='"de_DE" "Die Adresse des entfernten OpenVPN Endpunkts. Diese wird für Site-to-Site VPNs verwendet."' \
+    --set translationShortDescription='"de_DE" "Adresse der OpenVPN Gegenstelle' \
+    --set translationLongDescription='"de_DE" "Die Adresse der OpenVPN Gegenstelle. Diese wird für Site-to-Site VPNs verwendet."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
