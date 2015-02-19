@@ -88,7 +88,8 @@ eval "$(ucr shell)"
 # zip all required files into home if it exists,
 # always put a copy into download directory for user
 umask 037
-readytogo="/var/www/readytogo/${uid}/"
+rdy2gobas="/var/www/readytogo"
+readytogo="${rdy2gobas}/${uid}/"
 mkdir -p "${readytogo}"
 cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
 AuthBasicProvider ldap
@@ -101,8 +102,9 @@ AuthLDAPBindPassword "ldapperssecret"
 Require ldap-user ${uid}
 
 ENDOFHTACCESS
-chgrp www-data "${readytogo}/.htaccess"
+chgrp www-data "${readytogo}/.htaccess" "${rdy2gobas}" "${readytogo}"
 chmod 640 "${readytogo}/.htaccess"
+chmod 750 "${rdy2gobas}" "${readytogo}"
 
 if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
     a2enmod ldap
@@ -110,7 +112,7 @@ if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enab
     /etc/init.d/apache2 restart
 fi
 
-bundle="/var/www/readytogo/${uid}/openvpn-${server}-${uid}.zip"
+bundle="${readytogo}/openvpn-${server}-${uid}.zip"
 umask 037
 
 zip -j "$bundle" \
