@@ -1,0 +1,2 @@
+ProxyPass /display_users/cmd/ http://localhost:38081/display_users/cmd/
+ProxyPassReverse /display_users/cmd/ http://localhost:38081/display_users/cmd/

@@ -12,7 +12,7 @@ class MyApplication(web.application):
         return web.httpserver.runsimple(func, ('0.0.0.0', port))
 
 urls = (
-    '/(.*)', 'display_users'
+    '/display_users/cmd/(.*)', 'display_users'
 )
 app = MyApplication(urls, globals())
 
