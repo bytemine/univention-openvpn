@@ -9,7 +9,7 @@ from socket_handler import *
 class MyApplication(web.application):
     def run(self, port=8080, *middleware):
         func = self.wsgifunc(*middleware)
-        return web.httpserver.runsimple(func, ('0.0.0.0', port))
+        return web.httpserver.runsimple(func, ('127.0.0.1', port))
 
 urls = (
     '/display_users/cmd/(.*)', 'display_users'
