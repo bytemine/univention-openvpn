@@ -28,8 +28,6 @@ mkdir /var/log/openvpn
 # configure display active users
 eval $(ucr shell)
 
-sed -i s/server_ip/$interfaces_eth0_address/g /var/www/display_users/index.html
-
 cat > /var/www/display_users/.htaccess <<-ENDOFHTACCESS
     AuthBasicProvider ldap
     AuthType Basic
