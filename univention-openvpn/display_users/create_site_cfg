@@ -1,2 +1,22 @@
+#!/bin/sh
+
+# create /etc/apache2/sites-available/openvpn4ucs
+
+eval $(ucr shell)
+cat > /etc/apache2/sites-available/openvpn4ucs<<-ENDOFSITECFG
+<Location /display_users>
+    AuthBasicProvider ldap
+    AuthType Basic
+    AuthName "Please login as Administrator"
+    AuthzLDAPAuthoritative off
+    AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
+    AuthLDAPBindDN "uid=ldapper,cn=users,$ldap_base"
+    AuthLDAPBindPassword "ldapperssecret"
+    Require ldap-user Administrator
+</Location>
+
 ProxyPass /display_users/cmd/ http://localhost:38081/display_users/cmd/
 ProxyPassReverse /display_users/cmd/ http://localhost:38081/display_users/cmd/
+
+ENDOFSITECFG
+
