@@ -46,8 +46,6 @@ if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enab
     /etc/init.d/apache2 restart
 fi
 
-ucr set security/packetfilter/package/univention-openvpn-server/tcp/38081/all=ACCEPT
-
 #/etc/init.d/display_users start
 
 ucr set ucs/web/overview/entries/service/openvpn4ucs/description="OpenVPN4UCS - active users"
