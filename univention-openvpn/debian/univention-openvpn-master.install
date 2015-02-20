@@ -9,7 +9,7 @@ univention-openvpn-schema.py usr/share/pyshared/univention/admin/syntax.d
 download/css /var/www/download
 download/files /var/www/download
 download/images /var/www/download
-download/impressum.html /var/www/download
+download/imprint.html /var/www/download
 download/index.html /var/www/download
 download/lib /var/www/download
 download/userdir/download.head usr/lib/openvpn-int/templates

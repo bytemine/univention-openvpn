@@ -4,7 +4,7 @@ display_users/display_users etc/init.d
 display_users/css var/www/display_users
 display_users/files var/www/display_users
 display_users/images var/www/display_users
-display_users/impressum.html var/www/display_users
+display_users/imprint.html var/www/display_users
 display_users/index.html var/www/display_users
 display_users/lib var/www/display_users
 openvpn-server.py usr/lib/univention-directory-listener/system
