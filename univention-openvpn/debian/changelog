@@ -4,6 +4,7 @@ univention-openvpn (1.0.3) unstable; urgency=low
   * fix license handling
   * fix bundle creation
   * explicit permissions for download page contents
+  * change display_users access 
 
  -- Holger Rasch <rasch@bytemine.net>  Wed, 18 Feb 2015 19:00:00 +0100
 
