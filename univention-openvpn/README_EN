@@ -1,5 +1,5 @@
 <p>
-OpenVPN 4 UCS provides an integration of OpenVPN into the 
+OpenVPN4UCS provides an integration of OpenVPN into the 
 Univention Corporate Server. It allows any Univention Server
 to be configured as an OpenVPN server using the normal UCS
 web-based configuration.
@@ -7,8 +7,9 @@ web-based configuration.
 
 <p>
 In order to allow users to use the VPN, the VPN option has to be activated
-within the user object. Once this is done a so-called 'ready-to-go package'
-will be created and placed into the users home directory. This package contains:
+within the user object. Once this is done a so-called 'ready2go package'
+will be created and made available via web and user's home directory.
+This package contains:
 </p>
 
 <ul>
