@@ -80,7 +80,7 @@ def handler(dn, new, old, cmd):
     listener.setuid(0)
     lo = ul.getAdminConnection()
 
-    servers = lo.search('(univentionOpenvpnActive=1)'):
+    servers = lo.search('(univentionOpenvpnActive=1)')
 
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
