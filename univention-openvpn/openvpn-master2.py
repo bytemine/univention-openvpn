@@ -17,7 +17,7 @@ from base64 import b64decode
 name        = 'openvpn-master2'
 description = 'create user openvpn package with updated config'
 filter      = '(&(objectClass=univentionOpenvpn)(univentionOpenvpnActive=1))'
-attributes  = ['univentionOpenvpnPort', 'univentionOpenvpnAddress']
+attributes  = ['univentionOpenvpnPort', 'univentionOpenvpnAddress', 'univentionOpenvpnActive']
 modrdn      = 1
 
 
