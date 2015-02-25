@@ -66,7 +66,7 @@
 
   <script>
 $(document).ready(function() {
-    $('#test').dataTable( {
+    var table = $('#test').dataTable( {
         "processing": true,
         "paging": false,
         "bPaginate": false,
@@ -81,7 +81,7 @@ $(document).ready(function() {
                     // kill
                     realip = json.data[i].realip
                     if (realip != "") {
-                        json.data[i].kill = '<div align="center"><a href="/display_users/cmd/kill_user/' + realip + '">Disconnect</a></div>'
+                        json.data[i].kill = '<div align="center"><a href="#" onclick="kill_user('+ realip +')">Disconnect</a></div>'
                     } else {
                         json.data[i].kill = ''
                     }
@@ -164,6 +164,15 @@ $(document).ready(function() {
         } ]
     } );
 } );
+
+function kill_user(id) {
+    $.ajax({
+        url: '/display_users/cmd/kill_user/'+id,
+        success: function() {
+            table.ajax.reload();
+        }
+    });
+}
   </script>
 
         <div class="clear">&nbsp;</div>

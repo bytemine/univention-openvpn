@@ -59,10 +59,10 @@ class display_users:
                 kill_answer = killuser(id)
             except:
                 pass
-            return "Please use your browser's back button to return to the overview page."
+            return ""
 
         else:
-            return "Please use your browser's back button to return to the overview page."
+            return ""
 
 
 if __name__ == "__main__":
