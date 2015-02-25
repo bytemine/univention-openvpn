@@ -1,10 +1,51 @@
 <p>
-New in version 0.9:
+New features in version 1.0:
 
 <ul>
-    <li>New option allows use of fixed ip-addresses</li>
-    <li>Direct assignment of ip-addresses to users now possible</li>
-    <li>Generation of openvpn config file now template-based</li>
+<li>Availavility of ready2go packages via website for each user</li>
+<li>Overview of all connected user includind a disconnect function</li>
+<li>Site-to-Site connectivity</li>
+<li>IPv6 support for user connections</li>
+</li>
 </ul>
 </p>
 
+<p>
+Introduction of a license model in version 1.0:
+<p>
+Starting with version 1.0 there will be a license mechanism, although 
+the basic functionalities (all released so far) will remain free of 
+charge for up to five users. New features like the connection overview, 
+downloadable ready2go packages und IPv6 support are free of charge as 
+well. For site-to-site connectivity and more than five vpn users there 
+is a license fee to be paid.
+</p>
+
+<p>
+What does this mean for operators, which already have more than five 
+vpn users?
+</p>
+
+<p>
+There will be no restrictions to configurations already in place. 
+Granted Access will still be functional, issued certificates still be 
+valid. But as soon as you add a new vpn user or change the 
+configuration of the vpn server the OpenVPN4UCS license will be 
+checked. If there is no valid, an outdated or an insufficient license 
+found, the desired changes will not be made and a further management of 
+the vpn will not be possible via the Univention Management Console 
+until a valid license is registered. But even in this case no already 
+granted access will be revoked, the configuration to this point remains.
+</p>
+
+<p>
+More information on the license model can be found here:
+<ul>
+<li>
+<a href="http://www.bytemine.net/de/leistungen/openvpn4ucs.html" 
+title="OpenVPN4UCS Produktseite">OpenVPN4UCS Produktseite</a>
+</li>
+</ul>
+Currently the website is available in German only, but if you are 
+interested please write us or give us a call.
+</p>
