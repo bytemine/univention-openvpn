@@ -13,12 +13,12 @@ New features in version 1.0:
 <p>
 Introduction of a license model in version 1.0:
 <p>
-Starting with version 1.0 there will be a license mechanism, although 
-the basic functionalities (all released so far) will remain free of 
-charge for up to five users. New features like the connection overview, 
-downloadable ready2go packages und IPv6 support are free of charge as 
-well. For site-to-site connectivity and more than five vpn users there 
-is a license fee to be paid.
+Starting with version 1.0 there will be a license mechanism. The basic
+functionalities (all released so far) will remain free of charge for up
+to five users. New features like the connection overview, downloadable
+ready2go packages und IPv6 support are free of charge as well. For
+site-to-site connectivity as well as more than five vpn users there
+a license fee has to be paid.
 </p>
 
 <p>
@@ -28,7 +28,7 @@ vpn users?
 
 <p>
 There will be no restrictions to configurations already in place. 
-Granted Access will still be functional, issued certificates still be 
+Granted access will still be functional, issued certificates still be 
 valid. But as soon as you add a new vpn user or change the 
 configuration of the vpn server the OpenVPN4UCS license will be 
 checked. If there is no valid, an outdated or an insufficient license 
