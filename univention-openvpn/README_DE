@@ -1,28 +1,23 @@
 <p>
-OpenVPN4UCS stellt eine Integration von OpenVPN in den
-Univention Corporate Server bereit. Nach der Installation
-kann ein Univention Server mit den bekannten UCS Mitteln
-als OpenVPN Server konfiguriert werden.
+OpenVPN4UCS stellt eine Integration von OpenVPN in den Univention
+Corporate Server bereit. Nach der Installation kann ein Univention 
+Corporate Server mit der Univention Management Console als OpenVPN Server 
+konfiguriert werden.
 </p>
 
 <p>
-Anschliessend können beliebige Benutzer für das VPN freigeschaltet
-werden. Dies geschieht indem im Benutzerobjekt ein entsprechender
-Schalter aktiviert wird. Für den Benutzer wird dann im Hintergrund
-ein sogenanntes 'ready2go Paket' gebaut und ihm über Web und sein
-Heimatverzeichnis bereitgestellt. Das ZIP-Archiv enthält folgende Komponenten:
+Mit OpenVPN4UCS ist die Anbindung von mobilen Benutzern (Road Warrior), 
+als auch die Standortvernetzung (Site-to-Site), dank der zentralen 
+Verwaltung in der Univention Management Console, in wenigen Schritten 
+möglich.
+</p>
+
+<p>
+Eine Anleitung zur Einrichtung steht unter folgender URL zu Verfügung:
 </p>
 
 <ul>
 <li>
-Zertifikate für die Verwendung des VPN
-</li>
-<li>
-Konfigurationsdateien zur Verwendung mit OpenVPN auf dem Client
+http://www.bytemine.net/files/openvpn4ucs_howto_de.pdf
 </li>
 </ul>
-
-<p>
-Die Authentifizierung am VPN erfolgt mittels des Zertifikates und
-dem Benutzername/Passwort des Benutzers.
-</p>
