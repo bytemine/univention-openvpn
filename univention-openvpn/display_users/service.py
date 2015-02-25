@@ -6,6 +6,9 @@ import listener
 import univention.uldap as ul
 from socket_handler import *
 
+# turn off debug mode (exceptions as html pages)
+web.config.debug = False
+
 class MyApplication(web.application):
     def run(self, port=8080, *middleware):
         func = self.wsgifunc(*middleware)
