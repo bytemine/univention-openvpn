@@ -1,10 +1,47 @@
 <p>
-Neues in Version 0.9:
+Neue Features in Version 1.0:
 
 <ul>
-    <li>Neue Option erm&ouml;glicht die Benutzung von festen IP-Adressen</li>
-    <li>Direkte Vergabe von IP-Adressen an Benutzer m&ouml;glich</li>
-    <li>Generierung der Konfigurationsdatei von openvpn ist nun templatebasiert</li>
+<li>Bereitstellung der ready2go Pakete über eine Webseite pro 
+Benutzer</li>
+<li>Verbindungsübersicht aller Benutzer mit Disconnect-Funktion</li>
+<li>Site-to-Site Standortvernetzung</li>
+<li>IPv6 Unterstützung für die Anbindung von Benutzern</li>
+</li>
 </ul>
 </p>
 
+<p>
+Einführung eines Lizenzmodells mit Version 1.0:
+<br>
+Ab Version 1.0 von OpenVPN4UCS wird es einen Lizenzmechanismus geben, 
+wobei die grundlegenden (alle bisherigen) Funktionen für bis zu fünf 
+Benutzer weiterhin kostenfrei zur Verfügung stehen. Auch neue 
+Funktionen wie die Verbindungsübersicht, über eine Webseite abrufbare 
+ready2go Pakete und IPv6 Unterstützung sind ebenfalls kostenfrei. Für 
+die Nutzung der Standortvernetzung, sowie bei mehr als fünf VPN 
+Benutzern wird eine Lizenzgebühr erhoben.
+<br>
+Was bedeutet dies für Anwender, die bereits mehrere VPN-Benutzer 
+konfiguriert haben?
+<br>
+Beim Update wird es nicht zu einer Einschränkung kommen. Bestehende 
+Zugänge sind weiterhin fuktional, ausgestellte Zertifikate bleiben 
+gültig. Sobald allerdings ein neuer Benutzer angelegt oder die 
+Konfiguration des VPN Servers geändert wird, kommt es zu einer 
+Überprüfung der Lizenz von OpenVPN4UCS. Sollte eine benötigte Lizenz 
+nicht oder in nicht ausreichendem Umfang vorliegen, so werden die 
+gewünschten Änderungen nicht übernommen und eine Verwaltung des VPNs 
+ist über die Univention Management Console in diesen Falle bis zum 
+Einspielen einer passenden Lizenz nicht mehr möglich. Auch in diesem 
+Fall werden keine Zugänge ungültig, bisherige Einstellungen bleiben 
+erhalten.
+<br>
+Nähere Informationen zum Lizenzmodell erhalten Sie hier:
+<ul>
+<li>
+<a href="http://www.bytemine.net/de/leistungen/openvpn4ucs.html" 
+title="OpenVPN4UCS Produktseite">OpenVPN4UCS Produktseite</a>
+</li>
+</ul>
+</p>
