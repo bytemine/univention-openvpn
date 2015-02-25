@@ -29,17 +29,17 @@ konfiguriert haben?
 </p>
 
 <p>
-Beim Update wird es nicht zu einer Einschränkung kommen. Bestehende 
-Zugänge sind weiterhin fuktional, ausgestellte Zertifikate bleiben 
-gültig. Sobald allerdings ein neuer Benutzer angelegt oder die 
-Konfiguration des VPN Servers geändert wird, kommt es zu einer 
-Überprüfung der Lizenz von OpenVPN4UCS. Sollte eine benötigte Lizenz 
-nicht oder in nicht ausreichendem Umfang vorliegen, so werden die 
-gewünschten Änderungen nicht übernommen und eine Verwaltung des VPNs 
-ist über die Univention Management Console in diesen Falle bis zum 
-Einspielen einer passenden Lizenz nicht mehr möglich. Auch in diesem 
-Fall werden keine Zugänge ungültig, bisherige Einstellungen bleiben 
-erhalten.
+Beim Update wird es nicht zu einer Einschränkung der bisherigen 
+Konfiguration kommen. Bestehende Zugänge sind weiterhin fuktional, 
+ausgestellte Zertifikate bleiben gültig. Sobald allerdings ein neuer 
+Benutzer angelegt oder die Konfiguration des VPN Servers geändert wird, 
+kommt es zu einer Überprüfung der Lizenz von OpenVPN4UCS. Sollte eine 
+benötigte Lizenz nicht, in nicht ausreichendem Umfang oder abgelaufen 
+vorliegen, so werden die gewünschten Änderungen nicht übernommen und 
+eine Verwaltung des VPNs ist über die Univention Management Console in 
+diesen Falle bis zum Einspielen einer passenden Lizenz nicht mehr 
+möglich. Auch in diesem Fall werden keine Zugänge ungültig, bisherige 
+Einstellungen bleiben erhalten.
 </p>
 
 <p>
