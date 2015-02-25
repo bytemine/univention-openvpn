@@ -13,7 +13,7 @@ Benutzer</li>
 
 <p>
 Einführung eines Lizenzmodells mit Version 1.0:
-<br>
+<p>
 Ab Version 1.0 von OpenVPN4UCS wird es einen Lizenzmechanismus geben, 
 wobei die grundlegenden (alle bisherigen) Funktionen für bis zu fünf 
 Benutzer weiterhin kostenfrei zur Verfügung stehen. Auch neue 
@@ -21,10 +21,14 @@ Funktionen wie die Verbindungsübersicht, über eine Webseite abrufbare
 ready2go Pakete und IPv6 Unterstützung sind ebenfalls kostenfrei. Für 
 die Nutzung der Standortvernetzung, sowie bei mehr als fünf VPN 
 Benutzern wird eine Lizenzgebühr erhoben.
-<br>
+</p>
+
+<p>
 Was bedeutet dies für Anwender, die bereits mehrere VPN-Benutzer 
 konfiguriert haben?
-<br>
+</p>
+
+<p>
 Beim Update wird es nicht zu einer Einschränkung kommen. Bestehende 
 Zugänge sind weiterhin fuktional, ausgestellte Zertifikate bleiben 
 gültig. Sobald allerdings ein neuer Benutzer angelegt oder die 
@@ -36,7 +40,9 @@ ist über die Univention Management Console in diesen Falle bis zum
 Einspielen einer passenden Lizenz nicht mehr möglich. Auch in diesem 
 Fall werden keine Zugänge ungültig, bisherige Einstellungen bleiben 
 erhalten.
-<br>
+</p>
+
+<p>
 Nähere Informationen zum Lizenzmodell erhalten Sie hier:
 <ul>
 <li>
