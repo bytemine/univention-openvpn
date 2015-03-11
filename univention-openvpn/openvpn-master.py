@@ -86,7 +86,7 @@ def handler(dn, new, old, cmd):
     vpnuc = len(vpnusers)
     maxu = 0
     for server in servers:
-        mu = maxvpnusers(new.get('univentionOpenvpnLicense', [None])[0])
+        mu = maxvpnusers(server[1].get('univentionOpenvpnLicense', [None])[0])
         if mu > maxu: maxu = mu
     ud.debug(ud.LISTENER, ud.INFO, '1 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
@@ -98,7 +98,7 @@ def handler(dn, new, old, cmd):
         ud.debug(ud.LISTENER, ud.INFO, '1 create new certificate for %s in %s' % (uid, home))
 
         # create a bundle for each openvpn server
-        for server in lo.search('(univentionOpenvpnActive=1)'):
+        for server in servers:
             name = server[1].get('cn', [None])[0]
             port = server[1].get('univentionOpenvpnPort', [None])[0]
             addr = server[1].get('univentionOpenvpnAddress', [None])[0]
