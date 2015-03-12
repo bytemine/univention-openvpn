@@ -373,6 +373,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
     --set groupPosition='3' \
+    --set default='10.153.176.2' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnRemoteAddress' \
@@ -402,6 +403,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set tabName='OpenVPN4UCS' \
     --set groupName='Site-to-Site VPN' \
     --set groupPosition='3' \
+    --set default='10.153.176.1' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnLocalAddress' \
