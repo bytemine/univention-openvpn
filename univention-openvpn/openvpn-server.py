@@ -301,7 +301,7 @@ push "redirect-gateway"
     # write new server config
     flist = load_rc(fn_serverconf)
 
-    flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x)]
+    flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x)]
 
     flist.append("port %s\n" % portnew)
 
@@ -323,9 +323,13 @@ push "redirect-gateway"
         networkv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
         if networkv6 is not None:
             flist.append("server-ipv6 %s\n" % (networkv6))
+            flist.append("proto udp6\n")
         else:
             networkv6 = "2001:db8:0:123::/64"
+            flist.append("proto udp\n")
         netmaskv6 = str(IPNetwork(networkv6).netmask)
+    else:
+        flist.append("proto udp\n")
 
     redirect = new.get('univentionOpenvpnRedirect', [None])[0]
     if redirect == '1':
