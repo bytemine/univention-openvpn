@@ -197,7 +197,7 @@ def handler(dn, new, old, command):
     if not ip6ok:
         ud.debug(ud.LISTENER, ud.INFO, '3 ipv6 support DISABLED due to version')
 
-    cnaddr = new.get('univentionOpenvpnAddress', [None])[0])
+    cnaddr = new.get('univentionOpenvpnAddress', [None])[0]
     ip6conn = True if cnaddr and cnaddr.count(':') else False
 
     # activate config
