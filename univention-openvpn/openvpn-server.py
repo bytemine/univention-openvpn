@@ -24,7 +24,7 @@ name        = 'openvpn-server'
 description = 'write server-configuration to server.conf and handle address assignment'
 filter      = '(objectClass=univentionOpenvpn)'
 attributes   = [
-    'univentionOpenvpnActive', 'univentionOpenvpnLicense',
+    'univentionOpenvpnActive', 'univentionOpenvpnLicense', 'univentionOpenvpnAddress',
     'univentionOpenvpnPort', 'univentionOpenvpnNet', 'univentionOpenvpnNetIPv6',
     'univentionOpenvpnRedirect', 'univentionOpenvpnDuplicate',
     'univentionOpenvpnFixedAddresses', 'univentionOpenvpnUserAddress' ]
@@ -197,6 +197,9 @@ def handler(dn, new, old, command):
     if not ip6ok:
         ud.debug(ud.LISTENER, ud.INFO, '3 ipv6 support DISABLED due to version')
 
+    cnaddr = new.get('univentionOpenvpnAddress', [None])[0])
+    ip6conn = True if cnaddr and cnaddr.count(':') else False
+
     # activate config
     if not 'univentionOpenvpnActive' in old and os.path.exists(fn_serverconf + '-disabled'):
         listener.setuid(0)
@@ -323,11 +326,13 @@ push "redirect-gateway"
         networkv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
         if networkv6 is not None:
             flist.append("server-ipv6 %s\n" % (networkv6))
-            flist.append("proto udp6\n")
         else:
             networkv6 = "2001:db8:0:123::/64"
             flist.append("proto udp\n")
         netmaskv6 = str(IPNetwork(networkv6).netmask)
+
+    if ip6conn:
+        flist.append("proto udp6\n")
     else:
         flist.append("proto udp\n")
 

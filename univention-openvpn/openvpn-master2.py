@@ -100,10 +100,12 @@ def handler(dn, new, old, cmd):
         home = user[1].get('homeDirectory', ['/dev/null'])[0]
         ud.debug(ud.LISTENER, ud.INFO, '2 create new certificate for %s in %s' % (uid, home))
 
+        proto = 'udp6' if addr and addr.count(':') else 'udp'
+
         if uid and home:
         # update bundle for this openvpn server with new config
             try:
-                listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'no', uid, home, name, addr, port], uid=0)
+                listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'no', uid, home, name, addr, port, proto], uid=0)
             finally:
                 listener.unsetuid()
 

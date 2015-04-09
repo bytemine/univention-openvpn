@@ -97,16 +97,19 @@ def handler(dn, new, old, cmd):
     if trigger in new and not trigger in old and uid and home:
         ud.debug(ud.LISTENER, ud.INFO, '1 create new certificate for %s in %s' % (uid, home))
 
+
         # create a bundle for each openvpn server
         for server in servers:
             name = server[1].get('cn', [None])[0]
             port = server[1].get('univentionOpenvpnPort', [None])[0]
             addr = server[1].get('univentionOpenvpnAddress', [None])[0]
 
+            proto = 'udp6' if addr and addr.count(':') else 'udp'
+
             if not name or not port or not addr:
                 continue
             try:
-                listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'yes', uid, home, name, addr, port], uid=0)
+                listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'yes', uid, home, name, addr, port, proto], uid=0)
             finally:
                 listener.unsetuid()
 

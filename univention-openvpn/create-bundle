@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $# -ne 6 ]; then
+if [ $# -ne 7 ]; then
     echo "create-bundle: argument error" >&2
-    echo "usage: create-bundle [yes|no] <uid> <home> <server> <addr> <port>" >&2
+    echo "usage: create-bundle [yes|no] <uid> <home> <server> <addr> <port> <proto>" >&2
     exit 1
 fi
 
@@ -14,6 +14,7 @@ home=$2
 server=$3
 addr=$4
 port=$5
+proto=$6
 
 ssl=/etc/univention/ssl
 
@@ -41,7 +42,7 @@ cat > "${ssl}/${uid}.openvpn/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 
 	client
 	dev tun0
-	proto udp
+	proto ${proto}
 	remote ${addr} ${port}
 	tls-remote ${server}
 	resolv-retry infinite
@@ -67,7 +68,7 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 
 	client
 	dev tun
-	proto udp
+	proto ${proto}
 	remote ${addr} ${port}
 	tls-remote ${server}
 	resolv-retry infinite
