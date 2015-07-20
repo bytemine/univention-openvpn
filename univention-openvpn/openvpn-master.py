@@ -121,6 +121,16 @@ def handler(dn, new, old, cmd):
         finally:
             listener.unsetuid()
 
+        # remove bundle for each openvpn server
+        for server in servers:
+            name = server[1].get('cn', [None])[0]
+            if not name:
+                continue
+            try:
+                listener.run('/usr/lib/openvpn-int/remove-bundle', ['remove-bundle', uid, home, name], uid=0)
+            finally:
+                listener.unsetuid()
+
     listener.unsetuid()
 
 

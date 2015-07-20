@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ $# -ne 3 ]; then
+    echo "remove-bundle: argument error" >&2
+    echo "usage: remove-bundle <uid> <home> <server>" >&2
+    exit 1
+fi
+
+uid=$1
+home=$2
+server=$3
+
+# delete readytogo packages
+umask 037
+rdy2gobas="/var/www/readytogo"
+readytogo="${rdy2gobas}/${uid}/"
+rm "${readytogo}/openvpn-${server}-${uid}.zip"
+
+if [ -d "$home" ]; then
+    umask 077
+    bundle="${home}/openvpn-${server}-${uid}.zip"
+    rm ${bundle}
+fi
+
+# insert a list of all available packages for the user into download.html
+umask 037
+templates=/usr/lib/openvpn-int/templates
+rm -f "${readytogo}/download.html"
+cp ${templates}/download.head "${readytogo}/download.html"
+for rtgp in $(cd "${readytogo}" && ls "openvpn-"*"-${uid}.zip"); do
+    echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+done >> "${readytogo}/download.html"
+cat ${templates}/download.tail >> "${readytogo}/download.html"
+chgrp www-data "${readytogo}/download.html"
+chmod 640 "${readytogo}/download.html"
+
+exit 0

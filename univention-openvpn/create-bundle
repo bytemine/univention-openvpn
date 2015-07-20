@@ -136,7 +136,7 @@ umask 037
 templates=/usr/lib/openvpn-int/templates
 rm -f "${readytogo}/download.html"
 cp ${templates}/download.head "${readytogo}/download.html"
-for rtgp in $(cd "${readytogo}" && echo "openvpn-"*"-${uid}.zip"); do
+for rtgp in $(cd "${readytogo}" && ls "openvpn-"*"-${uid}.zip"); do
     echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
 done >> "${readytogo}/download.html"
 cat ${templates}/download.tail >> "${readytogo}/download.html"
