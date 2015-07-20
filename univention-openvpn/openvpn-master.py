@@ -74,7 +74,9 @@ def handler(dn, new, old, cmd):
         return
 
     uid = new.get('uid', [None])[0]
+    uid_old = old.get('uid', [None])[0]
     home = new.get('homeDirectory', ['/dev/null'])[0]
+    home_old = old.get('homeDirectory', ['/dev/null'])[0]
     trigger = 'univentionOpenvpnAccount'
 
     listener.setuid(0)
@@ -113,11 +115,12 @@ def handler(dn, new, old, cmd):
             finally:
                 listener.unsetuid()
 
-    if trigger in old and not trigger in new and uid:
-        ud.debug(ud.LISTENER, ud.INFO, '1 revoke certificate for %s' % (uid))
+
+    if (trigger in old and not trigger in new and uid_old and home_old) or (cmd == 'd' and uid_old and home_old):
+        ud.debug(ud.LISTENER, ud.INFO, '1 revoke certificate for %s' % (uid_old))
         listener.setuid(0)
         try:
-            listener.run('/usr/sbin/univention-certificate', ['univention-certificate', 'revoke', '-name', uid + '.openvpn'], uid=0)
+            listener.run('/usr/sbin/univention-certificate', ['univention-certificate', 'revoke', '-name', uid_old + '.openvpn'], uid=0)
         finally:
             listener.unsetuid()
 
@@ -127,7 +130,7 @@ def handler(dn, new, old, cmd):
             if not name:
                 continue
             try:
-                listener.run('/usr/lib/openvpn-int/remove-bundle', ['remove-bundle', uid, home, name], uid=0)
+                listener.run('/usr/lib/openvpn-int/remove-bundle', ['remove-bundle', uid_old, home_old, name], uid=0)
             finally:
                 listener.unsetuid()
 
