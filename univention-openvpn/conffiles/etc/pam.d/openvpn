@@ -1,0 +1,15 @@
+auth     sufficient     pam_python.so /usr/share/privacyidea/privacyidea_pam.py url=@%@privacyidea/pam/url@%@ nosslverify
+
+auth     sufficient                         pam_unix.so
+auth     sufficient                         pam_krb5.so use_first_pass
+auth     required                           pam_ldap.so use_first_pass
+
+account  sufficient             pam_unix.so
+account  sufficient             pam_krb5.so
+account  required               pam_ldap.so
+
+session  required   pam_unix.so
+
+password requisite  pam_cracklib.so
+password sufficient pam_unix.so nullok obscure md5 minlen=4 use_first_pass use_authtok
+password required pam_krb5.so use_first_pass use_authtok

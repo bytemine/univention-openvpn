@@ -27,7 +27,8 @@ attributes   = [
     'univentionOpenvpnActive', 'univentionOpenvpnLicense', 'univentionOpenvpnAddress',
     'univentionOpenvpnPort', 'univentionOpenvpnNet', 'univentionOpenvpnNetIPv6',
     'univentionOpenvpnRedirect', 'univentionOpenvpnDuplicate',
-    'univentionOpenvpnFixedAddresses', 'univentionOpenvpnUserAddress' ]
+    'univentionOpenvpnFixedAddresses', 'univentionOpenvpnUserAddress',
+    'univentionOpenvpnDualfactorauth' ]
 modrdn      = 1
 
 action = None
@@ -304,7 +305,7 @@ push "redirect-gateway"
     # write new server config
     flist = load_rc(fn_serverconf)
 
-    flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x)]
+    flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin", x)]
 
     flist.append("port %s\n" % portnew)
 
@@ -347,6 +348,10 @@ push "redirect-gateway"
     fixedaddresses = new.get('univentionOpenvpnFixedAddresses', [None])[0]
     if fixedaddresses == '1':
         flist.append('client-config-dir %s\n' % ccd)
+
+    dualfactorauth = new.get('univentionOpenvpnDualfactorauth', [None])[0]
+    if dualfactorauth == '1':
+        flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/openvpn\n')
 
     write_rc(flist, fn_serverconf)
 
