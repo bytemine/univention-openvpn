@@ -57,7 +57,7 @@ def license(key):
     if date.today().toordinal() > vdate:
       ud.debug(ud.LISTENER, ud.ERROR, '4 License has expired')
       return None		# expired
-    l = {'valid': True}		# at least one feature returned
+    l = {'valid': True, 'vdate': vdate} # at least one feature returned
     while items:
       kv = items.pop(0).split('=', 1)
       kv.append(True)
@@ -158,8 +158,18 @@ def handler(dn, new, old, command):
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     listener.unsetuid()
 
+    key = server[1].get('univentionOpenvpnLicense', [None])[0]
+    try:
+        l = license(key)
+        ud.debug(ud.LISTENER, ud.INFO, '4 Processing license with ID %s:' % l['id'])
+        ud.debug(ud.LISTENER, ud.INFO, '4 Valid until: %s' % date.fromordinal(l['vdate']))
+        ud.debug(ud.LISTENER, ud.INFO, '4 Users: %s' % l['u'])
+        ud.debug(ud.LISTENER, ud.INFO, '4 Site-2-Site: %s' % l['s2s'])
+    except:
+        pass
+
     vpnuc = len(vpnusers)
-    maxu = maxvpnusers(server[1].get('univentionOpenvpnLicense', [None])[0])
+    maxu = maxvpnusers(key)
     ud.debug(ud.LISTENER, ud.INFO, '4 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
         action = None
