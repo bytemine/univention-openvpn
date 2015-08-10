@@ -3,6 +3,7 @@
 import json
 import web
 import listener
+import os
 import univention.uldap as ul
 from socket_handler import *
 
@@ -32,6 +33,10 @@ def connected_users(name):
     for user in users:
         if not any(u['name'] == user for u in connected_users):
             connected_users.append({'name': user, 'connected': 0, 'type': 0, 'realip': '', 'virtips': '', 'cons': '', 'conr': '', 'recv': 0, 'sent': 0})
+
+    for user in connected_users:
+        user['cert'] = os.popen("/usr/sbin/univention-certificate dump -name %s|grep 'Not After'|cut -d ':' -f2-" % user['name']).read()
+
     count = str(len(connected_users))
 
     query = web.ctx.query

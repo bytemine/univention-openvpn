@@ -59,6 +59,7 @@
         <th>Connected for</th>
         <th>Received</th>
         <th>Sent</th>
+        <th>Cert valid till</th>
         <th>Disconnect</th>
       </tr>
     </thead>
@@ -85,6 +86,10 @@ $(document).ready(function() {
                     } else {
                         json.data[i].kill = ''
                     }
+
+                    // cert
+                    cert = json.data[i].cert
+                    json.data[i].cert = '<div algin="right">' + cert + '</div>'
 
                     // recv
                     recv = json.data[i].recv
@@ -141,6 +146,7 @@ $(document).ready(function() {
             { "data": "conr" },
             { "data": "recv" },
             { "data": "sent" },
+            { "data": "cert" },
             { "data": "kill", "orderable": false },
         ],
         "columnDefs": [ {
@@ -161,6 +167,9 @@ $(document).ready(function() {
         }, {
             targets: [ 8 ],
             orderData: [ 8, 0 ]
+        }, {
+            targets: [ 9 ],
+            orderData: [ 9, 0 ]
         } ]
     } );
 } );
