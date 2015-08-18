@@ -26,19 +26,6 @@ mkdir /var/log/openvpn
 
 
 # configure display active users
-eval $(ucr shell)
-
-cat > /var/www/display_users/.htaccess <<-ENDOFHTACCESS
-    AuthBasicProvider ldap
-    AuthType Basic
-    AuthName "Please login as a VPN Admin"
-    AuthzLDAPAuthoritative off
-    AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
-    AuthLDAPBindDN "uid=ldapper,cn=users,$ldap_base"
-    AuthLDAPBindPassword "ldapperssecret"
-    Require ldap-group cn=VPN Admins,cn=groups,$ldap_base
-
-ENDOFHTACCESS
 
 if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
     a2enmod ldap
