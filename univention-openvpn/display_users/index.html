@@ -77,63 +77,63 @@ $(document).ready(function() {
             "url": "/display_users/cmd/connected_users",
             "dataType": "jsonp",
             "dataSrc": function ( json ) {
-                for (var i = 0, ien = json.data.length; i < ien; i++) {
+                for (var i = 0, ien = json.data["users"].length; i < ien; i++) {
 
                     // kill
-                    realip = json.data[i].realip
+                    realip = json.data["users"][i].realip
                     if (realip != "") {
-                        json.data[i].kill = '<div align="center"><button style="color: #760b25" onclick="kill_user(\''+ realip +'\')">Disconnect</button></div>'
+                        json.data["users"][i].kill = '<div align="center"><button style="color: #760b25" onclick="kill_user(\''+ realip +'\')">Disconnect</button></div>'
                     } else {
-                        json.data[i].kill = ''
+                        json.data["users"][i].kill = ''
                     }
 
                     // cert
-                    cert = json.data[i].cert
-                    json.data[i].cert = '<div algin="right">' + cert + '</div>'
+                    cert = json.data["users"][i].cert
+                    json.data["users"][i].cert = '<div algin="right">' + cert + '</div>'
 
                     // recv
-                    recv = json.data[i].recv
-                    json.data[i].recv = '<div align="right">' + recv + '</div>'
+                    recv = json.data["users"][i].recv
+                    json.data["users"][i].recv = '<div align="right">' + recv + '</div>'
 
                     // sent
-                    sent = json.data[i].sent
-                    json.data[i].sent = '<div align="right">' + sent + '</div>'
+                    sent = json.data["users"][i].sent
+                    json.data["users"][i].sent = '<div align="right">' + sent + '</div>'
 
                     // conr
-                    conr = json.data[i].conr
-                    json.data[i].conr = '<div align="right">' + conr + '</div>'
+                    conr = json.data["users"][i].conr
+                    json.data["users"][i].conr = '<div align="right">' + conr + '</div>'
 
                     // conn
-                    connected = json.data[i].connected
+                    connected = json.data["users"][i].connected
                     if (connected == 0) {
-                        json.data[i].connected = '<div align="center"><img src="images/green_off.png" alt="not connected" style="width:20px;height:20px" align="center"> <img src="images/red.png" alt="not connected" style="width:20px;height:20px" align="center"></div>'
+                        json.data["users"][i].connected = '<div align="center"><img src="images/green_off.png" alt="not connected" style="width:20px;height:20px" align="center"> <img src="images/red.png" alt="not connected" style="width:20px;height:20px" align="center"></div>'
                     } else {
-                        json.data[i].connected = '<div align="center"><img src="images/green.png" alt="connected" style="width:20px;height:20px" align="center"> <img src="images/red_off.png" alt="connected" style="width:20px;height:20px" align="center"></div>'
+                        json.data["users"][i].connected = '<div align="center"><img src="images/green.png" alt="connected" style="width:20px;height:20px" align="center"> <img src="images/red_off.png" alt="connected" style="width:20px;height:20px" align="center"></div>'
                     }
 
                     // ipv
-                    ipv = json.data[i].type
-                    console.log("type: " + json.data[i].type)
+                    ipv = json.data["users"][i].type
+                    console.log("type: " + json.data["users"][i].type)
                     switch(ipv) {
                         case 0:
-                            json.data[i].type = '<div align="center"><img src="images/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="images/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
+                            json.data["users"][i].type = '<div align="center"><img src="images/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="images/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 1:
-                            json.data[i].type = '<div align="center"><img src="images/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="images/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
+                            json.data["users"][i].type = '<div align="center"><img src="images/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="images/v6_off.png" alt="ipv6 off" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 2:
-                            json.data[i].type = '<div align="center"><img src="images/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="images/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
+                            json.data["users"][i].type = '<div align="center"><img src="images/v4_off.png" alt="ipv4 off" style="width:20px;height:20px" align="center"><img src="images/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
                             break;
                         case 3:
-                            json.data[i].type = '<div align="center"><img src="images/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="images/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
+                            json.data["users"][i].type = '<div align="center"><img src="images/v4.png" alt="ipv4 on" style="width:20px;height:20px" align="center"><img src="images/v6.png" alt="ipv6 on" style="width:20px;height:20px" align="center"></div>'
                             break;
                         default:
-                            json.data[i].type = 'unknown ipv'
+                            json.data["users"][i].type = 'unknown ipv'
                     }
 
-                    console.log(json.data[i]);
+                    console.log(json.data["users"][i]);
                 }
-                return json.data;
+                return json.data["users"];
             }
         },
         "columns": [
@@ -170,7 +170,10 @@ $(document).ready(function() {
         }, {
             targets: [ 9 ],
             orderData: [ 9, 0 ]
-        } ]
+        } ],
+        "initComplete": function( settings, json ) {
+            $('<caption/>').html(json.data["info"]["total"] + " users in total / " + json.data["info"]["connected"] + " connected / " + json.data["info"]["licenced"] + " licenced").prependTo('#test');
+        }
     } );
 } );
 
