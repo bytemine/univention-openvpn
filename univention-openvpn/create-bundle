@@ -80,6 +80,7 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 ENDOFWINCLIENTCONFIG
 
 eval "$(ucr shell)"
+pwd=$(cat /etc/machine.secret)
 
 # zip all required files into home if it exists,
 # always put a copy into download directory for user
@@ -93,8 +94,8 @@ AuthType Basic
 AuthName "secret"
 AuthzLDAPAuthoritative off
 AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
-AuthLDAPBindDN "uid=ldapper,cn=users,$ldap_base"
-AuthLDAPBindPassword "ldapperssecret"
+AuthLDAPBindDN $ldap_hostdn
+AuthLDAPBindPassword $pwd
 Require ldap-user ${uid}
 
 ENDOFHTACCESS
