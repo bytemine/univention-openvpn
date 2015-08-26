@@ -567,6 +567,16 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
 udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-Tun,${eabas}" >/dev/null 2>&1
 
+ldapper_mail=listener.baseConfig['mail/alias/root']
+
+univention-directory-manager users/user create \
+    --position "cn=users,$ldap_base" \
+    --option "ldap_pwd" \
+    --set username="ldapper" \
+    --set firstname="ldapper" \
+    --set lastname="ldapper" \
+    --set password="ldapperssecret"
+
 
 univention-directory-manager groups/group create \
     --position "cn=groups,$ldap_base" \

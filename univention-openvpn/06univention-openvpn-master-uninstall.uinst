@@ -22,6 +22,7 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 			"cn=UniventionOpenvpn-${suf},${eabas}"
 	done
 	udm container/cn remove "$@" --dn "$eabas"
+	udm users/user remove "$@" --dn "uid=ldapper,cn=users,$ldap_base"
 	ucs_unregisterLDAPExtension --udm_syntax univention-openvpn-schema
 	ucs_unregisterLDAPExtension --udm_hook univention-openvpn
 
