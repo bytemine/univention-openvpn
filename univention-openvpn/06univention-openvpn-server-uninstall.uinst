@@ -14,7 +14,7 @@ joinscript_init
 
 ucs_removeServiceFromLocalhost "$SERVICE" "$@" || die
 if ucs_isServiceUnused "$SERVICE" "$@"; then
-	eval "$(ucr shell ldap/base)"
+	eval "$(ucr shell)"
 	eabas="cn=openvpn,cn=custom attributes,cn=univention,$ldap_base"
 
 	for suf in $EASUFXS; do
@@ -22,6 +22,7 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 			"cn=UniventionOpenvpn-${suf},${eabas}"
 	done
 	udm container/cn remove "$@" --dn "$eabas"
+	udm users/user remove "$@" --dn "uid=ldapper-s-$hostname,cn=users,$ldap_base"
 
 	stop_udm_cli_server
 fi

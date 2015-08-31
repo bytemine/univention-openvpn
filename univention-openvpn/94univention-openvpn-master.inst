@@ -10,7 +10,7 @@ SERVICE="OpenVPN"
 
 joinscript_init
 
-eval "$(ucr shell ldap/base)"
+eval "$(ucr shell)"
 
 
 ucs_addServiceToLocalhost "$SERVICE" "$@"
@@ -567,15 +567,19 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
 udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-Tun,${eabas}" >/dev/null 2>&1
 
-ldapper_mail=listener.baseConfig['mail/alias/root']
+name="ldapper-m-$hostname"
+pw=$(makepasswd)
 
-univention-directory-manager users/user create \
+cat > /etc/ldapper-m.secret<<-ENDOFPW
+$pw
+ENDOFPW
+
+univention-directory-manager users/user create "$@" \
     --position "cn=users,$ldap_base" \
     --option "ldap_pwd" \
-    --set username="ldapper" \
-    --set firstname="ldapper" \
-    --set lastname="ldapper" \
-    --set password="ldapperssecret"
+    --set username=$name \
+    --set lastname=$name \
+    --set password=$pw
 
 
 univention-directory-manager groups/group create \

@@ -87,14 +87,15 @@ umask 037
 rdy2gobas="/var/www/readytogo"
 readytogo="${rdy2gobas}/${uid}/"
 mkdir -p "${readytogo}"
+pw=$(cat /etc/ldapper-m.secret)
 cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
 AuthBasicProvider ldap
 AuthType Basic
 AuthName "secret"
 AuthzLDAPAuthoritative off
 AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
-AuthLDAPBindDN "uid=ldapper,cn=users,$ldap_base"
-AuthLDAPBindPassword "ldapperssecret"
+AuthLDAPBindDN "uid=ldapper-m-$hostname,cn=users,$ldap_base"
+AuthLDAPBindPassword $pw
 Require ldap-user ${uid}
 
 ENDOFHTACCESS
