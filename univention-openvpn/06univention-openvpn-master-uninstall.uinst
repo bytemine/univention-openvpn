@@ -25,6 +25,7 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 	udm users/user remove "$@" --dn "uid=ldapper-m-$hostname,cn=users,$ldap_base"
 	ucs_unregisterLDAPExtension --udm_syntax univention-openvpn-schema
 	ucs_unregisterLDAPExtension --udm_hook univention-openvpn
+	rm /etc/ldapper-m.secret
 
 	stop_udm_cli_server
 fi
