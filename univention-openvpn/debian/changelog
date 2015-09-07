@@ -2,6 +2,7 @@ univention-openvpn (1.0.5) unstable; urgency=low
 
   * apache config mode set to 0600
   * grant group 'VPN Admins' access to display_users
+  * ldappers secret fixed
   * remove readytogo packages on user deactivation/deletion
   * enable dual-factor authentication with privacyidea
   * add info about certificates to displayer_users
