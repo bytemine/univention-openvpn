@@ -574,6 +574,8 @@ cat > /etc/ldapper-m.secret<<-ENDOFPW
 $pw
 ENDOFPW
 
+chmod 600 /etc/ldapper-m.secret
+
 univention-directory-manager users/user create "$@" \
     --position "cn=users,$ldap_base" \
     --option "ldap_pwd" \
