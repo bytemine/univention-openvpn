@@ -1,4 +1,4 @@
-### OpenVPN4UCS
+# OpenVPN4UCS
 
 OpenVPN4UCS provides an integration of OpenVPN into the Univention 
 Corporate Server. It allows any Univention Corporate Server to be 
