@@ -2,7 +2,7 @@
 
 # create /etc/apache2/sites-available/openvpn4ucs
 
-eval $(ucr shell)
+eval "$(ucr shell)"
 pw=$(cat /etc/ldapper-s.secret)
 cat > /etc/apache2/sites-available/openvpn4ucs<<-ENDOFSITECFG
 <Location /display_users>
