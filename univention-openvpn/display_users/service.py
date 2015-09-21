@@ -92,9 +92,9 @@ def maxvpnusers(key):
   except:
     return mnlu
 
-def connected_users(name):
+def connected_users():
     listener.setuid(0)
-    lo = ul.getBackupConnection()
+    lo = ul.getMachineConnection()
     users = lo.search('univentionOpenvpnAccount=1')
     users = map(lambda user: "%s.openvpn" % user[1].get('uid', [None])[0], users)
     myname = listener.baseConfig['hostname']
@@ -102,10 +102,6 @@ def connected_users(name):
     key = me[0][1]['univentionOpenvpnLicense'][0]
     listener.unsetuid()
     connected_users = userlist()
-
-    c_connected_users = len(connected_users)
-    c_users = len(users)
-    c_licenced = maxvpnusers(key)
 
     # append not connected users
     for user in users:
@@ -115,9 +111,7 @@ def connected_users(name):
     for user in connected_users:
         user['cert'] = os.popen("/usr/sbin/univention-certificate dump -name %s|grep 'Not After'|cut -d ':' -f2-" % user['name']).read()
 
-    info = {"connected": c_connected_users, "total": c_users, "licenced": c_licenced}
-
-    data = {"users": connected_users, "info": info}
+    data = {"users": connected_users}
 
     count = str(len(connected_users))
 
@@ -130,6 +124,37 @@ def connected_users(name):
     else:
         return '{"data": %s}' % json.dumps(data)
 
+def license_stats():
+    listener.setuid(0)
+    lo = ul.getMachineConnection()
+    users = lo.search('univentionOpenvpnAccount=1')
+    myname = listener.baseConfig['hostname']
+    me = lo.search('cn=%s' % myname)
+    key = me[0][1]['univentionOpenvpnLicense'][0]
+    listener.unsetuid()
+    connected_users = userlist()
+
+    c_connected_users = len(connected_users)
+    c_users = len(users)
+    c_licenced = maxvpnusers(key)
+    try:
+        l = license(key)
+        valid = str(date.fromordinal(l['vdate']))
+    except:
+        valid = "No valid license"
+
+    info = {"expiration": valid, "connected": c_connected_users, "total": c_users, "licenced": c_licenced}
+
+    count = str(len(connected_users))
+
+    query = web.ctx.query
+    if query:
+        # jsonp
+        queries = query.split('&')
+        callback = queries[0].split('=')[1]
+        return '%s({"draw": 1, "recordsTotal": %s, "recordsFiltered": %s, "info": %s});' % (callback, count, count, json.dumps(info))
+    else:
+        return '{"info": %s}' % json.dumps(info)
 
 class display_users:
     def GET(self, name):
@@ -138,7 +163,10 @@ class display_users:
         name_pieces = name.split('/')
 
         if 'connected_users' == name_pieces[0]:
-            return connected_users(name)
+            return connected_users()
+
+        elif 'license_stats' == name_pieces[0]:
+            return license_stats()
 
         elif 'kill_user' == name_pieces[0]:
             try:

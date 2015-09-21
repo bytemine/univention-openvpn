@@ -170,10 +170,7 @@ $(document).ready(function() {
         }, {
             targets: [ 9 ],
             orderData: [ 9, 0 ]
-        } ],
-        "initComplete": function( settings, json ) {
-            $('<caption/>').html(json.data["info"]["total"] + " users in total / " + json.data["info"]["connected"] + " connected / " + json.data["info"]["licenced"] + " licenced").prependTo('#test');
-        }
+        } ]
     } );
 } );
 
@@ -185,6 +182,47 @@ function kill_user(id) {
         }
     });
 }
+  </script>
+
+  </br>
+
+  <h1>Licensing stats</h1>
+  <table id="test2" class="display" with="100%" cellspacing="0" border=1>
+    <thead>
+      <tr>
+        <th>License expires on</th>
+        <th>Licensed users</th>
+        <th>Configured users</th>
+        <th>Connected users</th>
+      </tr>
+    </thead>
+  </table>
+
+  <script>
+$(document).ready(function() {
+    $('#test2').dataTable( {
+        "processing": true,
+        "paging": false,
+        "bPaginate": false,
+        "bInfo": false,
+        "searching": false,
+        "ajax": {
+            "url": "/display_users/cmd/license_stats",
+            "dataType": "jsonp",
+            "dataSrc": function ( json ) {
+                res = []
+                res[0] = json.info
+                return res
+            }
+        },
+        "columns": [
+            { "data": "expiration" },
+            { "data": "licenced" },
+            { "data": "total" },
+            { "data": "connected" },
+        ]
+    } );
+} );
   </script>
 
         <div class="clear">&nbsp;</div>
