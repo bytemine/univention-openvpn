@@ -1,11 +1,13 @@
-univention-openvpn (1.0.5) unstable; urgency=low
+univention-openvpn (1.1) unstable; urgency=low
 
-  * apache config mode set to 0600
+  * set apache config mode to 0600
   * grant group 'VPN Admins' access to display_users
-  * ldappers secret fixed
+  * add info about certificates to display_users
+  * add license stats to display_users
+  * fix ldappers secret
   * remove readytogo packages on user deactivation/deletion
+  * fix link to readytogo packages
   * enable dual-factor authentication with privacyidea
-  * add info about certificates to displayer_users
 
  -- Fedor Scholz <scholz@bytemine.net>  Wed, 26 Aug 2015 12:00:00 +0200
 
