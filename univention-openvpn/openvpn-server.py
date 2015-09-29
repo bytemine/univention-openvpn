@@ -366,7 +366,6 @@ push "redirect-gateway"
             flist.append("server-ipv6 %s\n" % (networkv6))
         else:
             networkv6 = "2001:db8:0:123::/64"
-            flist.append("proto udp\n")
         netmaskv6 = str(IPNetwork(networkv6).netmask)
 
     if ip6conn:
