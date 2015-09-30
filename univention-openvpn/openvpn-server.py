@@ -342,7 +342,7 @@ push "redirect-gateway"
     # write new server config
     flist = load_rc(fn_serverconf)
 
-    flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin", x)]
+    flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/openvpn", x)]
 
     flist.append("port %s\n" % portnew)
 
