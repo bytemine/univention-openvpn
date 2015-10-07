@@ -270,7 +270,7 @@ verb 1
 mute 5
 status /var/log/openvpn/openvpn-status.log
 management /var/run/management-udp unix
-plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/kcheckpass
+plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass
 dev tun
 topology subnet
 

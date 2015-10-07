@@ -1,0 +1,7 @@
+# openvpn4ucs
+
+@include ldaponly-auth
+
+@include common-account
+@include common-session
+@include common-password
