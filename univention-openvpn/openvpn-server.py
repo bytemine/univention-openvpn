@@ -270,12 +270,12 @@ verb 1
 mute 5
 status /var/log/openvpn/openvpn-status.log
 management /var/run/management-udp unix
-plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass
 dev tun
 topology subnet
 
 ### Values which can be changed through UDM
 
+plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass
 server 10.0.1.0 255.255.255.0
 port 443
 push "redirect-gateway"
@@ -342,7 +342,7 @@ push "redirect-gateway"
     # write new server config
     flist = load_rc(fn_serverconf)
 
-    flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/openvpn", x)]
+    flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin", x)]
 
     flist.append("port %s\n" % portnew)
 
@@ -388,6 +388,8 @@ push "redirect-gateway"
     dualfactorauth = new.get('univentionOpenvpnDualfactorauth', [None])[0]
     if dualfactorauth == '1':
         flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/openvpn\n')
+    else:
+        flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass\n')
 
     write_rc(flist, fn_serverconf)
 
