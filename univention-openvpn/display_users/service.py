@@ -99,7 +99,6 @@ def connected_users():
     users = map(lambda user: "%s.openvpn" % user[1].get('uid', [None])[0], users)
     myname = listener.baseConfig['hostname']
     me = lo.search('cn=%s' % myname)
-    key = me[0][1]['univentionOpenvpnLicense'][0]
     listener.unsetuid()
     connected_users = userlist()
 
@@ -130,7 +129,10 @@ def license_stats():
     users = lo.search('univentionOpenvpnAccount=1')
     myname = listener.baseConfig['hostname']
     me = lo.search('cn=%s' % myname)
-    key = me[0][1]['univentionOpenvpnLicense'][0]
+    try:
+        key = me[0][1]['univentionOpenvpnLicense'][0]
+    except:
+        key = ""
     listener.unsetuid()
     connected_users = userlist()
 
