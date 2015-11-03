@@ -1,3 +1,11 @@
+univention-openvpn (1.1.4) unstable; urgency=low
+
+  * let reinstallation work
+  * fix display_users
+
+ -- Fedor Scholz <scholz@bytemine.net>  Tue, 03 Nov 2015 17:39:00 +0100
+
+
 univention-openvpn (1.1.3) unstable; urgency=low
 
   * let display_users work without valid license, too
