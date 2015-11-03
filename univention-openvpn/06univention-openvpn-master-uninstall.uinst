@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=7
+VERSION=8
 
 SERVICE="OpenVPN"
 
