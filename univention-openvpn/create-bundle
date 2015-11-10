@@ -128,7 +128,8 @@ zip -j "$bundle" \
     "${ssl}/${uid}.openvpn/private.key" \
     "${ssl}/${uid}.openvpn/${server}.ovpn" \
     "${ssl}/${uid}.openvpn/win-${server}.ovpn"
-chown "$uid".www-data "$bundle"
+chown "$uid" "$bundle"
+chgrp www-data "$bundle"
 
 if [ -d "$home" ]; then
     umask 077
