@@ -18,4 +18,15 @@ ucr set ucs/web/overview/entries/service/openvpn4ucs_dl/link='/download'
 . /usr/share/univention-lib/base.sh
 call_joinscript 94univention-openvpn-master.inst
 
+rdy2gobas="/var/www/readytogo"
+templates=/usr/lib/openvpn-int/templates
+
+cat > "${rdy2gobas}/.htaccess" <<-ENDOFHTACCESS
+ErrorDocument 404 /readytogo/notfound.html
+ENDOFHTACCESS
+
+cp ${templates}/download.head "${rdy2gobas}/notfound.html"
+echo "<p>This page does not exist. Please talk to your VPN admin who should consider a license issue.</p>" >> "${rdy2gobas}/notfound.html"
+cat ${templates}/download.tail >> "${rdy2gobas}/notfound.html"
+
 exit 0

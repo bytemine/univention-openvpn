@@ -88,14 +88,6 @@ rdy2gobas="/var/www/readytogo"
 readytogo="${rdy2gobas}/${uid}/"
 mkdir -p "${readytogo}"
 
-cat > "${rdy2gobas}/.htaccess" <<-ENDOFHTACCESS
-ErrorDocument 404 /readytogo/notfound.html
-ENDOFHTACCESS
-
-cat > "${rdy2gobas}/notfound.html" <<-ENDOFHTACCESS
-This page does not exist. Please talk to your VPN admin who should consider a license issue.
-ENDOFHTACCESS
-
 pw=$(cat /etc/ldapper-m.secret)
 
 cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
