@@ -78,29 +78,11 @@ def handler(dn, new, old, command):
         action = None
         return
 
-    listener.setuid(0)
-    lo = ul.getMachineConnection()
-
-    key = new.get('univentionOpenvpnLicense', [None])[0]
-    try:
-        l = univention_openvpn_common.license(key)
-        ud.debug(ud.LISTENER, ud.INFO, '3 Processing license with ID %s:' % l['id'])
-        ud.debug(ud.LISTENER, ud.INFO, '3 Valid until: %s' % date.fromordinal(l['vdate']))
-        ud.debug(ud.LISTENER, ud.INFO, '3 Users: %s' % l['u'])
-        ud.debug(ud.LISTENER, ud.INFO, '3 Site-2-Site: %s' % l['s2s'])
-    except:
-        pass
-
-    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
-    vpnuc = len(vpnusers)
-    maxu = univention_openvpn_common.maxvpnusers(key)
-    ud.debug(ud.LISTENER, ud.INFO, '3 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
-    if vpnuc > maxu:
+    if not univention_openvpn_common.check_user_count():
         listener.unsetuid()
         if action == 'stop':
             ud.debug(ud.LISTENER, ud.INFO, '3 allowing stop action')
         else:
-            ud.debug(ud.LISTENER, ud.INFO, '3 skipping actions')
             action = None
             return			# do nothing
 

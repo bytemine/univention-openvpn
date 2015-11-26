@@ -1,4 +1,5 @@
 from univention import debug as ud
+import univention.uldap as ul
 import listener
 import os
 import csv
@@ -137,3 +138,32 @@ def write_ip_map(ip_map, path):
     except Exception, e:
         ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write ip map: %s' % str(e))
     listener.unsetuid()
+
+def check_user_count():
+    listener.setuid(0)
+    lo = ul.getMachineConnection()
+
+    servers = lo.search('(univentionOpenvpnActive=1)')
+
+    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
+    vpnuc = len(vpnusers)
+    maxu = 0
+    for server in servers:
+        key = server[1].get('univentionOpenvpnLicense', [None])[0]
+        try:
+            l = license(key)
+            ud.debug(ud.LISTENER, ud.INFO, 'Processing license with ID %s:' % l['id'])
+            ud.debug(ud.LISTENER, ud.INFO, 'Valid until: %s' % date.fromordinal(l['vdate']))
+            ud.debug(ud.LISTENER, ud.INFO, 'Users: %s' % l['u'])
+            ud.debug(ud.LISTENER, ud.INFO, 'Site-2-Site: %s' % l['s2s'])
+        except:
+            pass
+        mu = maxvpnusers(key)
+        if mu > maxu: maxu = mu
+    ud.debug(ud.LISTENER, ud.INFO, 'found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
+    listener.unsetuid()
+    if vpnuc > maxu:
+        ud.debug(ud.LISTENER, ud.INFO, 'skipping actions')
+        return False
+    else:
+        return True

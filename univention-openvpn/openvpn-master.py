@@ -61,34 +61,15 @@ def handler(dn, new, old, cmd):
     trigger = 'univentionOpenvpnAccount'
 
     listener.setuid(0)
-    lo = ul.getAdminConnection()
-
+    lo = ul.getMachineConnection()
     servers = lo.search('(univentionOpenvpnActive=1)')
 
-    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
-    vpnuc = len(vpnusers)
-    maxu = 0
-    for server in servers:
-        key = server[1].get('univentionOpenvpnLicense', [None])[0]
-        try:
-            l = univention_openvpn_common.license(key)
-            ud.debug(ud.LISTENER, ud.INFO, '1 Processing license with ID %s:' % l['id'])
-            ud.debug(ud.LISTENER, ud.INFO, '1 Valid until: %s' % date.fromordinal(l['vdate']))
-            ud.debug(ud.LISTENER, ud.INFO, '1 Users: %s' % l['u'])
-            ud.debug(ud.LISTENER, ud.INFO, '1 Site-2-Site: %s' % l['s2s'])
-        except:
-            pass
-        mu = univention_openvpn_common.maxvpnusers(key)
-        if mu > maxu: maxu = mu
-    ud.debug(ud.LISTENER, ud.INFO, '1 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
-    if vpnuc > maxu:
+    if not univention_openvpn_common.check_user_count():
         listener.unsetuid()
-        ud.debug(ud.LISTENER, ud.INFO, '1 skipping actions')
         return			# do nothing
 
     if trigger in new and not trigger in old and uid and home:
         ud.debug(ud.LISTENER, ud.INFO, '1 create new certificate for %s in %s' % (uid, home))
-
 
         # create a bundle for each openvpn server
         for server in servers:

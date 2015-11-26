@@ -63,28 +63,11 @@ def handler(dn, new, old, cmd):
         return
 
     listener.setuid(0)
-    lo = ul.getAdminConnection()
-
-    key = new.get('univentionOpenvpnLicense', [None])[0]
-    try:
-        l = univention_openvpn_common.license(key)
-        ud.debug(ud.LISTENER, ud.INFO, '2 Processing license with ID %s:' % l['id'])
-        ud.debug(ud.LISTENER, ud.INFO, '2 Valid until: %s' % date.fromordinal(l['vdate']))
-        ud.debug(ud.LISTENER, ud.INFO, '2 Users: %s' % l['u'])
-        ud.debug(ud.LISTENER, ud.INFO, '2 Site-2-Site: %s' % l['s2s'])
-    except:
-        pass
-
+    lo = ul.getMachineConnection()
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
-    vpnuc = len(vpnusers)
-    maxu = univention_openvpn_common.maxvpnusers(key)
 
-    ud.debug(ud.LISTENER, ud.INFO, '2 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
-
-    if vpnuc > maxu:
-        listener.unsetuid()
-        ud.debug(ud.LISTENER, ud.INFO, '2 skipping actions')
-        return			# do nothing
+    if not univention_openvpn_common.check_user_count():                                                                                                                                                                                 
+        return          # do nothing
 
     for user in vpnusers:
         uid = user[1].get('uid', [None])[0]

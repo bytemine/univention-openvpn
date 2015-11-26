@@ -65,26 +65,11 @@ def handler(dn, new, old, command):
     listener.setuid(0)
     lo = ul.getMachineConnection()
     server = lo.search('(cn=' + myname + ')')[0]
-    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     listener.unsetuid()
 
-    key = server[1].get('univentionOpenvpnLicense', [None])[0]
-    try:
-        l = univention_openvpn_common.license(key)
-        ud.debug(ud.LISTENER, ud.INFO, '4 Processing license with ID %s:' % l['id'])
-        ud.debug(ud.LISTENER, ud.INFO, '4 Valid until: %s' % date.fromordinal(l['vdate']))
-        ud.debug(ud.LISTENER, ud.INFO, '4 Users: %s' % l['u'])
-        ud.debug(ud.LISTENER, ud.INFO, '4 Site-2-Site: %s' % l['s2s'])
-    except:
-        pass
+    if not univention_openvpn_common.check_user_count():
+        return          # do nothing
 
-    vpnuc = len(vpnusers)
-    maxu = univention_openvpn_common.maxvpnusers(key)
-    ud.debug(ud.LISTENER, ud.INFO, '4 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
-    if vpnuc > maxu:
-        action = None
-        ud.debug(ud.LISTENER, ud.INFO, '4 skipping actions')
-        return			# do nothing
 
     #### UCS 3 ('Borgfeld') uses openvpn 2.1 - no explicit ip6 support, later version are ok
     relnam = listener.baseConfig.get('version/releasename')
