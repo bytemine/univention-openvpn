@@ -21,6 +21,8 @@ call_joinscript 94univention-openvpn-master.inst
 rdy2gobas="/var/www/readytogo"
 templates=/usr/lib/openvpn-int/templates
 
+mkdir -p "${rdy2gobas}"
+
 cat > "${rdy2gobas}/.htaccess" <<-ENDOFHTACCESS
 ErrorDocument 404 /readytogo/notfound.html
 ENDOFHTACCESS
