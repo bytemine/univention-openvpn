@@ -584,7 +584,7 @@ univention-directory-manager users/user create "$@" \
     --set password=$pw
 
 
-univention-directory-manager groups/group create \
+univention-directory-manager groups/group create "$@" \
     --position "cn=groups,$ldap_base" \
     --set name="VPN Admins" \
     --set users="uid=Administrator,cn=users,$ldap_base"
