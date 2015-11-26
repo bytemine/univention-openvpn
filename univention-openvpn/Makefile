@@ -13,10 +13,13 @@ clean:
 	rm -rf debian/univention-openvpn-schema
 	rm -rf debian/univention-openvpn-server
 	rm -rf debian/univention-openvpn-sitetosite
+	rm -rf common/deb_dist
+	rm -rf common/univention_openvpn_common.egg-info
 
 tidy: clean
 	rm -f ../univention-openvpn-*.deb
 
 build:
 	dpkg-buildpackage -us -uc
-
+	cd common; python setup.py --command-packages=stdeb.command bdist_deb
+	mv common/deb_dist/python-univention-openvpn-common_*.deb ..

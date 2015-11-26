@@ -7,17 +7,17 @@ Priority: optional
 
 Package: univention-openvpn-server
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn, python-netaddr, python-webpy
+Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn, python-netaddr, python-webpy, python-univention-openvpn-common
 Description: Server package for OpenVPN
 
 Package: univention-openvpn-sitetosite
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn
+Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn, python-univention-openvpn-common
 Description: Site-to-Site package for OpenVPN
 
 Package: univention-openvpn-master
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), univention-openvpn-schema
+Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), univention-openvpn-schema, python-univention-openvpn-common
 Description: Master package for OpenVPN
 
 Package: univention-openvpn-schema

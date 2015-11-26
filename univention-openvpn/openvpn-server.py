@@ -29,22 +29,19 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-
 __package__ = ''  # workaround for PEP 366
 
 import listener
 import univention.debug as ud
 import re
-import univention_baseconfig
 import os
-import csv
 import univention.uldap as ul
 import univention.config_registry as ucr
-from netaddr import *
+import netaddr
 
 from datetime import date
-from M2Crypto import RSA, BIO
-from base64 import b64decode
+
+import univention_openvpn_common
 
 
 name        = 'openvpn-server'
@@ -62,128 +59,6 @@ action = None
 
 fn_serverconf = '/etc/openvpn/server.conf'
 
-
-pubbio = BIO.MemoryBuffer('''
------BEGIN PUBLIC KEY-----
-MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAN0VVx22Oou8UTDsrug/UnZLiX2UcXeE
-GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==
------END PUBLIC KEY-----
-''')
-pub = RSA.load_pub_key_bio(pubbio)
-pbs = pub.__len__() / 8
-
-def license(key):
-  try:
-    enc = b64decode(key)
-    raw = ''
-    while len(enc) > pbs:
-      d, key = (enc[:pbs], enc[pbs:])
-      raw = raw + pub.public_decrypt(d, 1)
-    if len(enc) != pbs:
-      return None		# invalid license
-    raw = raw + pub.public_decrypt(enc, 1)
-    #
-    items = raw.rstrip().split('\n')
-    if not items:
-      return None		# invalid license
-    vdate = int(items.pop(0))
-    if date.today().toordinal() > vdate:
-      ud.debug(ud.LISTENER, ud.ERROR, '3 License has expired')
-      return None		# expired
-    l = {'valid': True, 'vdate': vdate} # at least one feature returned
-    while items:
-      kv = items.pop(0).split('=', 1)
-      kv.append(True)
-      l[kv[0]] = kv[1]
-    return l			# valid license
-  except:
-    return None			# invalid license
-
-def maxvpnusers(key):
-  mnlu = 5
-  try:
-    return max(int(license(key)['u']), mnlu)
-  except:
-    ud.debug(ud.LISTENER, ud.ERROR, '3 Invalid license')
-    return mnlu			# invalid license
-
-
-# function to open a textfile with setuid(0) for root-action
-def load_rc(ofile):
-    l = None
-    listener.setuid(0)
-    try:
-        f = open(ofile,"r")
-        l = f.readlines()
-        f.close()
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to open "%s": %s' % (ofile, str(e)) )
-    listener.unsetuid()
-    return l
-
-# function to write to a textfile with setuid(0) for root-action
-def write_rc(flist, wfile):
-    listener.setuid(0)
-    try:
-        f = open(wfile,"w")
-        f.writelines(flist)
-        f.close()
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to write to file "%s": %s' % (wfile, str(e)))
-    listener.unsetuid()
-
-# function to create a directory with setuid(0) for root-action
-def create_dir(path):
-    listener.setuid(0)
-    try:
-        os.makedirs(path)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to make directory "%s": %s' % (path, str(e)))
-    listener.unsetuid()
-
-# function to rename a directory with setuid(0) for root-action
-def rename_dir(pathold, pathnew):
-    listener.setuid(0)
-    try:
-        os.rename(pathold, pathnew)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to rename directory "%s" to "%s": %s' % (pathold, pathnew, str(e)))
-    listener.unsetuid()
-
-# function to delete a textfile with setuid(0) for root-action
-def delete_file(fn):
-    listener.setuid(0)
-    try:
-        os.remove(fn)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to remove file "%s": %s' % (fn, str(e)))
-    listener.unsetuid()
-
-# function to open an ip map with setuid(0) for root-action
-def load_ip_map(path):
-    ip_map = []
-    listener.setuid(0)
-    try:
-        with open(path, 'rb') as f:
-            r = csv.reader(f, delimiter=' ', quotechar='|')
-            for row in r:
-                ip_map.append(row)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to load ip map: %s' % str(e))
-    listener.unsetuid()
-    return ip_map
-
-# function to write an ip map with setuid(0) for root-action
-def write_ip_map(ip_map, path):
-    listener.setuid(0)
-    try:
-        with open(path, 'wb') as f:
-            w = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for i in ip_map:
-                w.writerow(i)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to write ip map: %s' % str(e))
-    listener.unsetuid()
 
 def handler(dn, new, old, command):
     ud.debug(ud.LISTENER, ud.INFO, '3 server handler')
@@ -208,7 +83,7 @@ def handler(dn, new, old, command):
 
     key = new.get('univentionOpenvpnLicense', [None])[0]
     try:
-        l = license(key)
+        l = univention_openvpn_common.license(key)
         ud.debug(ud.LISTENER, ud.INFO, '3 Processing license with ID %s:' % l['id'])
         ud.debug(ud.LISTENER, ud.INFO, '3 Valid until: %s' % date.fromordinal(l['vdate']))
         ud.debug(ud.LISTENER, ud.INFO, '3 Users: %s' % l['u'])
@@ -218,7 +93,7 @@ def handler(dn, new, old, command):
 
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
-    maxu = maxvpnusers(key)
+    maxu = univention_openvpn_common.maxvpnusers(key)
     ud.debug(ud.LISTENER, ud.INFO, '3 found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     if vpnuc > maxu:
         listener.unsetuid()
@@ -278,7 +153,7 @@ topology subnet
 plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass
 server 10.0.1.0 255.255.255.0
 port 443
-push "redirect-gateway"
+push "redirect-gateway def1"
 """
 
         interfaces_eth0_network = listener.baseConfig['interfaces/eth0/network']
@@ -287,7 +162,7 @@ push "redirect-gateway"
         domain_domainname = listener.baseConfig['domain/domainname']
         domainname = listener.baseConfig['domainname']
 
-        if domain_domainname != None:
+        if domain_domainname is not None:
             dodom = domain_domainname
         else:
             dodom = domainname
@@ -318,7 +193,7 @@ push "redirect-gateway"
             'dodom' : dodom
         }
 
-        write_rc(config.format(**context), fn_serverconf) 
+        univention_openvpn_common.write_rc(config.format(**context), fn_serverconf) 
 
 
     portold = old.get('univentionOpenvpnPort', [None])[0]
@@ -340,7 +215,7 @@ push "redirect-gateway"
     fn_ipsv6 = '/etc/openvpn/ipsv6-' + portnew
 
     # write new server config
-    flist = load_rc(fn_serverconf)
+    flist = univention_openvpn_common.load_rc(fn_serverconf)
 
     flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin", x)]
 
@@ -351,7 +226,7 @@ push "redirect-gateway"
         ud.debug(ud.LISTENER, ud.INFO, '3 missing params, skipping actions')
         action = None
         return                  # invalid config, skip 
-    ipnw = IPNetwork(network)
+    ipnw = netaddr.IPNetwork(network)
     if ipnw.size == 1:
         netmask = '255.255.255.0'
         network = str(ipnw.network) + "/24"
@@ -366,7 +241,7 @@ push "redirect-gateway"
             flist.append("server-ipv6 %s\n" % (networkv6))
         else:
             networkv6 = "2001:db8:0:123::/64"
-        netmaskv6 = str(IPNetwork(networkv6).netmask)
+        netmaskv6 = str(netaddr.IPNetwork(networkv6).netmask)
 
     if ip6conn:
         flist.append("proto udp6\n")
@@ -375,7 +250,7 @@ push "redirect-gateway"
 
     redirect = new.get('univentionOpenvpnRedirect', [None])[0]
     if redirect == '1':
-        flist.append('push "redirect-gateway"\n')
+        flist.append('push "redirect-gateway def1"\n')
 
     duplicate = new.get('univentionOpenvpnDuplicate', [None])[0]
     if duplicate == '1':
@@ -391,13 +266,13 @@ push "redirect-gateway"
     else:
         flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass\n')
 
-    write_rc(flist, fn_serverconf)
+    univention_openvpn_common.write_rc(flist, fn_serverconf)
 
     if not os.path.exists(ccd):
         if not os.path.exists('/etc/openvpn/ccd-%s' % portold):
-            create_dir(ccd)
+            univention_openvpn_common.create_dir(ccd)
         else:
-            rename_dir('/etc/openvpn/ccd-%s' % portold, '/etc/openvpn/ccd-%s' % portnew)
+            univention_openvpn_common.rename_dir('/etc/openvpn/ccd-%s' % portold, '/etc/openvpn/ccd-%s' % portnew)
 
     if not os.path.exists(fn_ips):
         listener.setuid(0)
@@ -427,9 +302,9 @@ push "redirect-gateway"
         useraddressesv6 = []
 
         for useraddress in useraddresses:
-            if IPAddress(useraddress[1]).version == 4:
+            if netaddr.IPAddress(useraddress[1]).version == 4:
                 useraddressesv4.append(useraddress)
-            elif IPAddress(useraddress[1]).version == 6:
+            elif netaddr.IPAddress(useraddress[1]).version == 6:
                 useraddressesv6.append(useraddress)
 
         assign_addresses(fn_ips, useraddressesv4, network, netmask, ccd, False)
@@ -458,19 +333,19 @@ def change_net(network, netmask, ccd, fn_ips, ipv6):
         ip_map_new.append((name, ip_new))
 
         # write entry in ccd
-        cc = load_rc(ccd + name + ".openvpn")
+        cc = univention_openvpn_common.load_rc(ccd + name + ".openvpn")
         if cc is None:
             cc = []
         else:
             cc = [x for x in cc if not re.search(option, x)]
         cc.append(option + " " + ip_new + appendix)
-        write_rc(cc, ccd + name + ".openvpn")
+        univention_openvpn_common.write_rc(cc, ccd + name + ".openvpn")
 
-    write_ip_map(ip_map_new, fn_ips)
+    univention_openvpn_common.write_ip_map(ip_map_new, fn_ips)
 
 # store explicitly assigned addresses and resolve arising conlicts
 def assign_addresses(fn_ips, useraddresses, network, netmask, ccd, ipv6):
-    ip_map_old = load_ip_map(fn_ips)
+    ip_map_old = univention_openvpn_common.load_ip_map(fn_ips)
 
     if ipv6:
         option = "ifconfig-ipv6-push"
@@ -498,18 +373,18 @@ def assign_addresses(fn_ips, useraddresses, network, netmask, ccd, ipv6):
 
     # write entries in ccd
     for (name, ip) in ip_map_new:
-        cc = load_rc(ccd + name + ".openvpn")
+        cc = univention_openvpn_common.load_rc(ccd + name + ".openvpn")
         if cc is None:
             cc = []
         else:
             cc = [x for x in cc if not re.search(option, x)]
         cc.append(option + " " + ip + appendix)
-        write_rc(cc, ccd + name + ".openvpn")
+        univention_openvpn_common.write_rc(cc, ccd + name + ".openvpn")
 
-    write_ip_map(ip_map_new, fn_ips)
+    univention_openvpn_common.write_ip_map(ip_map_new, fn_ips)
 
 def generate_ip(network, ip_map):
-    ips = IPNetwork(network)
+    ips = netaddr.IPNetwork(network)
     first = ips[0]
     second = ips[1]
     for newip in ips.iter_hosts():

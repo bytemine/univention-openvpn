@@ -34,15 +34,13 @@ __package__ = ''  # workaround for PEP 366
 import listener
 import univention.debug as ud
 import re
-import univention_baseconfig
 import os
-import csv
 import univention.uldap as ul
 import univention.config_registry as ucr
 
 from datetime import date
-from M2Crypto import RSA, BIO
-from base64 import b64decode
+
+import univention_openvpn_common
 
 
 name        = 'openvpn-sitetosite'
@@ -61,121 +59,6 @@ fn_sitetositeconf = '/etc/openvpn/sitetosite.conf'
 fn_secret = '/etc/openvpn/sitetosite.key'
 
 
-pubbio = BIO.MemoryBuffer('''
------BEGIN PUBLIC KEY-----
-MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAN0VVx22Oou8UTDsrug/UnZLiX2UcXeE
-GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==
------END PUBLIC KEY-----
-''')
-pub = RSA.load_pub_key_bio(pubbio)
-pbs = pub.__len__() / 8
-
-def license(key):
-  try:
-    enc = b64decode(key)
-    raw = ''
-    while len(enc) > pbs:
-      d, key = (enc[:pbs], enc[pbs:])
-      raw = raw + pub.public_decrypt(d, 1)
-    if len(enc) != pbs:
-      return None		# invalid license
-    raw = raw + pub.public_decrypt(enc, 1)
-    #
-    items = raw.rstrip().split('\n')
-    if not items:
-      return None		# invalid license
-    vdate = int(items.pop(0))
-    if date.today().toordinal() > vdate:
-      ud.debug(ud.LISTENER, ud.ERROR, '5 License has expired.')
-      return None		# expired 
-    l = {'valid': True}
-    while items:
-      kv = items.pop(0).split('=', 1)
-      kv.append(True)
-      l[kv[0]] = kv[1]
-    return l
-  except:
-    return None			# invalid license
-
-
-
-# function to open a textfile with setuid(0) for root-action
-def load_rc(ofile):
-    l = None
-    listener.setuid(0)
-    try:
-        f = open(ofile,"r")
-        l = f.readlines()
-        f.close()
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to open "%s": %s' % (ofile, str(e)) )
-    listener.unsetuid()
-    return l
-
-# function to write to a textfile with setuid(0) for root-action
-def write_rc(flist, wfile):
-    listener.setuid(0)
-    try:
-        f = open(wfile,"w")
-        f.writelines(flist)
-        f.close()
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to write to file "%s": %s' % (wfile, str(e)))
-    listener.unsetuid()
-
-# function to create a directory with setuid(0) for root-action
-def create_dir(path):
-    listener.setuid(0)
-    try:
-        os.makedirs(path)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to make directory "%s": %s' % (path, str(e)))
-    listener.unsetuid()
-
-# function to rename a directory with setuid(0) for root-action
-def rename_dir(pathold, pathnew):
-    listener.setuid(0)
-    try:
-        os.rename(pathold, pathnew)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to rename directory "%s" to "%s": %s' % (pathold, pathnew, str(e)))
-    listener.unsetuid()
-
-# function to delete a textfile with setuid(0) for root-action
-def delete_file(fn):
-    listener.setuid(0)
-    try:
-        os.remove(fn)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to remove file "%s": %s' % (fn, str(e)))
-    listener.unsetuid()
-
-# function to open an ip map with setuid(0) for root-action
-def load_ip_map(path):
-    ip_map = []
-    listener.setuid(0)
-    try:
-        with open(path, 'rb') as f:
-            r = csv.reader(f, delimiter=' ', quotechar='|')
-            for row in r:
-                ip_map.append(row)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to load ip map: %s' % str(e))
-    listener.unsetuid()
-    return ip_map
-
-# function to write an ip map with setuid(0) for root-action
-def write_ip_map(ip_map, path):
-    listener.setuid(0)
-    try:
-        with open(path, 'wb') as f:
-            w = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for i in ip_map:
-                w.writerow(i)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to write ip map: %s' % str(e))
-    listener.unsetuid()
-
 def handler(dn, new, old, command):
     ud.debug(ud.LISTENER, ud.INFO, '5 site2site handler')
     global action
@@ -192,11 +75,11 @@ def handler(dn, new, old, command):
     # check if license is valid whenever 'active' is set
     if 'univentionOpenvpnSitetoSiteActive' in new:
         key = new.get('univentionOpenvpnLicense', [None])[0]
-	if not key:
+        if not key:
             ud.debug(ud.LISTENER, ud.INFO, '5 No license key. Skipping actions.')
             action = None
             return
-        lic = license(key)
+        lic = univention_openvpn_common.license(key)
         if not lic:
             ud.debug(ud.LISTENER, ud.ERROR, '5 Invalid license. Skipping actions.')
             action = None
@@ -255,7 +138,7 @@ ifconfig 10.0.0.1 10.0.0.2
         domain_domainname = listener.baseConfig['domain/domainname']
         domainname = listener.baseConfig['domainname']
 
-        if domain_domainname != None:
+        if domain_domainname is not None:
             dodom = domain_domainname
         else:
             dodom = domainname
@@ -287,7 +170,7 @@ ifconfig 10.0.0.1 10.0.0.2
             'fn_secret' : fn_secret
         }
 
-        write_rc(config.format(**context), fn_sitetositeconf)
+        univention_openvpn_common.write_rc(config.format(**context), fn_sitetositeconf)
 
 
     portold = old.get('univentionOpenvpnSitetoSitePort', [None])[0]
@@ -304,7 +187,7 @@ ifconfig 10.0.0.1 10.0.0.2
         listener.unsetuid()
 
     # write new sitetosite config
-    flist = load_rc(fn_sitetositeconf)
+    flist = univention_openvpn_common.load_rc(fn_sitetositeconf)
 
     flist = [x for x in flist if not re.search("remote", x) and not re.search("port", x) and not re.search("ifconfig", x)]
 
@@ -319,12 +202,12 @@ ifconfig 10.0.0.1 10.0.0.2
 
     secret = new.get('univentionOpenvpnSecret', [None])[0]
     #ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
-    write_rc([secret] if secret else [''], fn_secret)
+    univention_openvpn_common.write_rc([secret] if secret else [''], fn_secret)
     listener.setuid(0)
     os.chmod(fn_secret, 0600)
     listener.unsetuid()
 
-    write_rc(flist, fn_sitetositeconf)
+    univention_openvpn_common.write_rc(flist, fn_sitetositeconf)
 
 def initialize():
     pass
