@@ -20,6 +20,8 @@ ENDOFPW
 
 chmod 600 /etc/ldapper-s.secret
 
+udm users/user remove "$@" \
+        --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
 univention-directory-manager users/user create "$@" \
         --position "cn=users,$ldap_base" \
         --option "ldap_pwd" \
