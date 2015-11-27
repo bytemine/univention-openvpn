@@ -103,7 +103,7 @@ def license_stats():
         l = univention_openvpn_common.license(key)
         valid = str(date.fromordinal(l['vdate']))
     except:
-        valid = "No valid license"
+        valid = "No valid license on this host"
 
     info = {"expiration": valid, "connected": c_connected_users, "total": c_users, "licenced": c_licenced}
 
