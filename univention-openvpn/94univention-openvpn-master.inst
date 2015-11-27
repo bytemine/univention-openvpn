@@ -576,6 +576,8 @@ ENDOFPW
 
 chmod 600 /etc/ldapper-m.secret
 
+udm users/user remove "$@" \
+    --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
 univention-directory-manager users/user create "$@" \
     --position "cn=users,$ldap_base" \
     --option "ldap_pwd" \
@@ -611,6 +613,13 @@ cat > /etc/apache2/sites-available/openvpn4ucs2 <<-ENDOFSITECFG
 ENDOFSITECFG
 
 chmod 0600 /etc/apache2/sites-available/openvpn4ucs2
+
+
+for dir in /var/www/readytogo/*/
+do
+    sed -i "/AuthLDAPBindPassword/c\AuthLDAPBindPassword ${pw}" $dir.htaccess
+done
+
 
 /etc/init.d/apache2 restart
 
