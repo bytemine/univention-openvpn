@@ -143,7 +143,7 @@ def check_user_count():
     listener.setuid(0)
     lo = ul.getMachineConnection()
 
-    servers = lo.search('(univentionOpenvpnActive=1)')
+    servers = lo.search()
 
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
@@ -163,6 +163,32 @@ def check_user_count():
     ud.debug(ud.LISTENER, ud.INFO, 'found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
     listener.unsetuid()
     if vpnuc > maxu:
+        ud.debug(ud.LISTENER, ud.INFO, 'skipping actions')
+        return False
+    else:
+        return True
+
+def check_sitetosite():
+    listener.setuid(0)
+    lo = ul.getMachineConnection()
+
+    servers = lo.search()
+
+    sitetosite = False
+    for server in servers:
+        key = server[1].get('univentionOpenvpnLicense', [None])[0]
+        try:
+            l = license(key)
+            ud.debug(ud.LISTENER, ud.INFO, 'Processing license with ID %s:' % l['id'])
+            ud.debug(ud.LISTENER, ud.INFO, 'Valid until: %s' % date.fromordinal(l['vdate']))
+            ud.debug(ud.LISTENER, ud.INFO, 'Users: %s' % l['u'])
+            ud.debug(ud.LISTENER, ud.INFO, 'Site-2-Site: %s' % l['s2s'])
+            if l.get('s2s'): sitetosite = True
+            break
+        except:
+            pass
+    listener.unsetuid()
+    if not sitetosite:
         ud.debug(ud.LISTENER, ud.INFO, 'skipping actions')
         return False
     else:

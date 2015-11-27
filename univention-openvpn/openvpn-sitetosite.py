@@ -66,6 +66,11 @@ def handler(dn, new, old, command):
         action = None
         return
 
+    if 'univentionOpenvpnSitetoSiteActive' in new:
+        action = 'restart'
+    else:
+        action = 'stop'
+
     cn = new.get('cn', [None])[0]
     myname = listener.baseConfig['hostname']
     if cn != myname:
@@ -73,27 +78,12 @@ def handler(dn, new, old, command):
         return
 
     # check if license is valid whenever 'active' is set
-    if 'univentionOpenvpnSitetoSiteActive' in new:
-        key = new.get('univentionOpenvpnLicense', [None])[0]
-        if not key:
-            ud.debug(ud.LISTENER, ud.INFO, '5 No license key. Skipping actions.')
+    if not univention_openvpn_common.check_sitetosite():
+        if action == 'stop':
+            ud.debug(ud.LISTENER, ud.INFO, '5 allowing stop action')
+        else:
             action = None
             return
-        lic = univention_openvpn_common.license(key)
-        if not lic:
-            ud.debug(ud.LISTENER, ud.ERROR, '5 Invalid license. Skipping actions.')
-            action = None
-            return
-        if not lic.get('s2s'):
-            ud.debug(ud.LISTENER, ud.INFO, '5 License does not contain site-to-site. Skipping actions.')
-            action = None
-            return
-        ud.debug(ud.LISTENER, ud.INFO, '5 ** license valid, site2site enabled')
-
-    if 'univentionOpenvpnSitetoSiteActive' in new:
-        action = 'restart'
-    else:
-        action = 'stop'
 
     # activate config
     if not 'univentionOpenvpnSitetoSiteActive' in old and os.path.exists(fn_sitetositeconf + '-disabled'):
