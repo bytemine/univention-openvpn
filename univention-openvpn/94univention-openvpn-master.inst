@@ -590,6 +590,31 @@ univention-directory-manager groups/group create "$@" \
     --set users="uid=Administrator,cn=users,$ldap_base"
 
 
+rdy2gobas="/var/www/readytogo"
+templates=/usr/lib/openvpn-int/templates
+
+mkdir -p "${rdy2gobas}"
+
+cat > "${rdy2gobas}/.htaccess" <<-ENDOFHTACCESS
+ErrorDocument 404 /readytogo/notfound.html
+ENDOFHTACCESS
+
+cp ${templates}/download.head "${rdy2gobas}/notfound.html"
+echo "<p>This page does not exist. Please talk to your VPN admin who should consider a license issue.</p>" >> "${rdy2gobas}/notfound.html"
+cat ${templates}/download.tail >> "${rdy2gobas}/notfound.html"
+
+
+cat > /etc/apache2/sites-available/openvpn4ucs2 <<-ENDOFSITECFG
+<Location /readytogo>
+    Options -Indexes
+</Location>
+ENDOFSITECFG
+
+chmod 0600 /etc/apache2/sites-available/openvpn4ucs2
+
+/etc/init.d/apache2 restart
+
+
 # protect sitetosite secret with extra acl
 ucs_registerLDAPExtension "$@" \
     --acl /usr/lib/openvpn-int/misc/63openvpn-sitetosite.acl
