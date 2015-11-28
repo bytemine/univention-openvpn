@@ -98,9 +98,9 @@ def license_stats():
 
     c_connected_users = len(connected_users)
     c_users = len(users)
-    c_licenced = univention_openvpn_common.maxvpnusers(key)
+    c_licenced = univention_openvpn_common.maxvpnusers(0, key)
     try:
-        l = univention_openvpn_common.license(key)
+        l = univention_openvpn_common.license(0, key)
         valid = str(date.fromordinal(l['vdate']))
     except:
         valid = "No valid license on this host"
