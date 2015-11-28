@@ -78,10 +78,10 @@ def handler(dn, new, old, command):
         action = None
         return
 
-    if not univention_openvpn_common.check_user_count():
+    if not univention_openvpn_common.check_user_count(3):
         listener.unsetuid()
         if action == 'stop':
-            ud.debug(ud.LISTENER, ud.INFO, '3 allowing stop action')
+            ud.debug(ud.LISTENER, ud.INFO, '3 Allowing stop action')
         else:
             action = None
             return			# do nothing
@@ -90,7 +90,7 @@ def handler(dn, new, old, command):
     relnam = listener.baseConfig.get('version/releasename')
     ip6ok = relnam and relnam != 'Borgfeld'
     if not ip6ok:
-        ud.debug(ud.LISTENER, ud.INFO, '3 ipv6 support DISABLED due to version')
+        ud.debug(ud.LISTENER, ud.INFO, '3 IPv6 support DISABLED due to version')
 
     cnaddr = new.get('univentionOpenvpnAddress', [None])[0]
     ip6conn = True if cnaddr and cnaddr.count(':') else False
@@ -175,7 +175,7 @@ push "redirect-gateway def1"
             'dodom' : dodom
         }
 
-        univention_openvpn_common.write_rc(config.format(**context), fn_serverconf) 
+        univention_openvpn_common.write_rc(3, config.format(**context), fn_serverconf) 
 
 
     portold = old.get('univentionOpenvpnPort', [None])[0]
@@ -197,7 +197,7 @@ push "redirect-gateway def1"
     fn_ipsv6 = '/etc/openvpn/ipsv6-' + portnew
 
     # write new server config
-    flist = univention_openvpn_common.load_rc(fn_serverconf)
+    flist = univention_openvpn_common.load_rc(3, fn_serverconf)
 
     flist = [x for x in flist if not re.search("port", x) and not re.search("push \"redirect-gateway\"", x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin", x)]
 
@@ -205,7 +205,7 @@ push "redirect-gateway def1"
 
     network = new.get('univentionOpenvpnNet', [None])[0]
     if not network:
-        ud.debug(ud.LISTENER, ud.INFO, '3 missing params, skipping actions')
+        ud.debug(ud.LISTENER, ud.INFO, '3 Missing params, skipping actions')
         action = None
         return                  # invalid config, skip 
     ipnw = netaddr.IPNetwork(network)
@@ -248,13 +248,13 @@ push "redirect-gateway def1"
     else:
         flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass\n')
 
-    univention_openvpn_common.write_rc(flist, fn_serverconf)
+    univention_openvpn_common.write_rc(3, flist, fn_serverconf)
 
     if not os.path.exists(ccd):
         if not os.path.exists('/etc/openvpn/ccd-%s' % portold):
-            univention_openvpn_common.create_dir(ccd)
+            univention_openvpn_common.create_dir(3, ccd)
         else:
-            univention_openvpn_common.rename_dir('/etc/openvpn/ccd-%s' % portold, '/etc/openvpn/ccd-%s' % portnew)
+            univention_openvpn_common.rename_dir(3, '/etc/openvpn/ccd-%s' % portold, '/etc/openvpn/ccd-%s' % portnew)
 
     if not os.path.exists(fn_ips):
         listener.setuid(0)
@@ -315,19 +315,19 @@ def change_net(network, netmask, ccd, fn_ips, ipv6):
         ip_map_new.append((name, ip_new))
 
         # write entry in ccd
-        cc = univention_openvpn_common.load_rc(ccd + name + ".openvpn")
+        cc = univention_openvpn_common.load_rc(3, ccd + name + ".openvpn")
         if cc is None:
             cc = []
         else:
             cc = [x for x in cc if not re.search(option, x)]
         cc.append(option + " " + ip_new + appendix)
-        univention_openvpn_common.write_rc(cc, ccd + name + ".openvpn")
+        univention_openvpn_common.write_rc(3, cc, ccd + name + ".openvpn")
 
-    univention_openvpn_common.write_ip_map(ip_map_new, fn_ips)
+    univention_openvpn_common.write_ip_map(3, ip_map_new, fn_ips)
 
 # store explicitly assigned addresses and resolve arising conlicts
 def assign_addresses(fn_ips, useraddresses, network, netmask, ccd, ipv6):
-    ip_map_old = univention_openvpn_common.load_ip_map(fn_ips)
+    ip_map_old = univention_openvpn_common.load_ip_map(3, fn_ips)
 
     if ipv6:
         option = "ifconfig-ipv6-push"
@@ -355,15 +355,15 @@ def assign_addresses(fn_ips, useraddresses, network, netmask, ccd, ipv6):
 
     # write entries in ccd
     for (name, ip) in ip_map_new:
-        cc = univention_openvpn_common.load_rc(ccd + name + ".openvpn")
+        cc = univention_openvpn_common.load_rc(3, ccd + name + ".openvpn")
         if cc is None:
             cc = []
         else:
             cc = [x for x in cc if not re.search(option, x)]
         cc.append(option + " " + ip + appendix)
-        univention_openvpn_common.write_rc(cc, ccd + name + ".openvpn")
+        univention_openvpn_common.write_rc(3, cc, ccd + name + ".openvpn")
 
-    univention_openvpn_common.write_ip_map(ip_map_new, fn_ips)
+    univention_openvpn_common.write_ip_map(3, ip_map_new, fn_ips)
 
 def generate_ip(network, ip_map):
     ips = netaddr.IPNetwork(network)

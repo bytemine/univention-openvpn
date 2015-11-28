@@ -64,12 +64,12 @@ def handler(dn, new, old, cmd):
     lo = ul.getMachineConnection()
     servers = lo.search('(univentionOpenvpnActive=1)')
 
-    if not univention_openvpn_common.check_user_count():
+    if not univention_openvpn_common.check_user_count(1):
         listener.unsetuid()
         return			# do nothing
 
     if trigger in new and not trigger in old and uid and home:
-        ud.debug(ud.LISTENER, ud.INFO, '1 create new certificate for %s in %s' % (uid, home))
+        ud.debug(ud.LISTENER, ud.INFO, '1 Create new certificate for %s in %s' % (uid, home))
 
         # create a bundle for each openvpn server
         for server in servers:
@@ -88,7 +88,7 @@ def handler(dn, new, old, cmd):
 
 
     if (trigger in old and not trigger in new and uid_old and home_old) or (cmd == 'd' and uid_old and home_old):
-        ud.debug(ud.LISTENER, ud.INFO, '1 revoke certificate for %s' % (uid_old))
+        ud.debug(ud.LISTENER, ud.INFO, '1 Revoke certificate for %s' % (uid_old))
         listener.setuid(0)
         try:
             listener.run('/usr/sbin/univention-certificate', ['univention-certificate', 'revoke', '-name', uid_old + '.openvpn'], uid=0)

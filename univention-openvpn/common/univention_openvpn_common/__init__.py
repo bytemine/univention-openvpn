@@ -17,7 +17,7 @@ GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==
 pub = RSA.load_pub_key_bio(pubbio)
 pbs = pub.__len__() / 8
 
-def license(key):
+def license(no, key):
     try:
         enc = b64decode(key)
         raw = ''
@@ -33,7 +33,7 @@ def license(key):
             return None		# invalid license
         vdate = int(items.pop(0))
         if date.today().toordinal() > vdate:
-            ud.debug(ud.LISTENER, ud.ERROR, 'License has expired')
+            ud.debug(ud.LISTENER, ud.ERROR, '%d License has expired' % no)
             return None		# expired
         l = {'valid': True, 'vdate': vdate} # at least one feature returned
         while items:
@@ -44,17 +44,17 @@ def license(key):
     except:
         return None			# invalid license
 
-def maxvpnusers(key):
+def maxvpnusers(no, key):
     mnlu = 5
     try:
-        return max(int(license(key)['u']), mnlu)
+        return max(int(license(no, key)['u']), mnlu)
     except:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Invalid license')
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Invalid license' % no)
         return mnlu			# invalid license
 
 
 # function to open a textfile with setuid(0) for root-action
-def load_rc(ofile):
+def load_rc(no, ofile):
     l = None
     listener.setuid(0)
     try:
@@ -62,59 +62,59 @@ def load_rc(ofile):
         l = f.readlines()
         f.close()
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to open "%s": %s' % (ofile, str(e)) )
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to read file "%s": %s' % (no, ofile, str(e)) )
     listener.unsetuid()
     return l
 
 # function to write to a textfile with setuid(0) for root-action
-def write_rc(flist, wfile):
+def write_rc(no, flist, wfile):
     listener.setuid(0)
     try:
         f = open(wfile,"w")
         f.writelines(flist)
         f.close()
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write to file "%s": %s' % (wfile, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to write file "%s": %s' % (no, wfile, str(e)))
     listener.unsetuid()
 
 # function to create a directory with setuid(0) for root-action
-def create_dir(path):
+def create_dir(no, path):
     listener.setuid(0)
     try:
         os.makedirs(path)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to make directory "%s": %s' % (path, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to make directory "%s": %s' % (no, path, str(e)))
     listener.unsetuid()
 
 # function to rename a directory with setuid(0) for root-action
-def rename_dir(pathold, pathnew):
+def rename_dir(no, pathold, pathnew):
     listener.setuid(0)
     try:
         os.rename(pathold, pathnew)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to rename directory "%s" to "%s": %s' % (pathold, pathnew, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to rename directory "%s" to "%s": %s' % (no, pathold, pathnew, str(e)))
     listener.unsetuid()
 
 # function to delete a directory with setuid(0) for root-action
-def delete_dir(fn):
+def delete_dir(no, fn):
     listener.setuid(0)
     try:
         os.rmdir(fn)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to remove directory "%s": %s' % (no, fn, str(e)))
     listener.unsetuid()
 
 # function to delete a textfile with setuid(0) for root-action
-def delete_file(fn):
+def delete_file(no, fn):
     listener.setuid(0)
     try:
         os.remove(fn)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to remove file "%s": %s' % (fn, str(e)))
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to remove file "%s": %s' % (no, fn, str(e)))
     listener.unsetuid()
 
 # function to open an ip map with setuid(0) for root-action
-def load_ip_map(path):
+def load_ip_map(no, path):
     ip_map = []
     listener.setuid(0)
     try:
@@ -123,12 +123,12 @@ def load_ip_map(path):
             for row in r:
                 ip_map.append(row)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to load ip map: %s' % str(e))
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to load ip map: %s' % (no, str(e)))
     listener.unsetuid()
     return ip_map
 
 # function to write an ip map with setuid(0) for root-action
-def write_ip_map(ip_map, path):
+def write_ip_map(no, ip_map, path):
     listener.setuid(0)
     try:
         with open(path, 'wb') as f:
@@ -136,10 +136,10 @@ def write_ip_map(ip_map, path):
             for i in ip_map:
                 w.writerow(i)
     except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'Failed to write ip map: %s' % str(e))
+        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to write ip map: %s' % (no, str(e)))
     listener.unsetuid()
 
-def check_user_count():
+def check_user_count(no):
     listener.setuid(0)
     lo = ul.getMachineConnection()
 
@@ -151,24 +151,24 @@ def check_user_count():
     for server in servers:
         key = server[1].get('univentionOpenvpnLicense', [None])[0]
         try:
-            l = license(key)
-            ud.debug(ud.LISTENER, ud.INFO, 'Processing license with ID %s:' % l['id'])
-            ud.debug(ud.LISTENER, ud.INFO, 'Valid until: %s' % date.fromordinal(l['vdate']))
-            ud.debug(ud.LISTENER, ud.INFO, 'Users: %s' % l['u'])
-            ud.debug(ud.LISTENER, ud.INFO, 'Site-2-Site: %s' % l['s2s'])
+            l = license(no, key)
+            ud.debug(ud.LISTENER, ud.INFO, '%d Processing license with ID %s:' % (no, l['id']))
+            ud.debug(ud.LISTENER, ud.INFO, '%d Valid until: %s' % (no, date.fromordinal(l['vdate'])))
+            ud.debug(ud.LISTENER, ud.INFO, '%d Users: %s' % (no, l['u']))
+            ud.debug(ud.LISTENER, ud.INFO, '%d Site-2-Site: %s' % (no, l['s2s']))
         except:
             pass
-        mu = maxvpnusers(key)
+        mu = maxvpnusers(no, key)
         if mu > maxu: maxu = mu
-    ud.debug(ud.LISTENER, ud.INFO, 'found %u active openvpn users (%u allowed)' % (vpnuc, maxu))
+    ud.debug(ud.LISTENER, ud.INFO, '%d Found %u active openvpn users (%u allowed)' % (no, vpnuc, maxu))
     listener.unsetuid()
     if vpnuc > maxu:
-        ud.debug(ud.LISTENER, ud.INFO, 'skipping actions')
+        ud.debug(ud.LISTENER, ud.INFO, '%d Skipping actions' % no)
         return False
     else:
         return True
 
-def check_sitetosite():
+def check_sitetosite(no):
     listener.setuid(0)
     lo = ul.getMachineConnection()
 
@@ -178,18 +178,19 @@ def check_sitetosite():
     for server in servers:
         key = server[1].get('univentionOpenvpnLicense', [None])[0]
         try:
-            l = license(key)
-            ud.debug(ud.LISTENER, ud.INFO, 'Processing license with ID %s:' % l['id'])
-            ud.debug(ud.LISTENER, ud.INFO, 'Valid until: %s' % date.fromordinal(l['vdate']))
-            ud.debug(ud.LISTENER, ud.INFO, 'Users: %s' % l['u'])
-            ud.debug(ud.LISTENER, ud.INFO, 'Site-2-Site: %s' % l['s2s'])
+            l = license(no, key)
+            ud.debug(ud.LISTENER, ud.INFO, '%d Processing license with ID %s:' % (no, l['id']))
+            ud.debug(ud.LISTENER, ud.INFO, '%d Valid until: %s' % (no, date.fromordinal(l['vdate'])))
+            ud.debug(ud.LISTENER, ud.INFO, '%d Users: %s' % (no, l['u']))
+            ud.debug(ud.LISTENER, ud.INFO, '%d Site-2-Site: %s' % (no, l['s2s']))
             if l.get('s2s'): sitetosite = True
             break
         except:
             pass
+    ud.debug(ud.LISTENER, ud.INFO, '%d Site-to-Site not enabled in license')
     listener.unsetuid()
     if not sitetosite:
-        ud.debug(ud.LISTENER, ud.INFO, 'skipping actions')
+        ud.debug(ud.LISTENER, ud.INFO, '%d Skipping actions' % no)
         return False
     else:
         return True

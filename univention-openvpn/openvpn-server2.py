@@ -67,7 +67,7 @@ def handler(dn, new, old, command):
     server = lo.search('(cn=' + myname + ')')[0]
     listener.unsetuid()
 
-    if not univention_openvpn_common.check_user_count():
+    if not univention_openvpn_common.check_user_count(4):
         return          # do nothing
 
 
@@ -75,12 +75,12 @@ def handler(dn, new, old, command):
     relnam = listener.baseConfig.get('version/releasename')
     ip6ok = relnam and relnam != 'Borgfeld'
     if not ip6ok:
-        ud.debug(ud.LISTENER, ud.INFO, '4 ipv6 support DISABLED due to version')
+        ud.debug(ud.LISTENER, ud.INFO, '4 IPv6 support DISABLED due to version')
     
     port = server[1].get('univentionOpenvpnPort', [None])[0]
     network = server[1].get('univentionOpenvpnNet', [None])[0]
     if not port or not network:
-        ud.debug(ud.LISTENER, ud.INFO, '4 missing params, skipping actions')
+        ud.debug(ud.LISTENER, ud.INFO, '4 Missing params, skipping actions')
         action = None
         return			# invalid config, skip
     ipnw = netaddr.IPNetwork(network)
@@ -102,10 +102,10 @@ def handler(dn, new, old, command):
 
     if not os.path.exists(ccd):
         os.makedirs(ccd)
-        ip_map = univention_openvpn_common.load_ip_map(fn_ips)
+        ip_map = univention_openvpn_common.load_ip_map(4, fn_ips)
         for (name, ip) in ip_map:
             line = "ifconfig-push " + ip + " " + netmask
-            univention_openvpn_common.write_rc(line, ccd + name + ".openvpn")
+            univention_openvpn_common.write_rc(4, line, ccd + name + ".openvpn")
 
     if not os.path.exists(fn_ips):
         listener.setuid(0)
@@ -121,7 +121,7 @@ def handler(dn, new, old, command):
     # delete entries on user deletion
     if command == 'd':
         client_cn = old.get('uid', [None])[0]
-        univention_openvpn_common.delete_file(ccd + client_cn + ".openvpn")
+        univention_openvpn_common.delete_file(4, ccd + client_cn + ".openvpn")
         delete_entry(client_cn, fn_ips)
         if ip6ok:
             delete_entry(client_cn, fn_ipsv6)
@@ -141,13 +141,13 @@ def handler(dn, new, old, command):
         if ip6ok:
             lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
 
-        univention_openvpn_common.write_rc(lines, ccd + client_cn + ".openvpn")
+        univention_openvpn_common.write_rc(4, lines, ccd + client_cn + ".openvpn")
 
         return
 
     # delete entries on account deactiviation
     elif not 'univentionOpenvpnAccount' in new and 'univentionOpenvpnAccount' in old:
-        univention_openvpn_common.delete_file(ccd + client_cn + ".openvpn")
+        univention_openvpn_common.delete_file(4, ccd + client_cn + ".openvpn")
         delete_entry(client_cn, fn_ips)
         if ip6ok: 
             delete_entry(client_cn, fn_ipsv6)
@@ -156,20 +156,20 @@ def handler(dn, new, old, command):
 
 # generate and write entry for given user and return generated ip
 def write_entry(client_cn, fn_ips, network):
-    ip_map = univention_openvpn_common.load_ip_map(fn_ips)
+    ip_map = univention_openvpn_common.load_ip_map(4, fn_ips)
     ip = generate_ip(network, ip_map)
     ip_map.append((client_cn, ip))
-    univention_openvpn_common.write_ip_map(ip_map, fn_ips)
+    univention_openvpn_common.write_ip_map(4, ip_map, fn_ips)
     return ip
 
 # delete entry of given user in corresponding ip_map
 def delete_entry(client_cn, fn_ips):
-    ip_map_old = univention_openvpn_common.load_ip_map(fn_ips)
+    ip_map_old = univention_openvpn_common.load_ip_map(4, fn_ips)
     ip_map_new = []
     for (name, ip) in ip_map_old:
         if name != client_cn:
             ip_map_new.append((name, ip))
-    univention_openvpn_common.write_ip_map(ip_map_new, fn_ips)
+    univention_openvpn_common.write_ip_map(4, ip_map_new, fn_ips)
 
 # generate ip for given network which does not exist in ip_map
 def generate_ip(network, ip_map):

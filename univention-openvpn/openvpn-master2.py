@@ -66,13 +66,13 @@ def handler(dn, new, old, cmd):
     lo = ul.getMachineConnection()
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
 
-    if not univention_openvpn_common.check_user_count():                                                                                                                                                                                 
+    if not univention_openvpn_common.check_user_count(2):                                                                                                                                                                                 
         return          # do nothing
 
     for user in vpnusers:
         uid = user[1].get('uid', [None])[0]
         home = user[1].get('homeDirectory', ['/dev/null'])[0]
-        ud.debug(ud.LISTENER, ud.INFO, '2 create new certificate for %s in %s' % (uid, home))
+        ud.debug(ud.LISTENER, ud.INFO, '2 Create new certificate for %s in %s' % (uid, home))
 
         proto = 'udp6' if addr and addr.count(':') else 'udp'
 

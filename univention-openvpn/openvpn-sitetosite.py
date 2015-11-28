@@ -78,9 +78,9 @@ def handler(dn, new, old, command):
         return
 
     # check if license is valid whenever 'active' is set
-    if not univention_openvpn_common.check_sitetosite():
+    if not univention_openvpn_common.check_sitetosite(5):
         if action == 'stop':
-            ud.debug(ud.LISTENER, ud.INFO, '5 allowing stop action')
+            ud.debug(ud.LISTENER, ud.INFO, '5 Allowing stop action')
         else:
             action = None
             return
@@ -160,7 +160,7 @@ ifconfig 10.0.0.1 10.0.0.2
             'fn_secret' : fn_secret
         }
 
-        univention_openvpn_common.write_rc(config.format(**context), fn_sitetositeconf)
+        univention_openvpn_common.write_rc(5, config.format(**context), fn_sitetositeconf)
 
 
     portold = old.get('univentionOpenvpnSitetoSitePort', [None])[0]
@@ -177,7 +177,7 @@ ifconfig 10.0.0.1 10.0.0.2
         listener.unsetuid()
 
     # write new sitetosite config
-    flist = univention_openvpn_common.load_rc(fn_sitetositeconf)
+    flist = univention_openvpn_common.load_rc(5, fn_sitetositeconf)
 
     flist = [x for x in flist if not re.search("remote", x) and not re.search("port", x) and not re.search("ifconfig", x)]
 
@@ -192,12 +192,12 @@ ifconfig 10.0.0.1 10.0.0.2
 
     secret = new.get('univentionOpenvpnSecret', [None])[0]
     #ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
-    univention_openvpn_common.write_rc([secret] if secret else [''], fn_secret)
+    univention_openvpn_common.write_rc(5, [secret] if secret else [''], fn_secret)
     listener.setuid(0)
     os.chmod(fn_secret, 0600)
     listener.unsetuid()
 
-    univention_openvpn_common.write_rc(flist, fn_sitetositeconf)
+    univention_openvpn_common.write_rc(5, flist, fn_sitetositeconf)
 
 def initialize():
     pass
