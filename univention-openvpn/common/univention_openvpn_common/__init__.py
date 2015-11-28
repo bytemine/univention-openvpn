@@ -143,11 +143,11 @@ def check_user_count(no):
     listener.setuid(0)
     lo = ul.getMachineConnection()
 
-    servers = lo.search()
+    servers = lo.search('(univentionOpenvpnLicense=*)')
 
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     vpnuc = len(vpnusers)
-    maxu = 0
+    maxu = 5
     for server in servers:
         key = server[1].get('univentionOpenvpnLicense', [None])[0]
         try:
@@ -172,7 +172,7 @@ def check_sitetosite(no):
     listener.setuid(0)
     lo = ul.getMachineConnection()
 
-    servers = lo.search()
+    servers = lo.search('(univentionOpenvpnLicense=*)')
 
     sitetosite = False
     for server in servers:
