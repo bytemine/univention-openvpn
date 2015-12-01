@@ -187,7 +187,6 @@ def check_sitetosite(no):
             break
         except:
             pass
-    ud.debug(ud.LISTENER, ud.INFO, '%d Site-to-Site not enabled in license')
     listener.unsetuid()
     if not sitetosite:
         ud.debug(ud.LISTENER, ud.INFO, '%d Skipping actions' % no)
