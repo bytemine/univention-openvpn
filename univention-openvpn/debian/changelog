@@ -1,3 +1,13 @@
+univention-openvpn (1.1.5) unstable; urgency=low
+
+  * reorganize scripts
+  * add customized error page for readytogo
+  * let download work for simple auth accounts
+  * update passwords on reinstallation
+
+ -- Fedor Scholz <scholz@bytemine.net>  Tue, 15 Dec 2015 16:30:00 +0100
+
+
 univention-openvpn (1.1.4) unstable; urgency=low
 
   * let reinstallation work
