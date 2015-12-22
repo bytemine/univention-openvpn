@@ -18,6 +18,7 @@ clean:
 
 tidy: clean
 	rm -f ../univention-openvpn-*.deb
+	rm -f ../python-univention-openvpn-*.deb
 
 build:
 	dpkg-buildpackage -us -uc
