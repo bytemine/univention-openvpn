@@ -8,7 +8,21 @@
 #     /etc/univention/templates/files/etc/pam.d/openvpn
 # 
 
-auth     sufficient     pam_python.so /usr/share/privacyidea/privacyidea_pam.py url=@%@privacyidea/pam/url@%@
+@!@
+hostname = baseConfig.get('hostname')
+domainname = baseConfig.get('domainname')
+url = baseConfig.get('privacyidea/pam/url', 'https://%s.%s/privacyidea' % (hostname, domainname))
+prompt = baseConfig.get('privacyidea/pam/prompt', 'OTP: ')
+realm = baseConfig.get('privacyidea/pam/realm', '')
+
+pam_config = '''
+auth     sufficient     pam_python.so /usr/share/privacyidea/privacyidea_pam.py url=%s prompt=%s realm=%s cacerts=/etc/univention/ssl/ucsCA/CAcert.pem
+''' % (url, prompt, realm)
+
+if baseConfig.is_true('privacyidea/pam/enable', False):
+        print pam_config
+
+@!@
 
 @include ldaponly-auth
 
