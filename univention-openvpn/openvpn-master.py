@@ -43,7 +43,7 @@ import univention_openvpn_common
 name        = 'openvpn-master'
 description = 'create user openvpn package'
 filter      = '(objectClass=univentionOpenvpnUser)'
-attributes  = ['univentionOpenvpnAccount']
+attributes  = ['univentionOpenvpnAccount', 'sambaAcctFlags']
 modrdn      = 1
 
 
@@ -59,6 +59,19 @@ def handler(dn, new, old, cmd):
     home = new.get('homeDirectory', ['/dev/null'])[0]
     home_old = old.get('homeDirectory', ['/dev/null'])[0]
     trigger = 'univentionOpenvpnAccount'
+    flags = new.get('sambaAcctFlags', [None])[0]
+    flags_old = old.get('sambaAcctFlags', [None])[0]
+    if flags and 'L' in flags or not 'U' in flags:
+        locked = True
+    else:
+        locked = False
+
+    if 'L' in flags_old or not 'U' in flags_old:
+        locked_old = True
+    else:
+        locked_old = False
+
+    ud.debug(ud.LISTENER, ud.ERROR, flags)
 
     listener.setuid(0)
     lo = ul.getMachineConnection()
@@ -68,7 +81,7 @@ def handler(dn, new, old, cmd):
         listener.unsetuid()
         return			# do nothing
 
-    if trigger in new and not trigger in old and uid and home:
+    if (trigger in new and not trigger in old and uid and home and not locked) or (locked_old and not locked and uid and home and trigger in new):
         ud.debug(ud.LISTENER, ud.INFO, '1 Create new certificate for %s in %s' % (uid, home))
 
         # create a bundle for each openvpn server
@@ -87,7 +100,7 @@ def handler(dn, new, old, cmd):
                 listener.unsetuid()
 
 
-    if (trigger in old and not trigger in new and uid_old and home_old) or (cmd == 'd' and uid_old and home_old):
+    if (trigger in old and not trigger in new and uid_old and home_old) or (cmd == 'd' and uid_old and home_old) or (not locked_old and locked and uid_old and home_old):
         ud.debug(ud.LISTENER, ud.INFO, '1 Revoke certificate for %s' % (uid_old))
         listener.setuid(0)
         try:
