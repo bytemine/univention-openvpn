@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<umc version="2.0">
+  <module id="openvpn4ucs" version="1.0">
+	<name>OpenVPN4UCS</name>
+	<description>Manage OpenVPN4UCS</description>
+	<keywords></keywords>
+	<categories>
+	  <category name="system"/>
+	</categories>
+
+	<command name="openvpn4ucs/process_button" function="process_button"/>
+  </module>
+</umc>
