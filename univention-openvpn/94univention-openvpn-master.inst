@@ -618,8 +618,8 @@ chmod 0600 /etc/apache2/sites-available/openvpn4ucs2
 
 for dir in /var/www/readytogo/*/
 do
-    sed -i '/AuthLDAPBindPassword/c\AuthLDAPBindPassword ${pw}' $dir.htaccess
-    sed -i '/AuthLDAPBindDN/c\AuthLDAPBindDN "uid=$name,cn=users,$ldap_base"' $dir.htaccess
+    sed -i "/AuthLDAPBindPassword/c\AuthLDAPBindPassword ${pw}" $dir.htaccess
+    sed -i "/AuthLDAPBindDN/c\AuthLDAPBindDN \"uid=$name,cn=users,$ldap_base\"" $dir.htaccess
 done
 
 
