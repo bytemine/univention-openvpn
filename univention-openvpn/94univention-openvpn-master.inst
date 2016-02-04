@@ -6,7 +6,7 @@ SERVICE="OpenVPN"
 
 . /usr/share/univention-lib/base.sh
 . /usr/share/univention-lib/ldap.sh
-. /usr/share/univention-lib/umc.sh
+#. /usr/share/univention-lib/umc.sh
 . /usr/share/univention-join/joinscripthelper.lib
 
 joinscript_init
@@ -635,9 +635,9 @@ ucs_registerLDAPExtension "$@" \
 stop_udm_cli_server
 
 
-umc_init
-umc_operation_create "openvpn4ucs-all" "OpenVPN4UCS" "" "openvpn4ucs/*"
-umc_policy_append "default-umc-all" "openvpn4ucs-all"
+#umc_init
+#umc_operation_create "openvpn4ucs-all" "OpenVPN4UCS" "" "openvpn4ucs/*"
+#umc_policy_append "default-umc-all" "openvpn4ucs-all"
 
 
 joinscript_save_current_version

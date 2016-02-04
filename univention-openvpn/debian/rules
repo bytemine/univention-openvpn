@@ -10,11 +10,10 @@
 export DH_VERBOSE=1
 
 %:
-	dh $@ --with 'python_support'
+	dh $@
 
 override_dh_auto_install:
 	univention-install-config-registry
-	dh-umc-module-install
 	dh_auto_install
 
 override_dh_auto_test:
