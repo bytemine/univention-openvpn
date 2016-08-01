@@ -58,7 +58,8 @@ def handler(dn, new, old, cmd):
     uid_old = old.get('uid', [None])[0]
     home = new.get('homeDirectory', ['/dev/null'])[0]
     home_old = old.get('homeDirectory', ['/dev/null'])[0]
-    trigger = 'univentionOpenvpnAccount'
+    trigger = new.get('univentionOpenvpnAccount', 0)[0] == '1'
+    trigger_old = old.get('univentionOpenvpnAccount', 0)[0] == '1'
     flags = new.get('sambaAcctFlags', [None])[0]
     flags_old = old.get('sambaAcctFlags', [None])[0]
     if flags and ('L' in flags or not 'U' in flags):
@@ -79,7 +80,7 @@ def handler(dn, new, old, cmd):
         listener.unsetuid()
         return			# do nothing
 
-    if (trigger in new and not trigger in old and uid and home and not locked) or (locked_old and not locked and uid and home and trigger in new):
+    if (trigger and not trigger_old and uid and home and not locked) or (locked_old and not locked and uid and home and trigger):
         ud.debug(ud.LISTENER, ud.INFO, '1 Create new certificate for %s in %s' % (uid, home))
 
         # create a bundle for each openvpn server
@@ -98,7 +99,7 @@ def handler(dn, new, old, cmd):
                 listener.unsetuid()
 
 
-    if (trigger in old and not trigger in new and uid_old and home_old) or (cmd == 'd' and uid_old and home_old) or (not locked_old and locked and uid_old and home_old):
+    if (trigger_old and not trigger and uid_old and home_old) or (cmd == 'd' and uid_old and home_old) or (not locked_old and locked and uid_old and home_old):
         ud.debug(ud.LISTENER, ud.INFO, '1 Revoke certificate for %s' % (uid_old))
         listener.setuid(0)
         try:
