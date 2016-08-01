@@ -101,7 +101,9 @@ def handler(dn, new, old, command):
     fn_ipsv6 = '/etc/openvpn/ipsv6-' + port
 
     if not os.path.exists(ccd):
+        listener.setuid(0)
         os.makedirs(ccd)
+        listener.unsetuid()
         ip_map = univention_openvpn_common.load_ip_map(4, fn_ips)
         for (name, ip) in ip_map:
             line = "ifconfig-push " + ip + " " + netmask
