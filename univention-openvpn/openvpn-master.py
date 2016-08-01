@@ -61,12 +61,12 @@ def handler(dn, new, old, cmd):
     trigger = 'univentionOpenvpnAccount'
     flags = new.get('sambaAcctFlags', [None])[0]
     flags_old = old.get('sambaAcctFlags', [None])[0]
-    if flags and 'L' in flags or not 'U' in flags:
+    if flags and ('L' in flags or not 'U' in flags):
         locked = True
     else:
         locked = False
 
-    if 'L' in flags_old or not 'U' in flags_old:
+    if flags_old and ('L' in flags_old or not 'U' in flags_old):
         locked_old = True
     else:
         locked_old = False
