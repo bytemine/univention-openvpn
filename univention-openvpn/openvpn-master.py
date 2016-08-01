@@ -58,8 +58,8 @@ def handler(dn, new, old, cmd):
     uid_old = old.get('uid', [None])[0]
     home = new.get('homeDirectory', ['/dev/null'])[0]
     home_old = old.get('homeDirectory', ['/dev/null'])[0]
-    trigger = new.get('univentionOpenvpnAccount', 0)[0] == '1'
-    trigger_old = old.get('univentionOpenvpnAccount', 0)[0] == '1'
+    trigger = new.get('univentionOpenvpnAccount', '0')[0] == '1'
+    trigger_old = old.get('univentionOpenvpnAccount', '0')[0] == '1'
     flags = new.get('sambaAcctFlags', [None])[0]
     flags_old = old.get('sambaAcctFlags', [None])[0]
     if flags and ('L' in flags or not 'U' in flags):
