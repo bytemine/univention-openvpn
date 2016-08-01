@@ -71,8 +71,6 @@ def handler(dn, new, old, cmd):
     else:
         locked_old = False
 
-    ud.debug(ud.LISTENER, ud.ERROR, flags)
-
     listener.setuid(0)
     lo = ul.getMachineConnection()
     servers = lo.search('(univentionOpenvpnActive=1)')
