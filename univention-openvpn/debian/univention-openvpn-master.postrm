@@ -2,6 +2,12 @@
 
 #DEBHELPER#
 
+ucr unset ucs/web/overview/entries/service/openvpn4ucs_dl/description/de
+ucr unset ucs/web/overview/entries/service/openvpn4ucs_dl/description
+ucr unset ucs/web/overview/entries/service/openvpn4ucs_dl/label/de
+ucr unset ucs/web/overview/entries/service/openvpn4ucs_dl/label
+ucr unset ucs/web/overview/entries/service/openvpn4ucs_dl/link
+
 ui=06univention-openvpn-master-uninstall.uinst
 
 if [ "$1" = "remove" ]; then
