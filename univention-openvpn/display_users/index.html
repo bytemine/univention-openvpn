@@ -47,6 +47,15 @@
 
 <div id="home" class="content">
   <h1>Connected users</h1>
+  </br>
+  <tr id="filter_global">
+      <td>Search</td>
+      <td align="center"><input class="global_filter" id="global_filter" type="text"></td>
+  </tr>
+  <button id="connected" type="button">Connected</button>
+  <button id="configured" type="button">Configured</button>
+  </br>
+  </br>
   <table id="test" class="display" with="100%" cellspacing="0" border=1>
     <thead>
       <tr>
@@ -65,14 +74,21 @@
     </thead>
   </table>
 
+  <style type="text/css">
+    .dataTables_filter {
+      display: none;
+    }
+  </style>
+
   <script>
 $(document).ready(function() {
-    $('#test').dataTable( {
+    var table = $('#test').dataTable( {
         "processing": true,
         "paging": false,
         "bPaginate": false,
         "bInfo": false,
-        "searching": false,
+        "bVisible": false,
+        "searching": true,
         "ajax": {
             "url": "/display_users/cmd/connected_users",
             "dataType": "jsonp",
@@ -108,7 +124,7 @@ $(document).ready(function() {
                     if (connected == 0) {
                         json.data["users"][i].connected = '<div align="center"><img src="images/green_off.png" alt="not connected" style="width:20px;height:20px" align="center"> <img src="images/red.png" alt="not connected" style="width:20px;height:20px" align="center"></div>'
                     } else {
-                        json.data["users"][i].connected = '<div align="center"><img src="images/green.png" alt="connected" style="width:20px;height:20px" align="center"> <img src="images/red_off.png" alt="connected" style="width:20px;height:20px" align="center"></div>'
+                        json.data["users"][i].connected = '<div align="center"><img src="images/green.png" alt="connected" style="width:20px;height:20px" align="center"> <img src="images/red_off.png" alt="connected" style="width:20px;height:20px" align="center"></div> <span style="display:none;">connected</span>'
                     }
 
                     // ipv
@@ -172,7 +188,48 @@ $(document).ready(function() {
             orderData: [ 9, 0 ]
         } ]
     } );
+
+
+    $('input.global_filter').on('keyup click', function () {
+        table.show();
+        filterGlobal();
+    } );
+
+    $('#connected').on('click', function () {
+        table.show();
+        showConnected();
+    } );
+
+    $('#configured').on('click', function () {
+        table.show();
+        showConfigured();
+    } );
+
+    table.hide();
+
+    setInterval( function () {
+        table.fadeOut();
+        table.DataTable().ajax.reload();
+        table.fadeIn();
+    }, 30000 );
+
 } );
+
+function filterGlobal () {
+    $('#test').DataTable().search(
+        $('#global_filter').val()
+    ).draw();
+}
+
+function showConnected () {
+    $('#test').DataTable().search('connected').draw();
+    document.getElementById('global_filter').value = 'connected';
+}
+
+function showConfigured () {
+    $('#test').DataTable().search('').draw();
+    document.getElementById('global_filter').value = '';
+}
 
 function kill_user(id) {
     $.ajax({
