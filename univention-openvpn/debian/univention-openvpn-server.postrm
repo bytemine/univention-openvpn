@@ -2,6 +2,12 @@
 
 #DEBHELPER#
 
+ucr unset ucs/web/overview/entries/service/openvpn4ucs/description/de
+ucr unset ucs/web/overview/entries/service/openvpn4ucs/description
+ucr unset ucs/web/overview/entries/service/openvpn4ucs/label/de
+ucr unset ucs/web/overview/entries/service/openvpn4ucs/label
+ucr unset ucs/web/overview/entries/service/openvpn4ucs/link
+
 ui=06univention-openvpn-server-uninstall.uinst
 
 if [ "$1" = "remove" ]; then

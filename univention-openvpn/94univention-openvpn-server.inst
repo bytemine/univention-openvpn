@@ -40,12 +40,6 @@ fi
 /usr/lib/openvpn-int/display_users/create_site_cfg
 a2ensite openvpn4ucs
 
-ucr set ucs/web/overview/entries/service/openvpn4ucs/description="OpenVPN4UCS - active users"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/description/de="OpenVPN4UCS - aktive Benutzer"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/label="OpenVPN4UCS - active users"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/label/de="OpenVPN4UCS - aktive Benutzer"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/link="/display_users"
-
 /usr/sbin/update-rc.d display_users defaults 94 06
 /etc/init.d/display_users restart
 /etc/init.d/apache2 restart
