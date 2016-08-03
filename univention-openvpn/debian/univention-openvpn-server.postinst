@@ -4,30 +4,31 @@
 
 ui=/usr/lib/univention-install/06univention-openvpn-server-uninstall.uinst
 if [ "$1" = "configure" ]; then
+	ucr set \
+		ucs/web/overview/entries/service/openvpn4ucs/description="OpenVPN4UCS - active users" \
+		ucs/web/overview/entries/service/openvpn4ucs/description/de="OpenVPN4UCS - aktive Benutzer" \
+		ucs/web/overview/entries/service/openvpn4ucs/label="OpenVPN4UCS - active users" \
+		ucs/web/overview/entries/service/openvpn4ucs/label/de="OpenVPN4UCS - aktive Benutzer" \
+		ucs/web/overview/entries/service/openvpn4ucs/link="/display_users"
+
 	[ -e "$ui" ] && rm "$ui"
 	invoke-rc.d univention-directory-listener restart
+
+	# --------------------------------------------------------------
+	DHPARAM=/etc/openvpn/dh2048.pem
+	[ ! -f "$DHPARAM" ] && /usr/bin/openssl dhparam -out "$DHPARAM" 2048
+	CRLDER=/etc/openvpn/ca.crl
+	CRLPEM=/etc/openvpn/crl.pem
+	if [ ! -f "$CRLPEM" ]; then
+	    [ ! -f "$CRLDER" ] && /usr/bin/wget -O "$CRLDER" http://$(ucr get ldap/master)/ucsCA.crl
+	    /usr/bin/openssl crl -inform der -outform pem -in "$CRLDER" -out "$CRLPEM"
+	fi
+	# --------------------------------------------------------------
+
+	. /usr/share/univention-lib/base.sh
+	call_joinscript 94univention-openvpn-server.inst
+
+	mkdir /var/log/openvpn
 fi
-
-# --------------------------------------------------------------
-DHPARAM=/etc/openvpn/dh2048.pem
-[ ! -f "$DHPARAM" ] && /usr/bin/openssl dhparam -out "$DHPARAM" 2048
-CRLDER=/etc/openvpn/ca.crl
-CRLPEM=/etc/openvpn/crl.pem
-if [ ! -f "$CRLPEM" ]; then
-    [ ! -f "$CRLDER" ] && /usr/bin/wget -O "$CRLDER" http://$(ucr get ldap/master)/ucsCA.crl
-    /usr/bin/openssl crl -inform der -outform pem -in "$CRLDER" -out "$CRLPEM"
-fi
-# --------------------------------------------------------------
-
-. /usr/share/univention-lib/base.sh
-call_joinscript 94univention-openvpn-server.inst
-
-mkdir /var/log/openvpn
-
-ucr set ucs/web/overview/entries/service/openvpn4ucs/description="OpenVPN4UCS - active users"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/description/de="OpenVPN4UCS - aktive Benutzer"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/label="OpenVPN4UCS - active users"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/label/de="OpenVPN4UCS - aktive Benutzer"
-ucr set ucs/web/overview/entries/service/openvpn4ucs/link="/display_users"
 
 exit 0
