@@ -29,6 +29,16 @@ if [ "$1" = "configure" ]; then
 	call_joinscript 94univention-openvpn-server.inst
 
 	mkdir /var/log/openvpn
+
+	CF='/etc/openvpn/server.conf'
+	for ocf in $CF ${CF}-disabled; do
+	  if test -f $ocf; then
+	    ( echo 'cipher AES-256-CBC'
+	      grep -v '^[       ]*cipher[       ]' $ocf
+	    ) > "${ocf},,"
+	    mv "${ocf},," $ocf
+	  fi
+	done
 fi
 
 exit 0

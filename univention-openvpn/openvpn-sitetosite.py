@@ -114,6 +114,7 @@ status /var/log/openvpn/openvpn-sitetosite-status.log
 management /var/run/management-udp-sitetosite unix
 dev tun
 secret {fn_secret}
+cipher AES-256-CBC
 
 ### Values which can be changed through UDM
 

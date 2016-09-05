@@ -115,6 +115,7 @@ ca /etc/univention/ssl/ucsCA/CAcert.pem
 cert /etc/univention/ssl/{hostname}/cert.pem
 key /etc/univention/ssl/{hostname}/private.key
 crl-verify /etc/openvpn/crl.pem
+cipher AES-256-CBC
 ifconfig-pool-persist ipp.txt
 {dorouC}push "route {interfaces_eth0_network} {interfaces_eth0_netmask}"
 {donamC}push "dhcp-option DNS {nameserver1}"
