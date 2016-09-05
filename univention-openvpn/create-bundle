@@ -47,6 +47,7 @@ cat > "${ssl}/${uid}.openvpn/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 	ca CAcert.pem
 	cert cert.pem
 	key private.key
+	cipher AES-256-CBC
 	comp-lzo
 	verb 3
 	auth-user-pass
@@ -73,6 +74,7 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 	ca CAcert.pem
 	cert cert.pem
 	key private.key
+	cipher AES-256-CBC
 	comp-lzo
 	verb 3
 	auth-user-pass

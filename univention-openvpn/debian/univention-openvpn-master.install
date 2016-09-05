@@ -1,5 +1,6 @@
 create-bundle usr/lib/openvpn-int
 remove-bundle usr/lib/openvpn-int
+refresh-bundles.py usr/lib/openvpn-int
 63openvpn-sitetosite.acl usr/lib/openvpn-int/misc
 openvpn-master.py usr/lib/univention-directory-listener/system
 openvpn-master2.py usr/lib/univention-directory-listener/system
