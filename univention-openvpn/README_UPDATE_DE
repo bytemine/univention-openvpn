@@ -1,0 +1,28 @@
+<p>
+ACHTUNG: dieses Update bewirkt eine INKOMPATIBLE Änderung, die sofort
+ein Verbinden mit den bisherigen Konfigurationsdateien unmöglich macht.
+</p>
+
+<p>
+OpenVPN ist mit seiner voreingestellten Verschlüsselung von der <a href="https://sweet32.info">Sweet32 Attacke</a> betroffen.
+Deshalb erzwingt dieses Update nun die Verschlüsselung AES-256-CBC, welche nicht betroffen ist.
+</p>
+
+<p>
+Diese Änderung muss auch in den Client-Konfigs passieren, weshalb alle readytogo Pakete
+automatisch neu erzeugt werden.
+</p>
+
+<p>
+Auch im sitetosite Modus ändert sich die Verschlüsselung, so dass auch hier die
+Gegenstelle entsprechend angepasst werden muss.
+</p>
+
+<p>
+Die Anpassung besteht in beiden Fällen darin, in der Konfig eine Zeile
+<pre>
+cipher AES-256-CBC
+</pre>
+einzufuegen, bzw. eine schon vorhandene Zeile zu ersetzen.
+</p>
+

@@ -1,0 +1,28 @@
+<p>
+WARNING: this update contains an INCOMPATIBLE change that immediately
+prevents any connections using the previous client configs.
+</p>
+
+<p>
+OpenVPN's default cipher is subject to the <a href="https://sweet32.info">Sweet32 attack</a>.
+As a result this update now enforces AES-256-CBC which is not affected.
+</p>
+
+<p>
+All readytogo bundles will be recreated with an updated config, since this cipher change
+has to be mirrored by the client configs.
+</p>
+
+<p>
+Sitetosite mode is afflicted by this change, too, so you have to update the
+corresponding configs at connected sites accordingly.
+</p>
+
+<p>
+In both cases the modification consists of adding a line
+<pre>
+cipher AES-256-CBC
+</pre>
+to the config, or replace any already existing line accordingly.
+</p>
+
