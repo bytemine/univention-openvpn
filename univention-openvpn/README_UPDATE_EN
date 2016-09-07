@@ -1,5 +1,5 @@
 <p>
-WARNING: this update contains an INCOMPATIBLE change that immediately
+<strong>Warning</strong>: this update contains an <strong>incompatible</strong> change that immediately
 prevents any connections using the previous client configs.
 </p>
 
@@ -9,7 +9,7 @@ As a result this update now enforces AES-256-CBC which is not affected.
 </p>
 
 <p>
-All readytogo bundles will be recreated with an updated config, since this cipher change
+All ready2go bundles will be recreated with an updated config, since this cipher change
 has to be mirrored by the client configs.
 </p>
 

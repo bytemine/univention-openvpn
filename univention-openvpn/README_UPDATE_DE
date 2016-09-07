@@ -1,5 +1,5 @@
 <p>
-ACHTUNG: dieses Update bewirkt eine INKOMPATIBLE Änderung, die sofort
+<strong>Wichtig</strong>: dieses Update bewirkt eine <strong>inkompatible</strong> Änderung, die sofort
 ein Verbinden mit den bisherigen Konfigurationsdateien unmöglich macht.
 </p>
 
@@ -9,7 +9,7 @@ Deshalb erzwingt dieses Update nun die Verschlüsselung AES-256-CBC, welche nich
 </p>
 
 <p>
-Diese Änderung muss auch in den Client-Konfigs passieren, weshalb alle readytogo Pakete
+Diese Änderung muss auch in den Client-Konfigs passieren, weshalb alle ready2go Pakete
 automatisch neu erzeugt werden.
 </p>
 
@@ -23,6 +23,6 @@ Die Anpassung besteht in beiden Fällen darin, in der Konfig eine Zeile
 <pre>
 cipher AES-256-CBC
 </pre>
-einzufuegen, bzw. eine schon vorhandene Zeile zu ersetzen.
+einzuf&uuml;gen, bzw. eine schon vorhandene Zeile zu ersetzen.
 </p>
 
