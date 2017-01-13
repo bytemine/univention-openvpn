@@ -31,6 +31,56 @@ else
     univention-certificate new -name "${uid}.openvpn"
 fi
 
+# prepare a matching client config (for versions < 2.3)
+cat > "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" <<-ENDOFCLIENTCONFIG
+	# client config for server ${server}
+
+	client
+	dev tun0
+	proto ${proto}
+	remote ${addr} ${port}
+	tls-remote ${server}
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	ca CAcert.pem
+	cert cert.pem
+	key private.key
+	cipher AES-256-CBC
+	comp-lzo
+	verb 3
+	auth-user-pass
+
+	script-security 2
+	up /etc/openvpn/update-resolv-conf 
+	down /etc/openvpn/update-resolv-conf
+
+ENDOFCLIENTCONFIG
+
+# prepare a matching client config (windows, versions < 2.3)
+cat > "${ssl}/${uid}.openvpn/win-${server}-pre23.ovpn" <<-ENDOFWINCLIENTCONFIG
+	# windows client config for server ${server}
+
+	client
+	dev tun
+	proto ${proto}
+	remote ${addr} ${port}
+	tls-remote ${server}
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	ca CAcert.pem
+	cert cert.pem
+	key private.key
+	cipher AES-256-CBC
+	comp-lzo
+	verb 3
+	auth-user-pass
+
+ENDOFWINCLIENTCONFIG
+
 # prepare a matching client config
 cat > "${ssl}/${uid}.openvpn/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 	# client config for server ${server}
@@ -39,7 +89,7 @@ cat > "${ssl}/${uid}.openvpn/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 	dev tun0
 	proto ${proto}
 	remote ${addr} ${port}
-	tls-remote ${server}
+	verify-x509-name ${server} name
 	resolv-retry infinite
 	nobind
 	persist-key
@@ -66,7 +116,7 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 	dev tun
 	proto ${proto}
 	remote ${addr} ${port}
-	tls-remote ${server}
+	verify-x509-name ${server} name
 	resolv-retry infinite
 	nobind
 	persist-key
