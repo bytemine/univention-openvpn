@@ -171,7 +171,9 @@ zip -j "$bundle" \
     "${ssl}/${uid}.openvpn/cert.pem" \
     "${ssl}/${uid}.openvpn/private.key" \
     "${ssl}/${uid}.openvpn/${server}.ovpn" \
-    "${ssl}/${uid}.openvpn/win-${server}.ovpn"
+    "${ssl}/${uid}.openvpn/win-${server}.ovpn" \
+    "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" \
+    "${ssl}/${uid}.openvpn/win-${server}-pre23.ovpn"
 chown "$uid" "$bundle"
 chgrp www-data "$bundle"
 
