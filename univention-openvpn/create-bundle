@@ -89,7 +89,7 @@ cat > "${ssl}/${uid}.openvpn/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 	dev tun0
 	proto ${proto}
 	remote ${addr} ${port}
-	verify-x509-name ${server} name
+	verify-x509-name ${server} name-prefix
 	resolv-retry infinite
 	nobind
 	persist-key
@@ -116,7 +116,7 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 	dev tun
 	proto ${proto}
 	remote ${addr} ${port}
-	verify-x509-name ${server} name
+	verify-x509-name ${server} name-prefix
 	resolv-retry infinite
 	nobind
 	persist-key
