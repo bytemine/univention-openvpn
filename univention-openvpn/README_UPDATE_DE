@@ -1,3 +1,13 @@
+<h3>Version 1.1.11</h3
+<p>
+Mit der aktuellen Version 2.4 hat OpenVPN eine in den Client-Konfigs benutzte Option
+endgueltig entfernt, so dass diese mit einem 2.4 Klient nicht mehr funktionieren.
+Aus diesem Grund erzeugt diese Version jetzt OpenVPN 2.4 kompatible Client-Konfigs.
+Da diese allerdings nicht mehr kompatibel zu Versionen < 2.3 sind, legen wir ab
+sofort immer auch die bisher erzeugten Konfigs als *-pre32.ovpn bei.
+</p> 
+
+<h3>Version 1.1.10</h3
 <p>
 <strong>Wichtig</strong>: dieses Update bewirkt eine <strong>inkompatible</strong> Änderung, die sofort
 ein Verbinden mit den bisherigen Konfigurationsdateien unmöglich macht.
