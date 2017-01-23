@@ -1,10 +1,13 @@
 <h3>Version 1.1.11</h3
 <p>
-Mit der aktuellen Version 2.4 hat OpenVPN eine in den Client-Konfigs benutzte Option
-endgueltig entfernt, so dass diese mit einem 2.4 Klient nicht mehr funktionieren.
-Aus diesem Grund erzeugt diese Version jetzt OpenVPN 2.4 kompatible Client-Konfigs.
-Da diese allerdings nicht mehr kompatibel zu Versionen < 2.3 sind, legen wir ab
-sofort immer auch die bisher erzeugten Konfigs als *-pre32.ovpn bei.
+Mit Release der aktuellen Version 2.4 der offiziellen OpenVPN
+Klientsoftware hat OpenVPN eine Konfigurationsoption endgültig entfernt,
+was zur Inkompatibilität mit älteren Konfigurationsdateien führt. Aus
+diesem Grund erzeugt OpenVPN4UCS jetzt zur Version 2.4 kompatible
+Konfigurationsdateien. Diese können auch von Klienten der Version 2.3
+geladen werden, nicht jedoch von älteren Versionen. Für ältere Klienten
+(Version < 2.3) wird eine separate Konfigurationsdatei erzeugt, welche
+an der Endung *-pre23.ovpn zu erkennen ist.
 </p> 
 
 <h3>Version 1.1.10</h3

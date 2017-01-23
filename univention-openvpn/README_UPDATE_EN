@@ -1,9 +1,13 @@
 <h3>Version 1.1.11</h3
 <p>
-OpenVPN 2.4 removed an option used in the client configs, so they don't work
-anymore. Therefore this version creates OpenVPN 2.4 compatible client configs.
-Unfortunately they are not compatible to versions < 2.3, so the configs previously
-created are included, too. They are named *-pre23.ovpn.
+OpenVPN has finally removed one configuration option with the current
+version 2.4 of the official OpenVPN client software, which results in
+incompatibility with older configuration files. Due to this reason
+OpenVPN4UCS now generates configuration files compatible to version 2.4.
+These kann be used with client version 2.3 as well, but not with any
+older version. For usage with older versions (version < 2.3) a separate
+configuration file is generated as well, which can be recognized by the
+files name ending *-pre23.ovpn.
 </p>
 
 <h3>Version 1.1.10</h3
