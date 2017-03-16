@@ -7,70 +7,71 @@ if [ -d ${CADIR} ]; then
     exit 0
 fi
 
-mkdir -p ${CADIR}/newcerts
+umask 027
+mkdir -p ${CADIR}/issued
 date +%y%m%d000000Z > ${CADIR}/enddate
 
 openssl req -x509 -days 3652 -nodes -newkey rsa:2048 -keyout ${CADIR}/ca.key -out ${CADIR}/ca.crt -config <(cat<<_ENDOFCONFIG_
 [req]
-prompt                 = no
-default_md             = sha256
-x509_extensions        = v3_ca
-distinguished_name     = dn
+prompt			= no
+default_md		= sha256
+x509_extensions		= v3_ca
+distinguished_name	= dn
 [v3_ca]
-subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always,issuer
-basicConstraints       = CA:true
-nsCertType             = sslCA
+subjectKeyIdentifier	= hash
+authorityKeyIdentifier	= keyid:always,issuer
+basicConstraints	= CA:true
+nsCertType		= sslCA
 [dn]
-CN                     = $(hostname) OpenVPN4UCS CA
+CN			= $(hostname) OpenVPN4UCS CA
 _ENDOFCONFIG_
 )
 
-: > ${CADIR}/certificates
+: > ${CADIR}/db
 openssl rand -hex 8 > ${CADIR}/serial
 
-
-
-
 cat > ${CADIR}/config <<_ENDOFCONFIG_
-RANDFILE	= .rnd
-
-[ ca ]
-default_ca	= CA_default		# The default ca section
-
-[ CA_default ]
+[o4uCA]
 dir		= ${CADIR}		# Where everything is kept
-certs		= \$dir/certs		# Where the issued certs are kept
-crl_dir		= \$dir/crl		# Where the issued crl are kept
-database	= \$dir/certificates	# database index file.
-new_certs_dir	= \$dir/newcerts		# default place for new certs.
-certificate	= \$dir/ca.crt	 	# The CA certificate
+database	= \$dir/db		# database index file.
+new_certs_dir	= \$dir/issued		# -outdir 
+certificate	= \$dir/ca.crt	 	# The CA certificate (-cert)
+private_key	= \$dir/ca.key		# The private key (-key)
 serial		= \$dir/serial 		# The current serial number
-crlnumber	= \$dir/crlnumber	# the current crl number
-crl		= \$dir/crl.pem 		# The current CRL
-private_key	= \$dir/ca.key		# The private key
-RANDFILE	= \$dir/.priv_rnd	# private random number file
 x509_extensions	= usr_cert		# The extentions to add to the cert
 name_opt 	= ca_default		# Subject Name options
 cert_opt 	= ca_default		# Certificate field options
-default_enddate	= $(date +%y%m%d000000Z)			# how long to certify for
+default_enddate	= $(date +%y%m%d000000Z)	# how long to certify for
 default_crl_days= 30			# how long before next CRL
-default_md	= sha256		# use public key default MD
-preserve	= no			# keep passed DN ordering
+default_md	= sha256		# use public key default MD (-md)
+#preserve	= no			# keep passed DN ordering
 policy		= cn_only
 
-[ cn_only ]
+[cn_only]
 commonName	= supplied
 
-[ usr_cert ]
-basicConstraints=CA:FALSE
-nsCertType	= client
-subjectKeyIdentifier=hash
-authorityKeyIdentifier=keyid,issuer
+[usr_cert]
+nsCertType		= client
+subjectKeyIdentifier	= hash
+authorityKeyIdentifier	= keyid,issuer
 
-[ srv_cert ]
-basicConstraints=CA:FALSE
-nsCertType	= server
-subjectKeyIdentifier=hash
-authorityKeyIdentifier=keyid,issuer
+[srv_cert]
+nsCertType		= server
+subjectKeyIdentifier	= hash
+authorityKeyIdentifier	= keyid,issuer
 _ENDOFCONFIG_
+
+VPN=/tmp
+openssl ca -config ${CADIR}.config -name o4uCA -out ${VPN}/server.crt -notext -extensions srv_cert -in <(
+openssl req -nodes -newkey rsa:2048 -keyout ${VPN}/server.key -config <(
+cat <<_ENDOFCONFIG_
+[req]
+prompt             = no
+default_md         = sha256
+distinguished_name = dn
+[dn]
+CN = $(hostname)
+_ENDOFCONFIG_
+))
+
+openssl ca -config ${CADIR}/config -name o4uCA -gencrl -out ${CADIR}/crl.pem
