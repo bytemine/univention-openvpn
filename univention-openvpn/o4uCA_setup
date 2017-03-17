@@ -9,6 +9,7 @@ if [ -d ${CADIR} ]; then
 fi
 
 umask 027
+mkdir -p ${CADIR}/users
 mkdir -p ${CADIR}/issued
 let y=($(date +%y)+10)%100
 y=$(printf %02d $y)
