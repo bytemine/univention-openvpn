@@ -1,6 +1,7 @@
 #!/bin/bash
 
-CADIR=/tmp/o4uCA
+OVPND=/tmp
+CADIR=/${OVPND}/o4uCA
 
 if [ -d ${CADIR} ]; then
     echo "NOTICE: ${CADIR} already exists. Skipping CA setup."
@@ -9,7 +10,9 @@ fi
 
 umask 027
 mkdir -p ${CADIR}/issued
-date +%y%m%d000000Z > ${CADIR}/enddate
+let y=($(date +%y)+10)%100
+y=$(printf %02d $y)
+ENDDATE=$(date +${y}%m%d000000Z)
 
 openssl req -x509 -days 3652 -nodes -newkey rsa:2048 -keyout ${CADIR}/ca.key -out ${CADIR}/ca.crt -config <(cat<<_ENDOFCONFIG_
 [req]
@@ -40,7 +43,7 @@ database		= \$dir/db
 new_certs_dir		= \$dir/issued
 name_opt 		= ca_default
 cert_opt 		= ca_default
-default_enddate		= $(date +%y%m%d000000Z)
+default_enddate		= ${ENDDATE}
 default_crl_days	= 30
 default_md		= sha256
 policy			= cn_only
@@ -62,9 +65,8 @@ _ENDOFCONFIG_
 
 openssl ca -config ${CADIR}/config -name o4uCA -gencrl -out ${CADIR}/crl.pem
 
-VPN=/tmp
-openssl ca -config ${CADIR}/config -name o4uCA -batch -extensions srv_cert -notext -out ${VPN}/server.crt -in <(
-openssl req -nodes -newkey rsa:2048 -keyout ${VPN}/server.key -config <(
+openssl ca -config ${CADIR}/config -name o4uCA -batch -extensions srv_cert -notext -out ${OVPND}/server.crt -in <(
+openssl req -nodes -newkey rsa:2048 -keyout ${OVPND}/server.key -config <(
 cat <<_ENDOFCONFIG_
 [req]
 prompt			= no
