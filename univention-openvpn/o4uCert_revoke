@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CADIR=/tmp/o4uCA
+CADIR=/etc/openvpn/o4uCA
 USERS=${CADIR}/users
 
 if [ -z $1 ]; then

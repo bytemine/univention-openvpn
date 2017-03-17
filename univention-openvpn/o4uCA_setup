@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OVPND=/tmp
+OVPND=/etc/openvpn
 CADIR=/${OVPND}/o4uCA
 
 if [ -d ${CADIR} ]; then
