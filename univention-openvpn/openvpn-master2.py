@@ -79,7 +79,7 @@ def handler(dn, new, old, cmd):
         if uid and home:
         # update bundle for this openvpn server with new config
             try:
-                listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'no', uid, home, name, addr, port, proto], uid=0)
+                listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, home, name, addr, port, proto], uid=0)
             finally:
                 listener.unsetuid()
 

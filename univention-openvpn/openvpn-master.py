@@ -94,7 +94,7 @@ def handler(dn, new, old, cmd):
             if not name or not port or not addr:
                 continue
             try:
-                listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'yes', uid, home, name, addr, port, proto], uid=0)
+                listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, home, name, addr, port, proto], uid=0)
             finally:
                 listener.unsetuid()
 

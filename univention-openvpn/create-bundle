@@ -1,13 +1,10 @@
 #!/bin/bash
 
-if [ $# -ne 7 ]; then
+if [ $# -ne 6 ]; then
     echo "create-bundle: argument error" >&2
-    echo "usage: create-bundle [yes|no] <uid> <home> <server> <addr> <port> <proto>" >&2
+    echo "usage: create-bundle <uid> <home> <server> <addr> <port> <proto>" >&2
     exit 1
 fi
-
-crcrt=$1
-shift
 
 uid=$1
 home=$2
