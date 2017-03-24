@@ -16,19 +16,11 @@ addr=$4
 port=$5
 proto=$6
 
-ssl=/etc/univention/ssl
+ssl=/etc/openvpn/o4uCA/users
 
-# create or renew certificate for user
-if /usr/sbin/univention-certificate check -name "${uid}.openvpn"; then
-  if [ "$crtcr" = yes ]; then
-    defdays=$(ucr get ssl/default/days)
-    if [ -z "$defdays" ]; then
-        defdays=1825
-    fi
-    univention-certificate renew -days ${defdays} -name "${uid}.openvpn"
-  fi
-else
-    univention-certificate new -name "${uid}.openvpn"
+# create certificate for user
+if [ ! -d "${ssl}/$uid" ]; then
+	/usr/lib/openvpn-int/o4uCert_new "$uid"
 fi
 
 # prepare a matching client config (for versions < 2.3)
@@ -133,14 +125,14 @@ ENDOFWINCLIENTCONFIG
 
 eval "$(ucr shell)"
 
-# zip all required files into home if it exists,
-# always put a copy into download directory for user
+# zip all files and put a copy into download directory for user
 umask 037
 rdy2gobas="/var/www/readytogo"
 readytogo="${rdy2gobas}/${uid}/"
 mkdir -p "${readytogo}"
 
-pw=$(cat /etc/ldapper-m.secret)
+### FIXME FIXME FIXME	(ldapper-m)
+pw=$(cat /etc/ldapper-m.secret) 
 
 cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
 AuthBasicProvider ldap
@@ -177,13 +169,6 @@ zip -j "$bundle" \
 chown "$uid" "$bundle"
 chgrp www-data "$bundle"
 
-if [ -d "$home" ]; then
-    umask 077
-    bundle2="${home}/openvpn-${server}-${uid}.zip"
-    cp "$bundle" "${bundle2}"
-    chown "$uid"."Domain Users" "${bundle2}"
-fi
-
 # insert a list of all available packages for the user into download.html
 umask 037
 templates=/usr/lib/openvpn-int/templates
@@ -195,8 +180,5 @@ done >> "${readytogo}/download.html"
 cat ${templates}/download.tail >> "${readytogo}/download.html"
 chgrp www-data "${readytogo}/download.html"
 chmod 640 "${readytogo}/download.html"
-
-
-
 
 exit 0
