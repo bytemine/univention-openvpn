@@ -15,6 +15,8 @@ if [ "$1" = "configure" ]; then
 	[ -e "$ui" ] && rm "$ui"
 	invoke-rc.d univention-directory-listener restart
 
+	/usr/lib/openvpn-int/o4uCA_setup
+
 	. /usr/share/univention-lib/base.sh
 	call_joinscript 94univention-openvpn-master.inst
 
