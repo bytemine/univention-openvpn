@@ -607,13 +607,13 @@ echo "<p>This page does not exist. Please talk to your VPN admin who should cons
 cat ${templates}/download.tail >> "${rdy2gobas}/notfound.html"
 
 
-cat > /etc/apache2/sites-available/openvpn4ucs2 <<-ENDOFSITECFG
+cat > /etc/apache2/sites-available/openvpn4ucs2.conf <<-ENDOFSITECFG
 <Location /readytogo>
     Options -Indexes
 </Location>
 ENDOFSITECFG
 
-chmod 0600 /etc/apache2/sites-available/openvpn4ucs2
+chmod 0600 /etc/apache2/sites-available/openvpn4ucs2.conf
 
 
 for dir in /var/www/readytogo/*/
@@ -622,6 +622,7 @@ do
     sed -i "/AuthLDAPBindDN/c\AuthLDAPBindDN \"uid=$name,cn=users,$ldap_base\"" $dir.htaccess
 done
 
+a2ensite openvpn4ucs2
 
 /etc/init.d/apache2 restart
 
