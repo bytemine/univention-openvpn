@@ -146,7 +146,6 @@ cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
 AuthBasicProvider ldap
 AuthType Basic
 AuthName "secret"
-AuthzLDAPAuthoritative off
 AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
 AuthLDAPBindDN "uid=ldapper-m-$hostname,cn=users,$ldap_base"
 AuthLDAPBindPassword $pw

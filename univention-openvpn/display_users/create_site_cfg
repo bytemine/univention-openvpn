@@ -1,15 +1,14 @@
 #!/bin/sh
 
-# create /etc/apache2/sites-available/openvpn4ucs
+# create /etc/apache2/sites-available/openvpn4ucs.conf
 
 eval "$(ucr shell)"
 pw=$(cat /etc/ldapper-s.secret)
-cat > /etc/apache2/sites-available/openvpn4ucs<<-ENDOFSITECFG
+cat > /etc/apache2/sites-available/openvpn4ucs.conf<<-ENDOFSITECFG
 <Location /display_users>
     AuthBasicProvider ldap
     AuthType Basic
     AuthName "Please login as a VPN Admin"
-    AuthzLDAPAuthoritative off
     AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
     AuthLDAPBindDN "uid=ldapper-s-$hostname,cn=users,$ldap_base"
     AuthLDAPBindPassword $pw
@@ -21,4 +20,4 @@ ProxyPassReverse /display_users/cmd/ http://localhost:38081/display_users/cmd/
 
 ENDOFSITECFG
 
-chmod 0600 /etc/apache2/sites-available/openvpn4ucs
+chmod 0600 /etc/apache2/sites-available/openvpn4ucs.conf
