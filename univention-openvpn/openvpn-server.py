@@ -133,7 +133,7 @@ topology subnet
 
 ### Values which can be changed through UDM
 
-plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass
+plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
 server 10.0.1.0 255.255.255.0
 port 443
 push "redirect-gateway def1"
@@ -245,9 +245,9 @@ push "redirect-gateway def1"
 
     dualfactorauth = new.get('univentionOpenvpnDualfactorauth', [None])[0]
     if dualfactorauth == '1':
-        flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/openvpn\n')
+        flist.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/openvpn\n')
     else:
-        flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass\n')
+        flist.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass\n')
 
     univention_openvpn_common.write_rc(3, flist, fn_serverconf)
 
