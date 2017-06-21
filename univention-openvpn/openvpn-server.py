@@ -401,14 +401,15 @@ def postrun():
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to deactivate server config: %s' % str(e))
             return
 
-    try:
-        listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'server'], uid=0)
-        listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
-        if action == 'restart':
-            listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
-    finally:
-        listener.unsetuid()
+    if os.path.exists(fn_serverconf):
+        try:
+            listener.setuid(0)
+            listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@server.service'], uid=0)
+            listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
+            if action == 'restart':
+                listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
+        finally:
+            listener.unsetuid()
 
     listener.unsetuid()
 
