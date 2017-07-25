@@ -70,13 +70,6 @@ def handler(dn, new, old, command):
     if not univention_openvpn_common.check_user_count(4):
         return          # do nothing
 
-
-    #### UCS 3 ('Borgfeld') uses openvpn 2.1 - no explicit ip6 support, later version are ok
-    relnam = listener.baseConfig.get('version/releasename')
-    ip6ok = relnam and relnam != 'Borgfeld'
-    if not ip6ok:
-        ud.debug(ud.LISTENER, ud.INFO, '4 IPv6 support DISABLED due to version')
-    
     port = server[1].get('univentionOpenvpnPort', [None])[0]
     network = server[1].get('univentionOpenvpnNet', [None])[0]
     if not port or not network:
@@ -90,11 +83,10 @@ def handler(dn, new, old, command):
     else:
         netmask = str(ipnw.netmask)
 
-    if ip6ok:
-        networkv6 = server[1].get('univentionOpenvpnNetIPv6', [None])[0]
-        if networkv6 is None:
-            networkv6 = "2001:db8:0:123::/64"
-        netmaskv6 = str(netaddr.IPNetwork(networkv6).netmask)
+    networkv6 = server[1].get('univentionOpenvpnNetIPv6', [None])[0]
+    if networkv6 is None:
+        networkv6 = "2001:db8:0:123::/64"
+    netmaskv6 = str(netaddr.IPNetwork(networkv6).netmask)
 
     ccd = '/etc/openvpn/ccd-' + port + '/'
     fn_ips = '/etc/openvpn/ips-' + port
@@ -114,19 +106,17 @@ def handler(dn, new, old, command):
         open(fn_ips, 'a').close()
         listener.unsetuid()
 
-    if ip6ok:
-        if not os.path.exists(fn_ipsv6):
-            listener.setuid(0)
-            open(fn_ipsv6, 'a').close()
-            listener.unsetuid()
+    if not os.path.exists(fn_ipsv6):
+        listener.setuid(0)
+        open(fn_ipsv6, 'a').close()
+        listener.unsetuid()
 
     # delete entries on user deletion
     if command == 'd':
         client_cn = old.get('uid', [None])[0]
         univention_openvpn_common.delete_file(4, ccd + client_cn + ".openvpn")
         delete_entry(client_cn, fn_ips)
-        if ip6ok:
-            delete_entry(client_cn, fn_ipsv6)
+        delete_entry(client_cn, fn_ipsv6)
         return
 
     client_cn = new.get('uid', [None])[0]
@@ -136,12 +126,10 @@ def handler(dn, new, old, command):
         lines = []
 
         ip = write_entry(client_cn, fn_ips, network)
-        if ip6ok:
-            ipv6 = write_entry(client_cn, fn_ipsv6, networkv6)
+        ipv6 = write_entry(client_cn, fn_ipsv6, networkv6)
 
         lines.append("ifconfig-push " + ip + " " + netmask + "\n")
-        if ip6ok:
-            lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
+        lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
 
         univention_openvpn_common.write_rc(4, lines, ccd + client_cn + ".openvpn")
 
@@ -151,8 +139,7 @@ def handler(dn, new, old, command):
     elif not 'univentionOpenvpnAccount' in new and 'univentionOpenvpnAccount' in old:
         univention_openvpn_common.delete_file(4, ccd + client_cn + ".openvpn")
         delete_entry(client_cn, fn_ips)
-        if ip6ok: 
-            delete_entry(client_cn, fn_ipsv6)
+        delete_entry(client_cn, fn_ipsv6)
 
         return
 

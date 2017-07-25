@@ -2,7 +2,7 @@
 #       Univention OpenVPN integration -- openvpn-server.py
 #
 
-# Copyright (c) 2014-2015, bytemine GmbH
+# Copyright (c) 2014-2017, bytemine GmbH
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with
@@ -86,12 +86,6 @@ def handler(dn, new, old, command):
             action = None
             return			# do nothing
 
-    #### UCS 3 ('Borgfeld') uses openvpn 2.1 - no explicit ip6 support, later version are ok
-    relnam = listener.baseConfig.get('version/releasename')
-    ip6ok = relnam and relnam != 'Borgfeld'
-    if not ip6ok:
-        ud.debug(ud.LISTENER, ud.INFO, '3 IPv6 support DISABLED due to version')
-
     cnaddr = new.get('univentionOpenvpnAddress', [None])[0]
     ip6conn = True if cnaddr and cnaddr.count(':') else False
 
@@ -133,7 +127,7 @@ topology subnet
 
 ### Values which can be changed through UDM
 
-plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass
+plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
 server 10.0.1.0 255.255.255.0
 port 443
 push "redirect-gateway def1"
@@ -218,13 +212,12 @@ push "redirect-gateway def1"
     network_pure = str(ipnw.network)
     flist.append("server %s %s\n" % (network_pure, netmask))
 
-    if ip6ok:
-        networkv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
-        if networkv6 is not None:
-            flist.append("server-ipv6 %s\n" % (networkv6))
-        else:
-            networkv6 = "2001:db8:0:123::/64"
-        netmaskv6 = str(netaddr.IPNetwork(networkv6).netmask)
+    networkv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
+    if networkv6 is not None:
+        flist.append("server-ipv6 %s\n" % (networkv6))
+    else:
+        networkv6 = "2001:db8:0:123::/64"
+    netmaskv6 = str(netaddr.IPNetwork(networkv6).netmask)
 
     if ip6conn:
         flist.append("proto udp6\n")
@@ -245,9 +238,9 @@ push "redirect-gateway def1"
 
     dualfactorauth = new.get('univentionOpenvpnDualfactorauth', [None])[0]
     if dualfactorauth == '1':
-        flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/openvpn\n')
+        flist.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/openvpn\n')
     else:
-        flist.append('plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/vpncheckpass\n')
+        flist.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass\n')
 
     univention_openvpn_common.write_rc(3, flist, fn_serverconf)
 
@@ -262,19 +255,17 @@ push "redirect-gateway def1"
         open(fn_ips, 'a').close()
         listener.unsetuid()
 
-    if ip6ok:
-        if not os.path.exists(fn_ipsv6):
-            listener.setuid(0)
-            open(fn_ipsv6, 'a').close()
-            listener.unsetuid()
+    if not os.path.exists(fn_ipsv6):
+        listener.setuid(0)
+        open(fn_ipsv6, 'a').close()
+        listener.unsetuid()
 
     # adapt ip_maps and ccd
     if new.get('univentionOpenvpnNet', [None])[0] != old.get('univentionOpenvpnNet', [None])[0]:
         change_net(network, netmask, ccd, fn_ips, False)
 
-    if ip6ok:
-        if new.get('univentionOpenvpnNetIPv6', [None])[0] != old.get('univentionOpenvpnNetIPv6', [None])[0]:
-            change_net(networkv6, netmaskv6, ccd, fn_ipsv6, True)
+    if new.get('univentionOpenvpnNetIPv6', [None])[0] != old.get('univentionOpenvpnNetIPv6', [None])[0]:
+        change_net(networkv6, netmaskv6, ccd, fn_ipsv6, True)
 
     if new.get('univentionOpenvpnUserAddress', [None]) != old.get('univentionOpenvpnUserAddress', [None]):
         useraddresses_raw = new.get('univentionOpenvpnUserAddress', [None])
@@ -291,8 +282,7 @@ push "redirect-gateway def1"
                 useraddressesv6.append(useraddress)
 
         assign_addresses(fn_ips, useraddressesv4, network, netmask, ccd, False)
-        if ip6ok:
-            assign_addresses(fn_ipsv6, useraddressesv6, networkv6, netmaskv6, ccd, True)
+        assign_addresses(fn_ipsv6, useraddressesv6, networkv6, netmaskv6, ccd, True)
 
 # adapt all stored addresses to new network
 def change_net(network, netmask, ccd, fn_ips, ipv6):
@@ -401,14 +391,15 @@ def postrun():
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to deactivate server config: %s' % str(e))
             return
 
-    try:
-        listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'server'], uid=0)
-        listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
-        if action == 'restart':
-            listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
-    finally:
-        listener.unsetuid()
+    if os.path.exists(fn_serverconf):
+        try:
+            listener.setuid(0)
+            listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@server.service'], uid=0)
+            listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
+            if action == 'restart':
+                listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
+        finally:
+            listener.unsetuid()
 
     listener.unsetuid()
 

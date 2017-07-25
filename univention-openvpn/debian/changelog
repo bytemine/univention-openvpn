@@ -1,3 +1,15 @@
+univention-openvpn (1.1.13) unstable; urgency=low
+  * apache 2.4 compatibility
+
+ -- Holger Rasch <rasch@bytemine.net>  Fri, 09 Jun 2017 17:00:00 +0100
+
+
+univention-openvpn (1.1.12) unstable; urgency=low
+  * UCS 4.2 compatibility
+
+ -- Holger Rasch <rasch@bytemine.net>  Fri, 31 Mar 2017 17:00:00 +0100
+
+
 univention-openvpn (1.1.11) unstable; urgency=low
   * OpenVPN 2.4 client compatibility
 

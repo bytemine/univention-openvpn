@@ -219,12 +219,13 @@ def postrun():
             ud.debug(ud.LISTENER, ud.ERROR, '5 Failed to deactivate site-to-site config: %s' % str(e))
             return
 
-    try:
-        listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'sitetosite'], uid=0)
-        listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
-    finally:
-        listener.unsetuid()
+    if os.path.exists(fn_sitetositeconf):
+        try:
+            listener.setuid(0)
+            listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@sitetosite.service'], uid=0)
+            listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
+        finally:
+            listener.unsetuid()
 
     listener.unsetuid()
 

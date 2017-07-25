@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=11
+VERSION=12
 
 SERVICE="OpenVPN"
 
@@ -173,38 +173,35 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set doNotSearch='0' \
     --set hook='None' || die
 
-#### UCS 3 ('Borgfeld') uses openvpn 2.1 - no explicit ip6 support, later version are ok
-if [ "$(ucr get version/releasename)" != "Borgfeld" ]; then
-    udm settings/extended_attribute remove "$@" \
-	--dn "cn=UniventionOpenvpn-NetIPv6,${eabas}" >/dev/null 2>&1
-    univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
-	--position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
-	--append module="computers/domaincontroller_master" \
-	--append module="computers/domaincontroller_slave" \
-	--append module="computers/domaincontroller_backup" \
-	--append module="computers/memberserver" \
-	--set default='fdda:354e:65b6:b242::/64' \
-	--set ldapMapping='univentionOpenvpnNetIPv6' \
-	--set objectClass='univentionOpenvpn' \
-	--set name='UniventionOpenvpn-NetIPv6' \
-	--set shortDescription='OpenVPN transfer network IPv6' \
-	--set longDescription='OpenVPN will use this as transfer network within the virtual private network.' \
-	--set translationShortDescription='"de_DE" "OpenVPN Transfernetzwerk für IPv6"' \
-	--set translationLongDescription='"de_DE" "OpenVPN verwendet dieses Transfernetzwerk innerhalb des virtuellen privaten Netzes."' \
-	--set tabAdvanced='1' \
-	--set tabName='OpenVPN4UCS' \
-	--set groupName='User VPN' \
-	--set groupPosition='2' \
-	--set overwriteTab='0' \
-	--set valueRequired='0' \
-	--set CLIName='openvpnTransfernetworkIPv6' \
-	--set syntax='string' \
-	--set mayChange='1' \
-	--set multivalue='0' \
-	--set deleteObjectClass='1' \
-	--set doNotSearch='0' \
-	--set hook='None' || die
-fi
+udm settings/extended_attribute remove "$@" \
+    --dn "cn=UniventionOpenvpn-NetIPv6,${eabas}" >/dev/null 2>&1
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+    --append module="computers/domaincontroller_master" \
+    --append module="computers/domaincontroller_slave" \
+    --append module="computers/domaincontroller_backup" \
+    --append module="computers/memberserver" \
+    --set default='fdda:354e:65b6:b242::/64' \
+    --set ldapMapping='univentionOpenvpnNetIPv6' \
+    --set objectClass='univentionOpenvpn' \
+    --set name='UniventionOpenvpn-NetIPv6' \
+    --set shortDescription='OpenVPN transfer network IPv6' \
+    --set longDescription='OpenVPN will use this as transfer network within the virtual private network.' \
+    --set translationShortDescription='"de_DE" "OpenVPN Transfernetzwerk für IPv6"' \
+    --set translationLongDescription='"de_DE" "OpenVPN verwendet dieses Transfernetzwerk innerhalb des virtuellen privaten Netzes."' \
+    --set tabAdvanced='1' \
+    --set tabName='OpenVPN4UCS' \
+    --set groupName='User VPN' \
+    --set groupPosition='2' \
+    --set overwriteTab='0' \
+    --set valueRequired='0' \
+    --set CLIName='openvpnTransfernetworkIPv6' \
+    --set syntax='string' \
+    --set mayChange='1' \
+    --set multivalue='0' \
+    --set deleteObjectClass='1' \
+    --set doNotSearch='0' \
+    --set hook='None' || die
 
 udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-Net,${eabas}" >/dev/null 2>&1
