@@ -3,14 +3,14 @@
 # create /etc/apache2/sites-available/openvpn4ucs.conf
 
 eval "$(ucr shell)"
-pw=$(cat /etc/ldapper-s.secret)
+pw=$(cat /etc/ldapper-m.secret)
 cat > /etc/apache2/sites-available/openvpn4ucs.conf<<-ENDOFSITECFG
 <Location /display_users>
     AuthBasicProvider ldap
     AuthType Basic
     AuthName "Please login as a VPN Admin"
     AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
-    AuthLDAPBindDN "uid=ldapper-s-$hostname,cn=users,$ldap_base"
+    AuthLDAPBindDN "uid=ldapper-m-$hostname,cn=users,$ldap_base"
     AuthLDAPBindPassword $pw
     Require ldap-group cn=VPN Admins,cn=groups,$ldap_base
 </Location>

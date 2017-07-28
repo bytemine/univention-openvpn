@@ -22,8 +22,6 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 			"cn=UniventionOpenvpn-${suf},${eabas}"
 	done
 	udm container/cn remove "$@" --dn "$eabas"
-	udm users/user remove "$@" --dn "uid=ldapper-s-$hostname,cn=users,$ldap_base"
-	rm /etc/ldapper-s.secret
 
 	stop_udm_cli_server
 fi

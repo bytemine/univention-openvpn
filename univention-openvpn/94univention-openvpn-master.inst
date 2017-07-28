@@ -566,13 +566,9 @@ udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-Tun,${eabas}" >/dev/null 2>&1
 
 name="ldapper-m-$hostname"
-pw=$(makepasswd)
-
-cat > /etc/ldapper-m.secret<<-ENDOFPW
-$pw
-ENDOFPW
-
-chmod 600 /etc/ldapper-m.secret
+umask 077
+create_machine_password >/etc/ldapper-m.secret
+pw=$(cat /etc/ldapper-m.secret)
 
 udm users/user remove "$@" \
     --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1

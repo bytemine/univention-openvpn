@@ -11,23 +11,6 @@ joinscript_init
 ucs_addServiceToLocalhost "$SERVICE" "$@"
 
 eval "$(ucr shell)"
-name="ldapper-s-$hostname"
-pw=$(makepasswd)
-
-cat > /etc/ldapper-s.secret<<-ENDOFPW
-$pw
-ENDOFPW
-
-chmod 600 /etc/ldapper-s.secret
-
-udm users/user remove "$@" \
-        --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
-univention-directory-manager users/user create "$@" \
-        --position "cn=users,$ldap_base" \
-        --option "ldap_pwd" \
-        --set username=$name \
-        --set lastname=$name \
-        --set password=$pw
 
 /usr/lib/openvpn-int/display_users/create_site_cfg
 a2ensite openvpn4ucs
