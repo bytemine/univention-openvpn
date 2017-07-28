@@ -2,13 +2,12 @@
 
 if [ $# -ne 3 ]; then
     echo "remove-bundle: argument error" >&2
-    echo "usage: remove-bundle <uid> <home> <server>" >&2
+    echo "usage: remove-bundle <uid> <server>" >&2
     exit 1
 fi
 
 uid=$1
-home=$2
-server=$3
+server=$2
 
 # delete readytogo packages
 umask 037

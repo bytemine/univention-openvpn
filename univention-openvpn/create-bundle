@@ -1,17 +1,16 @@
 #!/bin/bash
 
-if [ $# -ne 6 ]; then
+if [ $# -ne 5 ]; then
     echo "create-bundle: argument error" >&2
-    echo "usage: create-bundle <uid> <home> <server> <addr> <port> <proto>" >&2
+    echo "usage: create-bundle <uid> <server> <addr> <port> <proto>" >&2
     exit 1
 fi
 
 uid=$1
-home=$2
-server=$3
-addr=$4
-port=$5
-proto=$6
+server=$2
+addr=$3
+port=$4
+proto=$5
 
 ssl=/etc/openvpn/o4uCA/users
 
