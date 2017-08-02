@@ -577,7 +577,9 @@ univention-directory-manager users/user create "$@" \
     --option "ldap_pwd" \
     --set username=$name \
     --set lastname=$name \
-    --set password=$pw
+    --set password=$pw \
+    --set overridePWHistory=1 \
+    --set overridePWLength=1
 
 
 univention-directory-manager groups/group create "$@" \
