@@ -123,10 +123,13 @@ def changed(old, new, alist):
 
 isin_and = lambda k, d, o, v: k in d and o(d[k], v)
 
+lilog = lambda l, s: ud.debug(ud.LISTENER, l, 'openvpn4ucs - ' + s)
 
 fn_serverconf = '/etc/openvpn/server.conf'
 fn_sitetositeconf = '/etc/openvpn/sitetosite.conf'
 fn_secret = '/etc/openvpn/sitetosite.key'
+
+fn_r2gbase = '/var/www/readytogo/'
 
 action = None
 
@@ -162,23 +165,96 @@ def handle_sitetosite(dn, obj, changes, cmd):
         return sitetosite_enable(dn, obj)
 
 
+
 def user_disable(dn, obj):
-	pass
+    lilog(ud.INFO, 'user disable')
+
+    uid = obj.get('uid', [None])[0]
+    if not uid:
+        lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
+        return
+
+    lilog(ud.INFO, 'Revoke certificate for ' + uid)
+
+    listener.setuid(0)
+
+    try:
+        listener.run('/usr/lib/openvpn-int/o4uCert_revoke', ['o4uCert_revoke', uid], uid=0)
+    except:
+        lilog(ud.ERROR, 'cert revocation failed')
+
+    # remove readytogo data
+    udir = fn_r2gbase + uid
+    try:
+        listener.run('/bin/rm', ['rm', '-f', udir + '/*.zip'], uid=0)
+    except:
+        lilog(ud.ERROR, 'removing readytogo packages failed')
+
+    listener.unsetuid()
+
+
 
 def user_enable(dn, obj):
+    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - user enable')
 	pass
 
+    uid = obj.get('uid', [None])[0]
+    if not uid:
+        lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
+        return
+
+    if not univention_openvpn_common.check_user_count(1):
+	return			# do nothing
+
+    listener.setuid(0)
+
+    lo = ul.getMachineConnection()
+    servers = lo.search('(univentionOpenvpnActive=1)')
+
+    lilog(ud.INFO, 'Create new certificate for %s' % uid)
+
+    # create a bundle for each openvpn server (creates cert if required)
+    for server in servers:
+        name = server[1].get('cn', [None])[0]
+        port = server[1].get('univentionOpenvpnPort', [None])[0]
+        addr = server[1].get('univentionOpenvpnAddress', [None])[0]
+
+        proto = 'udp6' if addr and addr.count(':') else 'udp'
+
+        if not name or not port or not addr:
+            continue
+        try:
+            listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+        except:
+            lilog(ud.ERROR, 'create-bundle failed')
+
+    listener.unsetuid()
+
+
+
 def server_disable(dn, obj):
+    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - server disable')
 	pass
 
 def server_enable(dn, obj):
+    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - server enable')
 	pass
 
 def sitetosite_disable(dn, obj):
+    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - sitetosite disable')
 	pass
 
 def sitetosite_enable(dn, obj):
+    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - sitetosite enable')
 	pass
+
+
+
+
+
+
+
+# ===================================================================================================
 
 
 
