@@ -12,6 +12,7 @@ addr=$3
 port=$4
 proto=$5
 
+cacrt=/etc/openvpn/o4uCA/ca.crt
 ssl=/etc/openvpn/o4uCA/users
 
 # create certificate for user
@@ -20,7 +21,7 @@ if [ ! -d "${ssl}/$uid" ]; then
 fi
 
 # prepare a matching client config (for versions < 2.3)
-cat > "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" <<-ENDOFCLIENTCONFIG
+cat > "${ssl}/${uid}/${server}-pre23.ovpn" <<-ENDOFCLIENTCONFIG
 	# client config for server ${server}
 
 	client
@@ -47,7 +48,7 @@ cat > "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" <<-ENDOFCLIENTCONFIG
 ENDOFCLIENTCONFIG
 
 # prepare a matching client config (windows, versions < 2.3)
-cat > "${ssl}/${uid}.openvpn/win-${server}-pre23.ovpn" <<-ENDOFWINCLIENTCONFIG
+cat > "${ssl}/${uid}/win-${server}-pre23.ovpn" <<-ENDOFWINCLIENTCONFIG
 	# windows client config for server ${server}
 
 	client
@@ -70,7 +71,7 @@ cat > "${ssl}/${uid}.openvpn/win-${server}-pre23.ovpn" <<-ENDOFWINCLIENTCONFIG
 ENDOFWINCLIENTCONFIG
 
 # prepare a matching client config
-cat > "${ssl}/${uid}.openvpn/${server}.ovpn" <<-ENDOFCLIENTCONFIG
+cat > "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 	# client config for server ${server}
 
 	client
@@ -97,7 +98,7 @@ cat > "${ssl}/${uid}.openvpn/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 ENDOFCLIENTCONFIG
 
 # prepare a matching client config (windows)
-cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
+cat > "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 	# windows client config for server ${server}
 
 	client
@@ -153,13 +154,13 @@ bundle="${readytogo}/openvpn-${server}-${uid}.zip"
 umask 037
 
 zip -j "$bundle" \
-    "${ssl}/ucsCA/CAcert.pem" \
-    "${ssl}/${uid}.openvpn/cert.pem" \
-    "${ssl}/${uid}.openvpn/private.key" \
-    "${ssl}/${uid}.openvpn/${server}.ovpn" \
-    "${ssl}/${uid}.openvpn/win-${server}.ovpn" \
-    "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" \
-    "${ssl}/${uid}.openvpn/win-${server}-pre23.ovpn"
+    "${cacrt}" \
+    "${ssl}/${uid}/cert.pem" \
+    "${ssl}/${uid}/private.key" \
+    "${ssl}/${uid}/${server}.ovpn" \
+    "${ssl}/${uid}/win-${server}.ovpn" \
+    "${ssl}/${uid}/${server}-pre23.ovpn" \
+    "${ssl}/${uid}/win-${server}-pre23.ovpn"
 chown "$uid" "$bundle"
 chgrp www-data "$bundle"
 
