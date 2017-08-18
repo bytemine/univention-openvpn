@@ -61,17 +61,16 @@ def handler(dn, new, old, cmd):
     srv_chgd = changed(old, new, srv_attrs)
     s2s_chgd = changed(old, new, s2s_attrs)
 
-    # get latest/last attribute values
-    obj = {'n': new, 'a': new, 'm': new, 'd': old, 'r': old}[cmd]
+    obj = {'n': new, 'a': new, 'm': old, 'd': old, 'r': old}[cmd]
 
     if usr_chgd:
-        handle_user(dn, obj, usr_chgd, cmd)
+        handle_user(dn, obj, usr_chgd)
 
     if srv_chgd:
-        handle_server(dn, obj, srv_chgd, cmd)
+        handle_server(dn, obj, srv_chgd)
 
     if s2s_chgd:
-        handle_sitetosite(dn, obj, s2s_chgd, cmd)
+        handle_sitetosite(dn, obj, s2s_chgd)
 
 
 # perform any restarts necessary
@@ -85,7 +84,6 @@ def postrun():
 # -----------------------------------------------------------------------------
 
 usr_attrs  = [
-    'sambaAcctFlags',
     'univentionOpenvpnAccount',
 ]
 
@@ -134,36 +132,43 @@ fn_r2gbase = '/var/www/readytogo/'
 action = None
 
 
-def handle_user(dn, obj, changes, cmd):
-    if cmd in 'dr':
-        return user_disable(dn, obj)
-    if isin_and('univentionOpenvpnAccount', changes, op.ne, '1'):
-        return user_disable(dn, obj)
-    flags = changes.get('sambaAcctFlags', [''])[0]
-    if 'L' in flags or 'D' in flags or not 'U' in flags:
-        return user_disable(dn, obj)
-    # below check should not be necessary
+def handle_user(dn, obj, changes):
+    lilog(ud.DEBUG, 'user handler')
+
     if isin_and('univentionOpenvpnAccount', changes, op.eq, '1'):
         return user_enable(dn, obj)
 
+    if isin_and('univentionOpenvpnAccount', changes, op.eq, '0'):
+        return user_disable(dn, obj)
+     
 
-def handle_server(dn, obj, changes, cmd):
-    if cmd in 'dr':
-        return server_disable(dn, obj)
-    if isin_and('univentionOpenvpnActive', changes, op.ne, '1'):
-        return server_disable(dn, obj)
-    if isin_and('univentionOpenvpnActive', obj, op.eq, '1'):
+def handle_server(dn, obj, changes):
+    lilog(ud.DEBUG, 'server handler')
+
+    if isin_and('univentionOpenvpnActive', changes, op.eq, '1'):
         return server_enable(dn, obj)
 
+    if isin_and('univentionOpenvpnActive', changes, op.ne, '1'):
+        return server_disable(dn, obj)
 
-def handle_sitetosite(dn, obj, changes, cmd):
-    if cmd in 'dr':
-        return sitetosite_disable(dn, obj)
-    if isin_and('univentionOpenvpnSitetoSiteActive', changes, op.ne, '1'):
-        return sitetosite_disable(dn, obj)
-    if isin_and('univentionOpenvpnSitetoSiteActive', obj, op.eq, '1'):
+    if isin_and('univentionOpenvpnActive', obj, op.eq, '1'):
+        return server_modify(dn, obj, changes)
+
+
+def handle_sitetosite(dn, obj, changes):
+    lilog(ud.DEBUG, 'sitetosite handler')
+
+    if isin_and('univentionOpenvpnSitetoSiteActive', changes, op.eq, '1'):
         return sitetosite_enable(dn, obj)
 
+    if isin_and('univentionOpenvpnSitetoSiteActive', changes, op.ne, '1'):
+        return sitetosite_disable(dn, obj)
+
+    if isin_and('univentionOpenvpnSitetoSiteActive', old, op.eq, '1'):
+        return sitetosite_modify(dn, obj)
+
+
+# -----------
 
 
 def user_disable(dn, obj):
@@ -193,10 +198,8 @@ def user_disable(dn, obj):
     listener.unsetuid()
 
 
-
 def user_enable(dn, obj):
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - user enable')
-	pass
+    lilog(ud.INFO, 'user enable')
 
     uid = obj.get('uid', [None])[0]
     if not uid:
@@ -231,23 +234,52 @@ def user_enable(dn, obj):
     listener.unsetuid()
 
 
+# -----------
+
 
 def server_disable(dn, obj):
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - server disable')
-	pass
+    lilog(ud.INFO, 'server disable')
+
 
 def server_enable(dn, obj):
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - server enable')
+    lilog(ud.INFO, 'server enable')
+
+        name = obj.get('cn', [None])[0]
+        port = obj.get('univentionOpenvpnPort', [None])[0]
+        addr = obj.get('univentionOpenvpnAddress', [None])[0]
+
+        # server config, ccd/addrs, start/stop
+
+              # ....
+              # ....
+              # ....
+
+
+        # create/update bundle for users
+ 
 	pass
+
+
+def server_modify(dn, obj, changes):
+    lilog(ud.INFO, 'server modify')
+
+
+# -----------
+
 
 def sitetosite_disable(dn, obj):
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - sitetosite disable')
-	pass
+    lilog(ud.INFO, 'sitetosite disable')
+
 
 def sitetosite_enable(dn, obj):
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs - sitetosite enable')
-	pass
+    lilog(ud.INFO, 'sitetosite enable')
 
+
+def sitetosite_modify(dn, obj, changes):
+    lilog(ud.INFO, 'sitetosite modify')
+
+
+# -----------
 
 
 
