@@ -201,13 +201,13 @@ def user_disable(dn, obj):
 def user_enable(dn, obj):
     lilog(ud.INFO, 'user enable')
 
+    if not univention_openvpn_common.check_user_count(1):
+	return			# do nothing
+
     uid = obj.get('uid', [None])[0]
     if not uid:
         lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
         return
-
-    if not univention_openvpn_common.check_user_count(1):
-	return			# do nothing
 
     listener.setuid(0)
 
@@ -244,9 +244,13 @@ def server_disable(dn, obj):
 def server_enable(dn, obj):
     lilog(ud.INFO, 'server enable')
 
-        name = obj.get('cn', [None])[0]
-        port = obj.get('univentionOpenvpnPort', [None])[0]
-        addr = obj.get('univentionOpenvpnAddress', [None])[0]
+    if not univention_openvpn_common.check_user_count(2):
+        return          # do nothing
+
+    listener.setuid(0)
+    lo = ul.getMachineConnection()
+    listener.unsetuid()
+
 
         # server config, ccd/addrs, start/stop
 
@@ -255,9 +259,46 @@ def server_enable(dn, obj):
               # ....
 
 
-        # create/update bundle for users
- 
-	pass
+
+
+    #
+    # create/update bundles for users
+    #
+
+    name = obj.get('cn', [None])[0]
+    port = obj.get('univentionOpenvpnPort', [None])[0]
+    addr = obj.get('univentionOpenvpnAddress', [None])[0]
+
+    ### ***** OBSOLETE?
+    if not name or not port or not addr:
+        return # do nothing 
+
+    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
+
+    listener.setuid(0)
+
+    for dn, user in vpnusers:
+        uid = user.get('uid', [None])[0]
+	if not uid:
+            lilog(ud.ERROR, 'no uid on %s' % dn)
+            continue
+
+        lilog(ud.INFO, 'create new certificate for %s' % uid)
+
+        proto = 'udp6' if addr and addr.count(':') else 'udp'
+        # update bundle for this openvpn server with new config
+        try:
+            listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+        except:
+            lilog(ud.ERROR, 'create-bundle failed for %s' % uid)
+
+    listener.unsetuid()
+
+
+
+
+
+
 
 
 def server_modify(dn, obj, changes):
