@@ -54,7 +54,7 @@ modrdn      = 1
 
 # handle changes wrt. openvpn4ucs
 def handler(dn, new, old, cmd):
-    ud.debug(ud.LISTENER, ud.INFO, 'openvpn4ucs handler')
+    lilog(ud.INFO, 'openvpn4ucs handler')
 
     # determine sets of changed (incl. new/del) attributes
     usr_chgd = changed(old, new, usr_attrs)
@@ -80,8 +80,30 @@ def postrun():
         return
     # ....
 
+    lilog(ud.DEBUG, 'postrun action = %s' % (action))
+
+    if action == 'stop':
+        # deactivate config
+        try:
+            listener.setuid(0)
+            os.rename (fn_serverconf, fn_serverconf + '-disabled')
+        except Exception, e:
+            listener.unsetuid()
+            ud.debug(ud.LISTENER, ud.ERROR, '4 Failed to deactivate server config: %s' % str(e))
+            return
+
+    try:
+        listener.setuid(0)
+        # broken
+        ### listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'server'], uid=0)
+    finally:
+        listener.unsetuid()
+
+    listener.unsetuid()
+
 
 # -----------------------------------------------------------------------------
+
 
 usr_attrs  = [
     'univentionOpenvpnAccount',
@@ -181,21 +203,50 @@ def user_disable(dn, obj):
 
     lilog(ud.INFO, 'Revoke certificate for ' + uid)
 
+    # revoke cert
     listener.setuid(0)
-
     try:
         listener.run('/usr/lib/openvpn-int/o4uCert_revoke', ['o4uCert_revoke', uid], uid=0)
     except:
         lilog(ud.ERROR, 'cert revocation failed')
+    finally:
+        listener.unsetuid()
 
     # remove readytogo data
     udir = fn_r2gbase + uid
+    listener.setuid(0)
     try:
         listener.run('/bin/rm', ['rm', '-f', udir + '/*.zip'], uid=0)
     except:
         lilog(ud.ERROR, 'removing readytogo packages failed')
+    finally:
+        listener.unsetuid()
 
-    listener.unsetuid()
+    # cleanup ccd data
+    listener.setuid(0)
+    try:
+        lo = ul.getMachineConnection()
+    finally:
+        listener.unsetuid()
+
+    myname = listener.baseConfig['hostname']
+    tmp, server = lo.search('(cn=' + myname + ')')[0]
+    port = server.get('univentionOpenvpnPort', [None])[0]
+    if port:
+        ccd = '/etc/openvpn/ccd-' + port + '/'
+        ips = '/etc/openvpn/ips-' + port
+        ipsv6 = '/etc/openvpn/ipsv6-' + port
+        uid = obj.get('uid', [None])[0]
+
+        listener.setuid(0)
+        try:
+            univention_openvpn_common.delete_file(4, ccd + client_cn + ".openvpn")
+            delete_entry(client_cn, ips)
+            delete_entry(client_cn, ipsv6)
+        finally:
+            listener.unsetuid()
+
+
 
 
 def user_enable(dn, obj):
@@ -210,28 +261,87 @@ def user_enable(dn, obj):
         return
 
     listener.setuid(0)
+    try: 
+        lo = ul.getMachineConnection()
+    finally:
+        listener.unsetuid()
 
-    lo = ul.getMachineConnection()
-    servers = lo.search('(univentionOpenvpnActive=1)')
+    name = listener.baseConfig['hostname']
+
+    tmp, server = lo.search('(cn=' + name + ')')[0]
+
+    port = server.get('univentionOpenvpnPort', [None])[0]
+    addr = server.get('univentionOpenvpnAddress', [None])[0]
+    proto = 'udp6' if addr and addr.count(':') else 'udp'
+
+    if not name or not port or not addr:
+        return
 
     lilog(ud.INFO, 'Create new certificate for %s' % uid)
 
-    # create a bundle for each openvpn server (creates cert if required)
-    for server in servers:
-        name = server[1].get('cn', [None])[0]
-        port = server[1].get('univentionOpenvpnPort', [None])[0]
-        addr = server[1].get('univentionOpenvpnAddress', [None])[0]
-
-        proto = 'udp6' if addr and addr.count(':') else 'udp'
-
-        if not name or not port or not addr:
-            continue
-        try:
-            listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
-        except:
+    try:
+        listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+    except:
             lilog(ud.ERROR, 'create-bundle failed')
+    finally:
+        listener.unsetuid()
 
-    listener.unsetuid()
+
+    # ccd config for user
+
+    network = server.get('univentionOpenvpnNet', [None])[0]
+
+    ipnw = netaddr.IPNetwork(network)
+    if ipnw.size == 1:
+        netmask = '255.255.255.0'
+        network = str(ipnw.network) + "/24"
+    else:
+        netmask = str(ipnw.netmask)
+
+    networkv6 = server.get('univentionOpenvpnNetIPv6', [None])[0]
+
+    if networkv6 is None:
+        networkv6 = "2001:db8:0:123::/64"
+    netmaskv6 = str(netaddr.IPNetwork(networkv6).netmask)
+
+    if port:
+        ccd = '/etc/openvpn/ccd-' + port + '/'
+        ips = '/etc/openvpn/ips-' + port
+        ipsv6 = '/etc/openvpn/ipsv6-' + port
+
+        if not os.path.exists(ccd):
+        listener.setuid(0)
+        try:
+            os.makedirs(ccd)
+        finally:
+            listener.unsetuid()
+        ip_map = univention_openvpn_common.load_ip_map(4, fn_ips)
+        for (name, ip) in ip_map:
+            line = "ifconfig-push " + ip + " " + netmask
+            univention_openvpn_common.write_rc(4, line, ccd + name + ".openvpn")
+
+        if not os.path.exists(fn_ips):
+            listener.setuid(0)
+            try:
+                open(fn_ips, 'a').close()
+            finally:
+                listener.unsetuid()
+
+        if not os.path.exists(fn_ipsv6):
+            listener.setuid(0)
+            try:
+                open(fn_ipsv6, 'a').close()
+            finally:
+                listener.unsetuid()
+
+        lines = []
+        ip = write_entry(uid, ips, network)
+        ipv6 = write_entry(uid, ipsv6, networkv6)
+
+        lines.append("ifconfig-push " + ip + " " + netmask + "\n")
+        lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
+
+        univention_openvpn_common.write_rc(4, lines, ccd + client_cn + ".openvpn")
 
 
 # -----------
@@ -323,6 +433,42 @@ def sitetosite_modify(dn, obj, changes):
 # -----------
 
 
+# -----------------------------------------------------------------------------
+
+
+
+# generate and write entry for given user and return generated ip
+def write_entry(client_cn, fn_ips, network):
+    ip_map = univention_openvpn_common.load_ip_map(4, fn_ips)
+    ip = generate_ip(network, ip_map)
+    ip_map.append((client_cn, ip))
+    univention_openvpn_common.write_ip_map(4, ip_map, fn_ips)
+    return ip
+
+# delete entry of given user in corresponding ip_map
+def delete_entry(client_cn, fn_ips):
+    ip_map_old = univention_openvpn_common.load_ip_map(4, fn_ips)
+    ip_map_new = []
+    for (name, ip) in ip_map_old:
+        if name != client_cn:
+            ip_map_new.append((name, ip))
+    univention_openvpn_common.write_ip_map(4, ip_map_new, fn_ips)
+
+# generate ip for given network which does not exist in ip_map
+def generate_ip(network, ip_map):
+    ips = netaddr.IPNetwork(network)
+    first = ips[0]
+    second = ips[1]
+    for newip in ips.iter_hosts():
+        if newip == first or newip == second:
+            continue
+        use = True
+        for (name, ip) in ip_map:
+            if str(newip) == ip:
+                use = False
+                break
+        if use:
+            return str(newip)
 
 
 
@@ -330,4 +476,4 @@ def sitetosite_modify(dn, obj, changes):
 # ===================================================================================================
 
 
-
+### end ###
