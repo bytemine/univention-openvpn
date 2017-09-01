@@ -75,60 +75,43 @@ def handler(dn, new, old, cmd):
 
 # perform any restarts necessary
 def postrun():
-    global action
-    if not action:
-        return
-    # ....						BROKEN BROKEN
-    # ....						BROKEN BROKEN
-    # ....						BROKEN BROKEN
+    global action, action_s2s
 
-    lilog(ud.DEBUG, 'postrun action = %s' % (action))
-
-    if action == 'stop':
-        # deactivate config
-        try:
-            listener.setuid(0)
-            os.rename (fn_serverconf, fn_serverconf + '-disabled')
-        except Exception, e:
-            lilog(ud.ERROR, '4 Failed to deactivate server config: %s' % str(e))
-        finally:
-            listener.unsetuid()
-        return
+    lilog(ud.DEBUG, 'postrun action = %s, action_s2s = %s' % (action, action_s2s))
 
     try:
         listener.setuid(0)
-        # broken
-        ### listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'server'], uid=0)
-    finally:
-        listener.unsetuid()
 
-    listener.unsetuid()
-
-    if action == 'stop':
-        # deactivate config
-        try:
-            listener.setuid(0)
-            os.rename (fn_serverconf, fn_serverconf + '-disabled')
+        if action == 'stop':
+            # stop openvpn, display_users and deactivate config
             listener.run('/etc/init.d/display_users', ['display_users', 'stop'], uid=0)
-        except Exception, e:
-            listener.unsetuid()
-            ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to deactivate server config: %s' % str(e))
-            return
+            listener.run('/bin/systemctl', ['systemctl', 'stop', 'openvpn@server.service'], uid=0)
+            os.rename (fn_serverconf, fn_serverconf + '-disabled')
 
-    if os.path.exists(fn_serverconf):
-        try:
+        elif action == 'start':
+	    # (re)start 
             listener.setuid(0)
             listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@server.service'], uid=0)
+            listener.run('/etc/init.d/display_users', ['display_users', 'start'], uid=0)
+
+        if action_s2s == 'stop':
+            # stop openvon, deactivate config
+            listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@sitetosite.service'], uid=0)
+            os.rename (fn_sitetositeconf, fn_sitetositeconf + '-disabled')
+
+        elif action_s2s == 'start':
+            # (re)start
+            listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@sitetosite.service'], uid=0)
+
+        if action or action_s2s:
+            # activate possible fw changes
             listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
-            if action == 'restart':
-                listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
-        finally:
-            listener.unsetuid()
 
-    listener.unsetuid()
+    except Exception, e:
+        lilog(ud.ERROR, 'postrun (%s/%s) failed: %s' % (action, action_s2s, str(e)))
 
-
-### end ###
+    finally:
+        listener.unsetuid()
 
 
 # -----------------------------------------------------------------------------
@@ -181,6 +164,7 @@ fn_secret = '/etc/openvpn/sitetosite.key'
 fn_r2gbase = '/var/www/readytogo/'
 
 action = None
+action_s2s = None
 
 
 def handle_user(dn, obj, changes):
@@ -402,8 +386,6 @@ def server_disable(dn, obj):
     adjust_ccd(obj, {})
 
 
-
-
 def server_enable(dn, obj):
     lilog(ud.INFO, 'server enable')
 
@@ -422,59 +404,12 @@ def server_enable(dn, obj):
 
     action = 'start'
 
-
-    listener.setuid(0)
-    lo = ul.getMachineConnection()
-    listener.unsetuid()
-
-
-        # server config, ccd/addrs, start/stop
-
-              # ....
-              # ....
-              # ....
-
-
-
-
-    #
     # create/update bundles for users
-    #
-
     name = obj.get('cn', [None])[0]
     port = obj.get('univentionOpenvpnPort', [None])[0]
     addr = obj.get('univentionOpenvpnAddress', [None])[0]
-
-    ### ***** OBSOLETE?
-    if not name or not port or not addr:
-        return # do nothing 
-
-    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
-
-    listener.setuid(0)
-
-    for dn, user in vpnusers:
-        uid = user.get('uid', [None])[0]
-	if not uid:
-            lilog(ud.ERROR, 'no uid on %s' % dn)
-            continue
-
-        lilog(ud.INFO, 'create new certificate for %s' % uid)
-
-        proto = 'udp6' if addr and addr.count(':') else 'udp'
-        # update bundle for this openvpn server with new config
-        try:
-            listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
-        except:
-            lilog(ud.ERROR, 'create-bundle failed for %s' % uid)
-
-    listener.unsetuid()
-
-
-
-
-
-
+    if name and port and addr:
+        update_bundles(name, port, addr)
 
 
 def server_modify(dn, old, new, changes):
@@ -492,10 +427,13 @@ def server_modify(dn, old, new, changes):
 
     update_config(new)
 
-
-
-
-
+    if 'cn' in changes or 'univentionOpenvpnPort' in changes or 'univentionOpenvpnAddress' in changes:
+        # create/update bundles for users
+        name = new.get('cn', [None])[0]
+        port = new.get('univentionOpenvpnPort', [None])[0]
+        addr = new.get('univentionOpenvpnAddress', [None])[0]
+        if name and port and addr:
+            update_bundles(name, port, addr)
 
 
 # -----------
@@ -681,8 +619,39 @@ def adjust_ccd(old, new)
     return
 
 
+# update readytogo bundles for all active users
+def update_bundles(name, port, addr):
+    try:
+        listener.setuid(0)
+        lo = ul.getMachineConnection()
+    finally:
+        listener.unsetuid()
+
+    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
+
+    for dn, user in vpnusers:
+        uid = user.get('uid', [None])[0]
+	if not uid:
+            lilog(ud.ERROR, 'no uid on %s' % dn)
+            continue
+
+        lilog(ud.INFO, 'create new certificate for %s' % uid)
+
+        proto = 'udp6' if addr and addr.count(':') else 'udp'
+        # update bundle for this openvpn server with new config
+        try:
+            listener.setuid(0)
+            listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+        except Exception as e:
+            lilog(ud.ERROR, 'create-bundle failed for %s: %s' % (uid, e))
+        finally:
+            listener.unsetuid()
+
+    return
+
+
 # update/create config with current values
-def update_config(obj)
+def update_config(obj):
     port      = obj.get('univentionOpenvpnPort', [None])[0]
     addr      = obj.get('univentionOpenvpnAddress', [None])[0]
     network   = obj.get('univentionOpenvpnNet', [None])[0]
