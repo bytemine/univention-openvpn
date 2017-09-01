@@ -395,21 +395,23 @@ def server_enable(dn, obj):
     if not univention_openvpn_common.check_user_count(2):
         return          # do nothing
 
-    adjust_firewall({}, obj)
-    adjust_ccd({}, obj)
-
     if not update_config(obj):
         lilog('config update failed, skipping actions')
         return
 
     action = 'start'
 
-    # create/update bundles for users
-    name = obj.get('cn', [None])[0]
     port = obj.get('univentionOpenvpnPort', [None])[0]
+    name = obj.get('cn', [None])[0]
     addr = obj.get('univentionOpenvpnAddress', [None])[0]
-    if name and port and addr:
-        update_bundles(name, port, addr)
+
+    if port:
+        adjust_firewall({}, port)
+        adjust_ccd({}, obj)
+
+        # create/update bundles for users
+        if name and addr:
+            update_bundles(name, port, addr)
 
 
 def server_modify(dn, old, new, changes):
@@ -419,13 +421,19 @@ def server_modify(dn, old, new, changes):
         return          # do nothing
 
     global action
+    action = None
+
+    if not update_config(new):
+        lilog('config update failed, skipping actions')
+        return
+
     action = 'start'
 
     if 'univentionOpenvpnPort' in changes:
-        adjust_firewall(old, new)
+        portold = old.get('univentionOpenvpnPort', [None])[0]
+        portnew = new.get('univentionOpenvpnPort', [None])[0]
+        adjust_firewall(portold, portnew)
         adjust_ccd(old, new)
-
-    update_config(new)
 
     if 'cn' in changes or 'univentionOpenvpnPort' in changes or 'univentionOpenvpnAddress' in changes:
         # create/update bundles for users
@@ -443,22 +451,48 @@ def sitetosite_disable(dn, obj):
     lilog(ud.INFO, 'sitetosite disable')
 
     global action
-    action = 's2s-stop'
+    action = None
 
 
 def sitetosite_enable(dn, obj):
     lilog(ud.INFO, 'sitetosite enable')
 
     global action
-    action = 's2s-start'
+    action = None
+
+    if not univention_openvpn_common.check_sitetosite(5):
+        return		# do nothing
+
+    if not update_config_s2s(obj):
+        lilog('config update failed, skipping actions')
+        return
+
+    action = start
+
+    portnew = new.get('univentionOpenvpnSitetoSitePort', [None])[0]
+    adjust_firewall({}, portnew)
+
 
 
 def sitetosite_modify(dn, old, new, changes):
     lilog(ud.INFO, 'sitetosite modify')
 
     global action
-    action = 's2s-start'
+    action = None
 
+    if not univention_openvpn_common.check_sitetosite(5):
+        return		# do nothing
+
+    if not update_config_s2s(new):
+        lilog('config update failed, skipping actions')
+        return
+
+    action = start
+
+    if 'univentionOpenvpnSitetoSitePort' in changes:
+        portold = old.get('univentionOpenvpnSitetoSitePort', [None])[0]
+        portnew = new.get('univentionOpenvpnSitetoSitePort', [None])[0]
+        adjust_firewall(portold, portnew)
 
 
 # -----------------------------------------------------------------------------
@@ -541,10 +575,80 @@ push "redirect-gateway def1"
     return
 
 
+# initial sitetosite config, to be updated with actual values before use
+def create_default_config_s2s():
+
+    config = """### Constant values
+
+proto udp
+ifconfig-pool-persist ipp.txt
+{dorouC}push "route {interfaces_eth0_network} {interfaces_eth0_netmask}"
+{donamC}push "dhcp-option DNS {nameserver1}"
+{dodomC}push "dhcp-option DOMAIN {dodom}"
+keepalive 10 120
+comp-lzo
+persist-key
+persist-tun
+verb 1
+mute 5
+status /var/log/openvpn/openvpn-sitetosite-status.log
+management /var/run/management-udp-sitetosite unix
+dev tun
+secret {fn_secret}
+cipher AES-256-CBC
+
+### Values which can be changed through UDM
+
+remote 10.0.1.0
+port 444
+ifconfig 10.0.0.1 10.0.0.2
+"""
+
+    interfaces_eth0_network = listener.baseConfig['interfaces/eth0/network']
+    interfaces_eth0_netmask = listener.baseConfig['interfaces/eth0/netmask']
+    nameserver1 = listener.baseConfig['nameserver1']
+    domain_domainname = listener.baseConfig['domain/domainname']
+    domainname = listener.baseConfig['domainname']
+
+    if domain_domainname is not None:
+        dodom = domain_domainname
+    else:
+        dodom = domainname
+
+    if interfaces_eth0_network == '' or interfaces_eth0_netmask == '':
+        dorouC = '#'
+    else:
+        dorouC = ''
+
+    if nameserver1 == '':
+        donamC = '#'
+    else:
+        donamC = ''
+
+    if dodom == '':
+        dodomC = '#'
+    else:
+        dodomC = ''
+
+    context = {
+        'hostname' : myname,
+        'dorouC' : dorouC,
+        'donamC' : donamC,
+        'dodomC' : dodomC,
+        'interfaces_eth0_network' : interfaces_eth0_network,
+        'interfaces_eth0_netmask' : interfaces_eth0_netmask,
+        'nameserver1' : nameserver1,
+        'dodom' : dodom,
+        'fn_secret' : fn_secret
+    }
+
+    univention_openvpn_common.write_rc(5, config.format(**context), fn_sitetositeconf)
+    return
+
+
+
 # adjust univention-firewall settings
-def adjust_firewall(old, new)
-    portold = old.get('univentionOpenvpnPort', [None])[0]
-    portnew = new.get('univentionOpenvpnPort', [None])[0]
+def adjust_firewall(portold, portnew)
     try:
         listener.setuid(0)
         if portold:
@@ -667,7 +771,7 @@ def update_config(obj):
             listener.setuid(0)
             try:
                 os.rename (fn_serverconf + '-disabled', fn_serverconf)
-                except Exception, e:
+            except Exception as e:
                 lilog(ud.ERROR, 'failed to activate server config: %s' % str(e))
                 return False
             finally:
@@ -718,8 +822,57 @@ def update_config(obj):
     flist = univention_openvpn_common.load_rc(3, fn_serverconf)
     flist = [x for x in flist if not re.search("port", x) and not re.search('push "redirect-gateway', x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin", x)]
     flist += options
-    univention_openvpn_common.write_rc(3, flist, fn_serverconf)
 
+    univention_openvpn_common.write_rc(3, flist, fn_serverconf)
+    return True
+
+
+# update/create sitetosite config with current values
+def update_config_s2s(obj):
+    peer = obj.get('univentionOpenvpnRemote', [None])[0]
+    port = obj.get('univentionOpenvpnSitetoSitePort', [None])[0]
+    tloc = obj.get('univentionOpenvpnLocalAddress', [None])[0]
+    trem = obj.get('univentionOpenvpnRemoteAddress', [None])[0]
+
+    if if not (peer and port and tloc and trem)
+        lilog(ud.ERROR, 'missing params, not updating config')
+        return False
+
+    # activate disabled config or create default
+    # (or reuse existing config, )
+    if not os.path.exists(fn_sitetositeconf):
+        if os.path.exists(fn_sitetositeconf + '-disabled'):
+            listener.setuid(0)
+            try:
+                os.rename (fn_sitetositeconf + '-disabled', fn_sitetositeconf)
+            except Exception as e:
+                lilog(ud.ERROR, 'failed to activate sitetosite config: %s' % str(e))
+                return False
+            finally:
+                listener.unsetuid()
+        else:
+            create_default_config()
+
+    # config lines for params
+    options = [
+        'port %s\n' % port,
+        'remote %s\n' % peer,
+        'ifconfig %s %s\n' % (localaddress, remoteaddress)
+    ]
+
+    # read, update & write server config
+    flist = univention_openvpn_common.load_rc(5, fn_sitetositeconf)
+    flist = [x for x in flist if not re.search("remote", x) and not re.search("port", x) and not re.search("ifconfig", x)]
+    flist += options
+
+    secret = new.get('univentionOpenvpnSecret', [None])[0]
+    #ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
+    univention_openvpn_common.write_rc(5, [secret] if secret else [''], fn_secret)
+    listener.setuid(0)
+    os.chmod(fn_secret, 0600)
+    listener.unsetuid()
+
+    univention_openvpn_common.write_rc(5, flist, fn_sitetositeconf)
     return True
 
 
