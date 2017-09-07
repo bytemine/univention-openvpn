@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -ne 3 ]; then
+if [ $# -ne 2 ]; then
     echo "remove-bundle: argument error" >&2
     echo "usage: remove-bundle <uid> <server>" >&2
     exit 1
