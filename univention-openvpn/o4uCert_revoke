@@ -12,7 +12,7 @@ if [ ! -d ${USERS}/"$1" ]; then
 	echo "ERROR: ${USERS}/$1 does not exist" >&2
 	exit 1
 fi
-if [ ! -d ${USERS}/"$1"/cert.pem ]; then
+if [ ! -f ${USERS}/"$1"/cert.pem ]; then
 	echo "ERROR: ${USERS}/$1/cert.pem does not exist" >&2
 	exit 1
 fi
