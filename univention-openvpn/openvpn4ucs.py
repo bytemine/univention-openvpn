@@ -77,7 +77,7 @@ def handler(dn, new, old, cmd):
 def postrun():
     global action, action_s2s
 
-    lilog(ud.DEBUG, 'postrun action = %s, action_s2s = %s' % (action, action_s2s))
+    lilog(ud.INFO, 'postrun action = %s, action_s2s = %s' % (action, action_s2s))
 
     try:
         listener.setuid(0)
@@ -147,8 +147,8 @@ s2s_attrs = [
 def changed(old, new, alist):
     c = {}
     for a in alist:
-        old_a = old.get(a)[0] if old else None
-        new_a = new.get(a)[0] if new else None
+        old_a = old.get(a, [None])[0] if old else None
+        new_a = new.get(a, [None])[0] if new else None
         if new_a != old_a:
             c[a] = new_a
     return c
@@ -161,30 +161,32 @@ fn_serverconf = '/etc/openvpn/server.conf'
 fn_sitetositeconf = '/etc/openvpn/sitetosite.conf'
 fn_secret = '/etc/openvpn/sitetosite.key'
 
-fn_r2gbase = '/var/www/readytogo/'
-
 action = None
 action_s2s = None
 
 
 def handle_user(dn, obj, changes):
-    lilog(ud.DEBUG, 'user handler')
+    lilog(ud.INFO, 'user handler')
 
     if isin_and('univentionOpenvpnAccount', changes, op.eq, '1'):
         return user_enable(dn, obj)
 
-    if isin_and('univentionOpenvpnAccount', changes, op.eq, '0'):
+    if isin_and('univentionOpenvpnAccount', changes, op.ne, '1'):
         return user_disable(dn, obj)
      
 
 def handle_server(dn, old, new, changes):
-    lilog(ud.DEBUG, 'server handler')
+    lilog(ud.INFO, 'server handler')
 
     # check if the change is on this host 
-    cn = obj.get('cn', [None])[0]
+    cn = old.get('cn', [None])[0]
+    lilog(ud.INFO, 'cn = %s' % cn)
+    if not cn:
+      cn = new.get('cn', [None])[0]
     myname = listener.baseConfig['hostname']
+    lilog(ud.INFO, 'myname = %s, cn = %s' % (myname, cn))
     if cn != myname:
-        lilog(ud.DEBUG, 'not this host')
+        lilog(ud.INFO, 'not this host')
         action = None
         return
 
@@ -199,13 +201,13 @@ def handle_server(dn, old, new, changes):
 
 
 def handle_sitetosite(dn, old, new, changes):
-    lilog(ud.DEBUG, 'sitetosite handler')
+    lilog(ud.INFO, 'sitetosite handler')
 
     # check if the change is on this host 
     cn = obj.get('cn', [None])[0]
     myname = listener.baseConfig['hostname']
     if cn != myname:
-        lilog(ud.DEBUG, 'not this host')
+        lilog(ud.INFO, 'not this host')
         action = None
         return
 
@@ -243,10 +245,10 @@ def user_disable(dn, obj):
         listener.unsetuid()
 
     # remove readytogo data
-    udir = fn_r2gbase + uid
+    myname = listener.baseConfig['hostname']
     listener.setuid(0)
     try:
-        listener.run('/bin/rm', ['rm', '-f', udir + '/*.zip'], uid=0)
+        listener.run('/usr/lib/openvpn-int/remove-bundle', ['remove-bundle', uid, myname], uid=0)
     except:
         lilog(ud.ERROR, 'removing readytogo packages failed')
     finally:
@@ -270,9 +272,9 @@ def user_disable(dn, obj):
 
         listener.setuid(0)
         try:
-            univention_openvpn_common.delete_file(4, ccd + client_cn + ".openvpn")
-            delete_entry(client_cn, ips)
-            delete_entry(client_cn, ipsv6)
+            univention_openvpn_common.delete_file(4, ccd + uid + ".openvpn")
+            delete_entry(uid, ips)
+            delete_entry(uid, ipsv6)
         finally:
             listener.unsetuid()
 
@@ -339,27 +341,27 @@ def user_enable(dn, obj):
         ipsv6 = '/etc/openvpn/ipsv6-' + port
 
         if not os.path.exists(ccd):
-        listener.setuid(0)
-        try:
-            os.makedirs(ccd)
-        finally:
-            listener.unsetuid()
-        ip_map = univention_openvpn_common.load_ip_map(4, fn_ips)
-        for (name, ip) in ip_map:
-            line = "ifconfig-push " + ip + " " + netmask
-            univention_openvpn_common.write_rc(4, line, ccd + name + ".openvpn")
-
-        if not os.path.exists(fn_ips):
             listener.setuid(0)
             try:
-                open(fn_ips, 'a').close()
+                os.makedirs(ccd)
+            finally:
+                listener.unsetuid()
+            ip_map = univention_openvpn_common.load_ip_map(4, fn_ips)
+            for (name, ip) in ip_map:
+                line = "ifconfig-push " + ip + " " + netmask
+                univention_openvpn_common.write_rc(4, line, ccd + name + ".openvpn")
+
+        if not os.path.exists(ips):
+            listener.setuid(0)
+            try:
+                open(ips, 'a').close()
             finally:
                 listener.unsetuid()
 
-        if not os.path.exists(fn_ipsv6):
+        if not os.path.exists(ipsv6):
             listener.setuid(0)
             try:
-                open(fn_ipsv6, 'a').close()
+                open(ipsv6, 'a').close()
             finally:
                 listener.unsetuid()
 
@@ -370,7 +372,7 @@ def user_enable(dn, obj):
         lines.append("ifconfig-push " + ip + " " + netmask + "\n")
         lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
 
-        univention_openvpn_common.write_rc(4, lines, ccd + client_cn + ".openvpn")
+        univention_openvpn_common.write_rc(4, lines, ccd + uid + ".openvpn")
 
 
 # -----------
@@ -500,7 +502,7 @@ def sitetosite_modify(dn, old, new, changes):
 
 
 # initial config, to be updated with actual values before use
-def create_default_config()
+def create_default_config():
 
     config = """### Constant values
 
@@ -648,7 +650,7 @@ ifconfig 10.0.0.1 10.0.0.2
 
 
 # adjust univention-firewall settings
-def adjust_firewall(portold, portnew)
+def adjust_firewall(portold, portnew):
     try:
         listener.setuid(0)
         if portold:
@@ -660,7 +662,7 @@ def adjust_firewall(portold, portnew)
 
 
 # create / update ccd path and contents (never remove)
-def adjust_ccd(old, new)
+def adjust_ccd(old, new):
     portold = old.get('univentionOpenvpnPort', [None])[0]
     portnew = new.get('univentionOpenvpnPort', [None])[0]
 
@@ -760,7 +762,7 @@ def update_config(obj):
     addr      = obj.get('univentionOpenvpnAddress', [None])[0]
     network   = obj.get('univentionOpenvpnNet', [None])[0]
 
-    if not port or not addr or not network
+    if not port or not addr or not network:
         lilog(ud.ERROR, 'missing params, not updating config')
         return False
 
@@ -804,7 +806,7 @@ def update_config(obj):
     options.append("server %s %s\n" % (network_pure, netmask))
     if networkv6:
         options.append("server-ipv6 %s\n" % (networkv6))
-    else
+    else:
         networkv6 = "2001:db8:0:123::/64"
     netmaskv6 = str(netaddr.IPNetwork(networkv6).netmask)
     if redirect == '1':
@@ -834,7 +836,7 @@ def update_config_s2s(obj):
     tloc = obj.get('univentionOpenvpnLocalAddress', [None])[0]
     trem = obj.get('univentionOpenvpnRemoteAddress', [None])[0]
 
-    if if not (peer and port and tloc and trem)
+    if not (peer and port and tloc and trem):
         lilog(ud.ERROR, 'missing params, not updating config')
         return False
 
@@ -877,22 +879,22 @@ def update_config_s2s(obj):
 
 
 # generate and write entry for given user and return generated ip
-def write_entry(client_cn, fn_ips, network):
-    ip_map = univention_openvpn_common.load_ip_map(4, fn_ips)
+def write_entry(uid, ips, network):
+    ip_map = univention_openvpn_common.load_ip_map(4, ips)
     ip = generate_ip(network, ip_map)
-    ip_map.append((client_cn, ip))
-    univention_openvpn_common.write_ip_map(4, ip_map, fn_ips)
+    ip_map.append((uid, ip))
+    univention_openvpn_common.write_ip_map(4, ip_map, ips)
     return ip
 
 
 # delete entry of given user in corresponding ip_map
-def delete_entry(client_cn, fn_ips):
-    ip_map_old = univention_openvpn_common.load_ip_map(4, fn_ips)
+def delete_entry(uid, ips):
+    ip_map_old = univention_openvpn_common.load_ip_map(4, ips)
     ip_map_new = []
     for (name, ip) in ip_map_old:
-        if name != client_cn:
+        if name != uid:
             ip_map_new.append((name, ip))
-    univention_openvpn_common.write_ip_map(4, ip_map_new, fn_ips)
+    univention_openvpn_common.write_ip_map(4, ip_map_new, ips)
 
 
 # generate ip for given network which does not exist in ip_map
