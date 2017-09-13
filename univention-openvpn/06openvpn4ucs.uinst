@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=9
+VERSION=1
 
 SERVICE="OpenVPN"
 
@@ -31,7 +31,6 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 	stop_udm_cli_server
 fi
 
-joinscript_remove_script_from_status_file univention-openvpn-master
+joinscript_remove_script_from_status_file openvpn4ucs
 
 exit 0
-
