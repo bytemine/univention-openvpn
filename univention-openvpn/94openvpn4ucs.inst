@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=12
+VERSION=1
 
 SERVICE="OpenVPN"
 
@@ -11,13 +11,17 @@ SERVICE="OpenVPN"
 
 joinscript_init
 
-eval "$(ucr shell)"
+NEWKEY="/etc/openvpn/sitetosite.newkey"
 
+eval "$(ucr shell)"
 
 ucs_addServiceToLocalhost "$SERVICE" "$@"
 
 ucs_registerLDAPExtension --udm_hook /usr/share/pyshared/univention/admin/hooks.d/univention-openvpn.py
 ucs_registerLDAPExtension --udm_syntax /usr/share/pyshared/univention/admin/syntax.d/univention-openvpn-schema.py
+
+# protect sitetosite secret with extra acl
+ucs_registerLDAPExtension "$@" --acl /usr/lib/openvpn-int/misc/63openvpn-sitetosite.acl
 
 eabas="cn=openvpn,cn=custom attributes,cn=univention,$ldap_base"
 
@@ -560,6 +564,12 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set hook='None' || die
 
 
+# initial site2site secret generation
+eval "$(ucr shell server/role ldap/hostdn)"
+openvpn --genkey --secret "${NEWKEY}"
+udm computers/${server_role} modify "$@" --dn "${ldap_hostdn}" \
+	--set openvpnSecret="$(<${NEWKEY})"
+
 
 # present in versions < 0.7
 udm settings/extended_attribute remove "$@" \
@@ -586,6 +596,7 @@ univention-directory-manager groups/group create "$@" \
     --position "cn=groups,$ldap_base" \
     --set name="VPN Admins" \
     --set users="uid=Administrator,cn=users,$ldap_base"
+
 
 
 rdy2gobas="/var/www/readytogo"
@@ -619,12 +630,10 @@ done
 
 a2ensite openvpn4ucs2
 
+/usr/lib/openvpn-int/display_users/create_site_cfg
+a2ensite openvpn4ucs
+
 /etc/init.d/apache2 restart
-
-
-# protect sitetosite secret with extra acl
-ucs_registerLDAPExtension "$@" \
-    --acl /usr/lib/openvpn-int/misc/63openvpn-sitetosite.acl
 
 
 
