@@ -72,6 +72,9 @@ def handler(dn, new, old, cmd):
     if s2s_chgd:
         handle_sitetosite(dn, old, new, s2s_chgd)
 
+    if not (usr_chgd or srv_chgd or s2s_chgd):
+        lilog(ud.INFO, 'nothing to do')
+
 
 # perform any restarts necessary
 def postrun():
@@ -149,7 +152,6 @@ def changed(old, new, alist):
     for a in alist:
         old_a = old.get(a, [None])[0] if old else None
         new_a = new.get(a, [None])[0] if new else None
-        lilog(ud.INFO, '<%s>: old = <%s>, new = <%s>' % (str(a), str(old_a), str(new_a)))
         if new_a != old_a:
             c[a] = new_a
     return c
@@ -183,18 +185,15 @@ def handle_server(dn, old, new, changes):
 
     # check if the change is on this host 
     cn = old.get('cn', [None])[0]
-    lilog(ud.INFO, 'cn = %s' % cn)
     if not cn:
       cn = new.get('cn', [None])[0]
     myname = listener.baseConfig['hostname']
-    lilog(ud.INFO, 'myname = %s, cn = %s' % (myname, cn))
     if cn != myname:
         lilog(ud.INFO, 'not this host')
         action = None
         return
 
     active = new.get('univentionOpenvpnActive', [None])[0]
-    lilog(ud.INFO, 'active = %s' % active)
 
     if isin_and('univentionOpenvpnActive', changes, op.eq, '1'):
         return server_enable(dn, new)
