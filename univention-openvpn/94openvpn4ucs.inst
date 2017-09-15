@@ -4,6 +4,8 @@ VERSION=1
 
 SERVICE="OpenVPN"
 
+export UNIVENTION_APP_IDENTIFIER="openvpn4ucs-2.0"
+
 . /usr/share/univention-lib/base.sh
 . /usr/share/univention-lib/ldap.sh
 #. /usr/share/univention-lib/umc.sh
@@ -17,11 +19,11 @@ eval "$(ucr shell)"
 
 ucs_addServiceToLocalhost "$SERVICE" "$@"
 
-ucs_registerLDAPExtension --udm_hook /usr/share/pyshared/univention/admin/hooks.d/univention-openvpn.py
-ucs_registerLDAPExtension --udm_syntax /usr/share/pyshared/univention/admin/syntax.d/univention-openvpn-schema.py
-
-# protect sitetosite secret with extra acl
-ucs_registerLDAPExtension "$@" --acl /usr/lib/openvpn-int/misc/63openvpn-sitetosite.acl
+ucs_registerLDAPExtension "$@" \
+    --schema /usr/lib/openvpn-int/misc/univention-openvpn.schema \
+    --acl /usr/lib/openvpn-int/misc/63openvpn-sitetosite.acl \
+    --udm_syntax /usr/share/pyshared/univention/admin/syntax.d/univention-openvpn-schema.py \
+    --udm_hook /usr/share/pyshared/univention/admin/hooks.d/univention-openvpn.py
 
 eabas="cn=openvpn,cn=custom attributes,cn=univention,$ldap_base"
 

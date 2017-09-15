@@ -2,7 +2,7 @@
 
 #DEBHELPER#
 
-ui=/usr/lib/univention-uninstall/06univention-openvpn-server-uninstall.uinst
+ui=/usr/lib/univention-uninstall/06openvpn4ucs-uninstall.uinst
 
 [ "$1" = "remove" ] && cp "$ui" /usr/lib/univention-install
 

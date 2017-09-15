@@ -2,17 +2,24 @@
 
 #DEBHELPER#
 
-ui=06univention-openvpn-server-uninstall.uinst
+ui=06openvpn4ucs-uninstall.uinst
 
 if [ "$1" = "remove" ]; then
+
+	. /usr/share/univention-lib/base.sh
+
 	ucr unset \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/description/de \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/description \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/label/de \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/label \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/link\
 		ucs/web/overview/entries/service/openvpn4ucs/description/de \
 		ucs/web/overview/entries/service/openvpn4ucs/description \
 		ucs/web/overview/entries/service/openvpn4ucs/label/de \
 		ucs/web/overview/entries/service/openvpn4ucs/label \
 		ucs/web/overview/entries/service/openvpn4ucs/link
 
-	. /usr/share/univention-lib/base.sh
 	call_unjoinscript "$ui"
 	invoke-rc.d univention-directory-listener restart
 fi

@@ -1,8 +1,0 @@
-#!/bin/sh
-
-#DEBHELPER#
-
-. /usr/share/univention-lib/ldap.sh
-ucs_registerLDAPSchema /usr/share/univention-openvpn-schema/univention-openvpn.schema
-
-exit 0

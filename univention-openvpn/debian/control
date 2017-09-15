@@ -1,26 +1,14 @@
-Source: univention-openvpn
+Source: openvpn4ucs
 Section: univention
 Maintainer: bytemine GmbH <code@bytemine.net>
 Build-Depends: debhelper (>= 8.0.0), univention-config-dev, python-setuptools, python-stdeb
 Standards-Version: 3.9.2
 Priority: optional
 
-Package: univention-openvpn-server
+Package: openvpn4ucs
 Architecture: all
+Provides: univention-openvpn-master, univention-openvpn-master, univention-openvpn-server, univention-openvpn-sitetosite
+Conflicts: univention-openvpn-master, univention-openvpn-master, univention-openvpn-server, univention-openvpn-sitetosite
+Replaces: univention-openvpn-master, univention-openvpn-master, univention-openvpn-server, univention-openvpn-sitetosite
 Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn, python-netaddr, python-webpy, python-univention-openvpn-common
-Description: Server package for OpenVPN
-
-Package: univention-openvpn-sitetosite
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn, python-univention-openvpn-common
-Description: Site-to-Site package for OpenVPN
-
-Package: univention-openvpn-master
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), univention-openvpn-schema, python-univention-openvpn-common
-Description: Master package for OpenVPN
-
-Package: univention-openvpn-schema
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1)
-Description: Schema package for OpenVPN
+Description: UCS integration for OpenVPN

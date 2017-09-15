@@ -1,6 +1,0 @@
-Module: openvpn4ucs
-Python: umc/python
-Definition: umc/openvpn4ucs.xml
-Category: umc/categories/openvpn4ucs.xml
-Javascript: umc/js
-Icons: umc/icons

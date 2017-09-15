@@ -1,9 +1,0 @@
-#!/bin/sh
-
-#DEBHELPER#
-
-ui=/usr/lib/univention-uninstall/06univention-openvpn-master-uninstall.uinst
-
-[ "$1" = "remove" ] && cp "$ui" /usr/lib/univention-install
-
-exit 0

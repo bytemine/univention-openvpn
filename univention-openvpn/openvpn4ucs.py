@@ -633,9 +633,9 @@ def adjust_firewall(portold, portnew):
     try:
         listener.setuid(0)
         if portold:
-            ucr.handler_unset(['security/packetfilter/package/univention-openvpn-server/udp/'+portold+'/all'])
+            ucr.handler_unset(['security/packetfilter/package/openvpn4ucs/udp/'+portold+'/all'])
         if portnew:
-            ucr.handler_set(['security/packetfilter/package/univention-openvpn-server/udp/'+portnew+'/all=ACCEPT'])
+            ucr.handler_set(['security/packetfilter/package/openvpn4ucs/udp/'+portnew+'/all=ACCEPT'])
     finally:
         listener.unsetuid()
 

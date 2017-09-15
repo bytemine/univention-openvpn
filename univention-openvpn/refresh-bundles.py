@@ -59,7 +59,7 @@ for (tmp, server) in vpnservers:
     for user in vpnusers:
         uid = user[1].get('uid', [None])[0]
         proto = 'udp6' if addr and addr.count(':') else 'udp'
-        if uid and home:
+        if uid:
             system('/usr/lib/openvpn-int/create-bundle %s %s %s %s %s' % (uid, name, addr, port, proto))
 
 ### end ###

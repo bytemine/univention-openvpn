@@ -1,8 +1,0 @@
-Type: file
-File: etc/pam.d/openvpn
-Variables: hostname
-Variables: domainname
-Variables: privacyidea/pam/url
-Variables: privacyidea/pam/prompt
-Variables: privacyidea/pam/realm
-Variables: privacyidea/pam/enable
