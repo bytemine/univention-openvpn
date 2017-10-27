@@ -54,7 +54,12 @@ modrdn      = 1
 
 # handle changes wrt. openvpn4ucs
 def handler(dn, new, old, cmd):
+    global action, action_s2s
+
     lilog(ud.INFO, 'openvpn4ucs handler')
+
+    action = None
+    action_s2s = None
 
     # determine sets of changed (incl. new/del) attributes
     usr_chgd = changed(old, new, usr_attrs)
@@ -332,7 +337,7 @@ def user_enable(dn, obj):
     # ccd config for user
 
     network           = server.get('univentionOpenvpnNet', [None])[0]
-    networkv6         = new.get('univentionOpenvpnNetIPv6', ['2001:db8:0:123::/64'])[0]
+    networkv6         = server.get('univentionOpenvpnNetIPv6', ['2001:db8:0:123::/64'])[0]
 
     netmask, netmaskv6 = network2netmask(network, networkv6)
 
