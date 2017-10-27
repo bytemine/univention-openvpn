@@ -77,42 +77,6 @@ def write_rc(no, flist, wfile):
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to write file "%s": %s' % (no, wfile, str(e)))
     listener.unsetuid()
 
-# function to create a directory with setuid(0) for root-action
-def create_dir(no, path):
-    listener.setuid(0)
-    try:
-        os.makedirs(path)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to make directory "%s": %s' % (no, path, str(e)))
-    listener.unsetuid()
-
-# function to rename a directory with setuid(0) for root-action
-def rename_dir(no, pathold, pathnew):
-    listener.setuid(0)
-    try:
-        os.rename(pathold, pathnew)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to rename directory "%s" to "%s": %s' % (no, pathold, pathnew, str(e)))
-    listener.unsetuid()
-
-# function to delete a directory with setuid(0) for root-action
-def delete_dir(no, fn):
-    listener.setuid(0)
-    try:
-        os.rmdir(fn)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to remove directory "%s": %s' % (no, fn, str(e)))
-    listener.unsetuid()
-
-# function to delete a textfile with setuid(0) for root-action
-def delete_file(no, fn):
-    listener.setuid(0)
-    try:
-        os.remove(fn)
-    except Exception, e:
-        ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to remove file "%s": %s' % (no, fn, str(e)))
-    listener.unsetuid()
-
 # function to open an ip map with setuid(0) for root-action
 def load_ip_map(no, path):
     ip_map = []

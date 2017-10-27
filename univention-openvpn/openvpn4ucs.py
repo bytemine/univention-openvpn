@@ -282,12 +282,13 @@ def user_disable(dn, obj):
 
         listener.setuid(0)
         try:
-            univention_openvpn_common.delete_file(4, ccd + uid + ".openvpn")
+            os.remove(ccd + uid + '.openvpn')
             delete_entry(uid, ips)
             delete_entry(uid, ipsv6)
+        except Exception as e:
+            lilog(ud.ERROR, '%d Failed to write file "%s": %s' % (no, wfile, str(e)))
         finally:
             listener.unsetuid()
-
 
 
 def user_enable(dn, obj):
