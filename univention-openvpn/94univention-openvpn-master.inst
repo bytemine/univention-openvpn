@@ -211,7 +211,6 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --append module="computers/domaincontroller_slave" \
     --append module="computers/domaincontroller_backup" \
     --append module="computers/memberserver" \
-    --set default='10.153.175.0/24' \
     --set ldapMapping='univentionOpenvpnNet' \
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-Net' \
@@ -241,7 +240,6 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --append module="computers/domaincontroller_slave" \
     --append module="computers/domaincontroller_backup" \
     --append module="computers/memberserver" \
-    --set default='1194' \
     --set ldapMapping='univentionOpenvpnPort' \
     --set objectClass='univentionOpenvpn' \
     --set name='UniventionOpenvpn-Port' \
@@ -282,7 +280,6 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set tabName='OpenVPN4UCS' \
     --set groupName='User VPN' \
     --set groupPosition='2' \
-    --set default='0.0.0.0' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnAddress' \
