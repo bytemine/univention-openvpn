@@ -5,6 +5,9 @@
 ui=/usr/lib/univention-install/06univention-openvpn-server-uninstall.uinst
 if [ "$1" = "configure" ]; then
 
+	# make sure the pre 1.0.5 .htaccess is gone
+	rm -f /var/www/display_users/.htaccess
+
 	# configure display active users
 	if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
 		a2enmod ldap
