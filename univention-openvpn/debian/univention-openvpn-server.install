@@ -2,6 +2,7 @@ display_users/socket_handler.py usr/lib/openvpn-int/display_users
 display_users/service.py usr/lib/openvpn-int/display_users
 display_users/display_users etc/init.d
 display_users/create_site_cfg usr/lib/openvpn-int/display_users
+openvpn4ucs.svg var/www/display_users
 display_users/css var/www/display_users
 display_users/files var/www/display_users
 display_users/images var/www/display_users

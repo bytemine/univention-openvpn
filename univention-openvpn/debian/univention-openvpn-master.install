@@ -8,6 +8,7 @@ univention-openvpn.py usr/share/pyshared/univention/admin/hooks.d
 univention-openvpn-schema.py usr/share/pyshared/univention/admin/syntax.d
 94univention-openvpn-master.inst usr/lib/univention-install
 06univention-openvpn-master-uninstall.uinst usr/lib/univention-uninstall
+openvpn4ucs.svg var/www/download
 download/css /var/www/download
 download/files /var/www/download
 download/images /var/www/download
