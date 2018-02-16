@@ -21,6 +21,7 @@ if [ "$1" = "configure" ]; then
 		ucs/web/overview/entries/service/openvpn4ucs/description/de="OpenVPN4UCS - aktive Benutzer" \
 		ucs/web/overview/entries/service/openvpn4ucs/label="OpenVPN4UCS - active users" \
 		ucs/web/overview/entries/service/openvpn4ucs/label/de="OpenVPN4UCS - aktive Benutzer" \
+		ucs/web/overview/entries/service/openvpn4ucs/icon='openvpn4ucs.svg' \
 		ucs/web/overview/entries/service/openvpn4ucs/link="/display_users"
 
 	[ -e "$ui" ] && rm "$ui"
