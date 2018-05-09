@@ -194,7 +194,7 @@ push "redirect-gateway def1"
     # write new server config
     flist = univention_openvpn_common.load_rc(3, fn_serverconf)
 
-    flist = [x for x in flist if not re.search("port", x) and not re.search('push "redirect-gateway', x) and not re.search("duplicate-cn", x) and not re.search("server", x) and not re.search("server-ipv6", x) and not re.search("client-config-dir", x) and not re.search("proto", x) and not re.search("plugin", x)]
+    flist = [x for x in flist if not re.search("^\s*port\s", x) and not re.search('^\s*push "redirect-gateway', x) and not re.search("^\s*duplicate-cn", x) and not re.search("^\s*server\s", x) and not re.search("^\s*server-ipv6\s", x) and not re.search("^\s*client-config-dir\s", x) and not re.search("^\s*proto\s", x) and not re.search("^\s*plugin\s", x)]
 
     flist.append("port %s\n" % portnew)
 
