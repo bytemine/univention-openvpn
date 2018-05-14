@@ -42,7 +42,13 @@ def userlist():
 
     s.recv(1024)
     s.sendall('status 3\n')
-    data = s.recv(1024).split('\n')
+    data = ''
+    while True:
+        d = s.recv(1024)
+        data += d
+        if len(d) < 1024:
+            break
+    data = data.split('\n')
 
     s.close()
 
