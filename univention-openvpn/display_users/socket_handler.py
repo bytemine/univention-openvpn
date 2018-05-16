@@ -55,6 +55,11 @@ def userlist():
 
     s.close()
 
+    if data and data[0].startswith('TITLE\tOpenVPN 2.4'):
+      offset = 1
+    else:
+      offset = 0
+
     cl = filter(lambda d: d.startswith('CLIENT_LIST\t'), data)
     rt = filter(lambda d: d.startswith('ROUTING_TABLE\t'), data)
 
@@ -69,7 +74,7 @@ def userlist():
         conntype = 0
         virtaddresses = ""
 
-        reltime = str(datetime.timedelta(seconds=(int(time.time()) - int(centries[7]))))
+        reltime = str(datetime.timedelta(seconds=(int(time.time()) - int(centries[7+offset]))))
 
         # iterate over routing table to get all virtual addresses for each client
         for r in rt:
@@ -85,7 +90,7 @@ def userlist():
                     conntype |= 2
                 virtaddresses += rvirtaddress + "\n"
 
-        result.append({'name': name, 'conn': 1, 'type': conntype, 'realip': realaddress, 'virtips': virtaddresses, 'cons': centries[6], 'conr': reltime, 'recv': centries[4], 'sent': centries[5]})
+        result.append({'name': name, 'conn': 1, 'type': conntype, 'realip': realaddress, 'virtips': virtaddresses, 'cons': centries[6+offset], 'conr': reltime, 'recv': centries[4+offset], 'sent': centries[5+offset]})
 
     return result
 
