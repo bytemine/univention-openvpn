@@ -1,3 +1,9 @@
+univention-openvpn (1.1.16) unstable; urgency=low
+  * restart openvpn only if required
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 18 Dec 2018 17:00:00 +0100
+
+
 univention-openvpn (1.1.15) unstable; urgency=low
   * better option matching in server.conf
   * push routes for all configured interfaces

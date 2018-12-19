@@ -48,7 +48,7 @@ import univention_openvpn_common
 name        = 'openvpn-server'
 description = 'write server-configuration to server.conf and handle address assignment'
 filter      = '(objectClass=univentionOpenvpn)'
-attributes   = [
+attributes  = [
     'univentionOpenvpnActive', 'univentionOpenvpnLicense', 'univentionOpenvpnAddress',
     'univentionOpenvpnPort', 'univentionOpenvpnNet', 'univentionOpenvpnNetIPv6',
     'univentionOpenvpnRedirect', 'univentionOpenvpnDuplicate',
@@ -68,24 +68,26 @@ def handler(dn, new, old, command):
         action = None
         return
 
-    if 'univentionOpenvpnActive' in new:
-        action = 'restart'
-    else:
-        action = 'stop'
-
     cn = new.get('cn', [None])[0]
     myname = listener.baseConfig['hostname']
     if cn != myname:
         action = None
         return
 
+    if not 'univentionOpenvpnActive' in new and 'univentionOpenvpnActive' in old:
+        action = 'stop'
     if not univention_openvpn_common.check_user_count(3):
         listener.unsetuid()
         if action == 'stop':
             ud.debug(ud.LISTENER, ud.INFO, '3 Allowing stop action')
         else:
             action = None
-            return			# do nothing
+            return
+    if action == 'stop':
+        return
+    if 'univentionOpenvpnActive' in new and not 'univentionOpenvpnActive' in old:
+        action = 'restart'
+
 
     cnaddr = new.get('univentionOpenvpnAddress', [None])[0]
     ip6conn = True if cnaddr and cnaddr.count(':') else False
@@ -100,6 +102,7 @@ def handler(dn, new, old, command):
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to activate server config: %s' % str(e))
             return
         listener.unsetuid()
+        action = 'restart'
 
     if not os.path.exists(fn_serverconf):
         config = """### Constant values
@@ -169,6 +172,7 @@ push "redirect-gateway def1"
         }
 
         univention_openvpn_common.write_rc(3, config.format(**context), fn_serverconf) 
+        action = 'restart'
 
 
     portold = old.get('univentionOpenvpnPort', [None])[0]
@@ -181,11 +185,28 @@ push "redirect-gateway def1"
         if portnew and 'univentionOpenvpnActive' in new:
             ucr.handler_set(['security/packetfilter/package/univention-openvpn-server/udp/'+portnew+'/all=ACCEPT'])
         listener.unsetuid()
+        action = 'restart'
 
 
     ccd = '/etc/openvpn/ccd-' + portnew + '/'
     fn_ips = '/etc/openvpn/ips-' + portnew
     fn_ipsv6 = '/etc/openvpn/ipsv6-' + portnew
+
+    if not os.path.exists(ccd):
+        if not os.path.exists('/etc/openvpn/ccd-%s' % portold):
+            univention_openvpn_common.create_dir(3, ccd)
+        else:
+            univention_openvpn_common.rename_dir(3, '/etc/openvpn/ccd-%s' % portold, '/etc/openvpn/ccd-%s' % portnew)
+
+    if not os.path.exists(fn_ips):
+        listener.setuid(0)
+        open(fn_ips, 'a').close()
+        listener.unsetuid()
+
+    if not os.path.exists(fn_ipsv6):
+        listener.setuid(0)
+        open(fn_ipsv6, 'a').close()
+        listener.unsetuid()
 
     # write new server config
     flist = univention_openvpn_common.load_rc(3, fn_serverconf)
@@ -207,6 +228,10 @@ push "redirect-gateway def1"
         netmask = str(ipnw.netmask)
     network_pure = str(ipnw.network)
     flist.append("server %s %s\n" % (network_pure, netmask))
+    if network != old.get('univentionOpenvpnNet', [None])[0]:
+        # adapt ip_maps and ccd
+        change_net(network, netmask, ccd, fn_ips, False)
+        action = 'restart'
 
     networkv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
     if networkv6 is not None:
@@ -214,6 +239,10 @@ push "redirect-gateway def1"
     else:
         networkv6 = "2001:db8:0:123::/64"
     netmaskv6 = str(netaddr.IPNetwork(networkv6).netmask)
+    if networkv6 != old.get('univentionOpenvpnNetIPv6', [None])[0]:
+        # adapt ip_maps and ccd
+        change_net(networkv6, netmaskv6, ccd, fn_ipsv6, True)
+        action = 'restart'
 
     if ip6conn:
         flist.append("proto udp6\n")
@@ -223,45 +252,30 @@ push "redirect-gateway def1"
     redirect = new.get('univentionOpenvpnRedirect', [None])[0]
     if redirect == '1':
         flist.append('push "redirect-gateway def1"\n')
+    if redirect != old.get('univentionOpenvpnRedirect', [None])[0]:
+        action = 'restart'
 
     duplicate = new.get('univentionOpenvpnDuplicate', [None])[0]
     if duplicate == '1':
         flist.append('duplicate-cn\n')
+    if duplicate != old.get('univentionOpenvpnDuplicate', [None])[0]:
+        action = 'restart'
 
     fixedaddresses = new.get('univentionOpenvpnFixedAddresses', [None])[0]
     if fixedaddresses == '1':
         flist.append('client-config-dir %s\n' % ccd)
+    if fixedaddresses != old.get('univentionOpenvpnFixedAddresses', [None])[0]:
+        action = 'restart'
 
     dualfactorauth = new.get('univentionOpenvpnDualfactorauth', [None])[0]
     if dualfactorauth == '1':
         flist.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/openvpn\n')
     else:
         flist.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass\n')
+    if dualfactorauth != old.get('univentionOpenvpnDualfactorauth', [None])[0]:
+        action = 'restart'
 
     univention_openvpn_common.write_rc(3, flist, fn_serverconf)
-
-    if not os.path.exists(ccd):
-        if not os.path.exists('/etc/openvpn/ccd-%s' % portold):
-            univention_openvpn_common.create_dir(3, ccd)
-        else:
-            univention_openvpn_common.rename_dir(3, '/etc/openvpn/ccd-%s' % portold, '/etc/openvpn/ccd-%s' % portnew)
-
-    if not os.path.exists(fn_ips):
-        listener.setuid(0)
-        open(fn_ips, 'a').close()
-        listener.unsetuid()
-
-    if not os.path.exists(fn_ipsv6):
-        listener.setuid(0)
-        open(fn_ipsv6, 'a').close()
-        listener.unsetuid()
-
-    # adapt ip_maps and ccd
-    if new.get('univentionOpenvpnNet', [None])[0] != old.get('univentionOpenvpnNet', [None])[0]:
-        change_net(network, netmask, ccd, fn_ips, False)
-
-    if new.get('univentionOpenvpnNetIPv6', [None])[0] != old.get('univentionOpenvpnNetIPv6', [None])[0]:
-        change_net(networkv6, netmaskv6, ccd, fn_ipsv6, True)
 
     if new.get('univentionOpenvpnUserAddress', [None]) != old.get('univentionOpenvpnUserAddress', [None]):
         useraddresses_raw = new.get('univentionOpenvpnUserAddress', [None])
@@ -372,9 +386,9 @@ def initialize():
 
 def postrun():
     global action
+    ud.debug(ud.LISTENER, ud.INFO, '3 OpenVPN-Server action: %s' % (action))
     if not action:
         return
-    ud.debug(ud.LISTENER, ud.INFO, '3 OpenVPN-Server %s' % (action))
 
     if action == 'stop':
         # deactivate config
@@ -383,21 +397,18 @@ def postrun():
             os.rename (fn_serverconf, fn_serverconf + '-disabled')
             listener.run('/etc/init.d/display_users', ['display_users', 'stop'], uid=0)
         except Exception, e:
-            listener.unsetuid()
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to deactivate server config: %s' % str(e))
-            return
+        listener.unsetuid()
 
-    if os.path.exists(fn_serverconf):
+    elif action == 'restart' and os.path.exists(fn_serverconf):
         try:
             listener.setuid(0)
             listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@server.service'], uid=0)
             listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
-            if action == 'restart':
-                listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
-        finally:
-            listener.unsetuid()
-
-    listener.unsetuid()
+            listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
+        except Exception, e:
+            ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to restart services: %s' % str(e))
+        listener.unsetuid()
 
 
 ### end ###

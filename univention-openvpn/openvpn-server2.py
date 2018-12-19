@@ -180,28 +180,7 @@ def initialize():
     pass
 
 def postrun():
-    global action
-    if not action:
-        return
-    ud.debug(ud.LISTENER, ud.INFO, '4 OpenVPN-Server %s' % (action))
-
-    if action == 'stop':
-        # deactivate config
-        try:
-            listener.setuid(0)
-            os.rename (fn_serverconf, fn_serverconf + '-disabled')
-        except Exception, e:
-            listener.unsetuid()
-            ud.debug(ud.LISTENER, ud.ERROR, '4 Failed to deactivate server config: %s' % str(e))
-            return
-
-    try:
-        listener.setuid(0)
-        listener.run('/etc/init.d/openvpn', ['openvpn', 'restart', 'server'], uid=0)
-    finally:
-        listener.unsetuid()
-
-    listener.unsetuid()
+    pass
 
 
 ### end ###
