@@ -64,6 +64,7 @@ fn_serverconf = '/etc/openvpn/server.conf'
 def handler(dn, new, old, command):
     ud.debug(ud.LISTENER, ud.INFO, '3 server handler')
     global action
+    action = None
     if command == 'n':
         action = None
         return
@@ -178,7 +179,7 @@ push "redirect-gateway def1"
     portold = old.get('univentionOpenvpnPort', [None])[0]
     portnew = new.get('univentionOpenvpnPort', [None])[0]
 
-    if portold is not portnew:
+    if portold != portnew:
         listener.setuid(0)
         if portold:
             ucr.handler_unset(['security/packetfilter/package/univention-openvpn-server/udp/'+portold+'/all'])
