@@ -1,7 +1,7 @@
 univention-openvpn (1.1.16) unstable; urgency=low
   * restart openvpn only if required
 
- -- Holger Rasch <rasch@bytemine.net>  Tue, 18 Dec 2018 17:00:00 +0100
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 14 Jan 2019 13:00:00 +0100
 
 
 univention-openvpn (1.1.15) unstable; urgency=low
