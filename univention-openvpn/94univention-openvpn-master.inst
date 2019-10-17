@@ -571,11 +571,12 @@ ENDOFPW
 
 chmod 600 /etc/ldapper-m.secret
 
-udm users/user remove "$@" \
+udm users/user remove "$@" --ignore_not_exists \
     --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
-univention-directory-manager users/user create "$@" \
+udm users/ldap remove "$@" --ignore_not_exists \
+    --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
+univention-directory-manager users/ldap create "$@" \
     --position "cn=users,$ldap_base" \
-    --option "ldap_pwd" \
     --set username=$name \
     --set lastname=$name \
     --set password=$pw
