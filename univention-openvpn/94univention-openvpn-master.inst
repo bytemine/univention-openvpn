@@ -223,6 +223,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
+    --set default='10.127.255.128/25' \
     --set valueRequired='0' \
     --set CLIName='openvpnTransfernetwork' \
     --set syntax='string' \
@@ -252,6 +253,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
+    --set default='1194' \
     --set valueRequired='0' \
     --set CLIName='openvpnPort' \
     --set syntax='integer' \
@@ -281,6 +283,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set groupName='User VPN' \
     --set groupPosition='2' \
     --set overwriteTab='0' \
+    --set default='192.0.2.1' \
     --set valueRequired='0' \
     --set CLIName='openvpnAddress' \
     --set syntax='string' \
@@ -572,17 +575,17 @@ ENDOFPW
 chmod 600 /etc/ldapper-m.secret
 
 udm users/user remove "$@" --ignore_not_exists \
-    --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
+    --dn "uid=$name,cn=users,$ldap_base"
 udm users/ldap remove "$@" --ignore_not_exists \
-    --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
-univention-directory-manager users/ldap create "$@" \
+    --dn "uid=$name,cn=users,$ldap_base"
+udm users/ldap create "$@" \
     --position "cn=users,$ldap_base" \
     --set username=$name \
     --set lastname=$name \
     --set password=$pw
 
 
-univention-directory-manager groups/group create "$@" \
+udm groups/group create "$@" --ignore_exists \
     --position "cn=groups,$ldap_base" \
     --set name="VPN Admins" \
     --set users="uid=Administrator,cn=users,$ldap_base"
