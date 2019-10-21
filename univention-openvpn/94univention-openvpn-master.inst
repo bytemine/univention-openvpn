@@ -541,9 +541,9 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnLicense' \
     --set objectClass='univentionOpenvpnSitetoSite' \
     --set name='UniventionOpenvpn-License' \
-    --set shortDescription='OpenVPN4UCS license key (required to activate commercial features)' \
-    --set longDescription='Activates commercial features like: user amounts >5, site-to-site VPN - available through bytemine.net.' \
-    --set translationShortDescription='"de_DE" "OpenVPN4UCS Lizenzschlüssel (für kommerzielle Funktionen benötigt)' \
+    --set shortDescription='<i>(see</i> <b>active users</b> <i>app for license details)</i><hr/>OpenVPN4UCS license key (required to activate commercial features)' \
+    --set longDescription='Activates commercial features like: user amount >5, site-to-site VPN - available through bytemine.net.' \
+    --set translationShortDescription='"de_DE" "<i>(Lizenzdetails in der</i> <b>aktive Benutzer</b> <i>Applikation)</i><hr>OpenVPN4UCS Lizenzschlüssel (für kommerzielle Funktionen benötigt)' \
     --set translationLongDescription='"de_DE" "Aktiviert kommerzielle Funktionen: Benutzeranzahl >5, Site-to-Site VPN - zu beziehen über bytemine.net."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
