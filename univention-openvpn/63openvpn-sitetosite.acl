@@ -1,5 +1,6 @@
 # further restrict access to sitetosite secret
 access to attrs=univentionOpenvpnSecret
+    by set="user & [cn=Domain Admins,cn=groups,dc=bytemine,dc=net]/uniqueMember*" write
     by self read
     by * none
 
