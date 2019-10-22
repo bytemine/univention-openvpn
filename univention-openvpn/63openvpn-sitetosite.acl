@@ -1,6 +1,14 @@
-# further restrict access to sitetosite secret
-access to attrs=univentionOpenvpnSecret
-    by set="user & [cn=Domain Admins,cn=groups,dc=bytemine,dc=net]/uniqueMember*" write
-    by self read
-    by * none
+@!@
+from univention.lib.misc import custom_groupname
 
+ldap_base = configRegistry['ldap/base']
+adminsgrp = custom_groupname('Domain Admins')
+
+print('')
+print('# further restrict access to sitetosite secret')
+print('access to attrs=univentionOpenvpnSecret')
+print('    by set="user & [cn={},cn=groups,{}]/uniqueMember*" write'.format(adminsgrp, ldap_base))
+print('    by self read')
+print('    by * none')
+print('')
+@!@
