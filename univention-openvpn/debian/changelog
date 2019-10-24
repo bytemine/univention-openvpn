@@ -3,6 +3,7 @@ univention-openvpn (1.1.17) unstable; urgency=low
   * allow member of group 'Domain Admins' to write secret attribute, too
   * use users/ldap module for technical users
   * use defaults for required values again - now works for existing objects, too
+  * stop openvpn and disable config on setting to non-active
 
  -- Holger Rasch <rasch@bytemine.net>  Tue, 21 Oct 2019 17:00:00 +0100
 
