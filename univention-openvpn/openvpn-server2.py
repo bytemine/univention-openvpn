@@ -50,8 +50,6 @@ modrdn      = 1
 
 action = None
 
-fn_serverconf = '/etc/openvpn/server.conf'
-
 
 def handler(dn, new, old, command):
     ud.debug(ud.LISTENER, ud.INFO, '4 server2 handler')

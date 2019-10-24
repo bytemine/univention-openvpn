@@ -75,7 +75,7 @@ def handler(dn, new, old, command):
         action = None
         return
 
-    if not 'univentionOpenvpnActive' in new and 'univentionOpenvpnActive' in old:
+    if not 'univentionOpenvpnActive' in new:
         action = 'stop'
     if not univention_openvpn_common.check_user_count(3):
         listener.unsetuid()
@@ -94,18 +94,17 @@ def handler(dn, new, old, command):
     ip6conn = True if cnaddr and cnaddr.count(':') else False
 
     # activate config
-    if not 'univentionOpenvpnActive' in old and os.path.exists(fn_serverconf + '-disabled'):
-        listener.setuid(0)
+    if not os.path.exists(fn_serverconf) and os.path.exists(fn_serverconf + '-disabled'):
         try:
+            listener.setuid(0)
             os.rename (fn_serverconf + '-disabled', fn_serverconf)
         except Exception, e:
-            listener.unsetuid()
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to activate server config: %s' % str(e))
-            return
         listener.unsetuid()
         action = 'restart'
 
     if not os.path.exists(fn_serverconf):
+        ud.debug(ud.LISTENER, ud.INFO, '3 creating server config')
         config = """### Constant values
 
 proto udp
@@ -392,11 +391,14 @@ def postrun():
         return
 
     if action == 'stop':
-        # deactivate config
+        listener.setuid(0)
         try:
-            listener.setuid(0)
-            os.rename (fn_serverconf, fn_serverconf + '-disabled')
-            listener.run('/etc/init.d/display_users', ['display_users', 'stop'], uid=0)
+            listener.run('/bin/systemctl', ['systemctl', 'stop', 'openvpn@server.service'], uid=0)
+        except:
+            pass
+        try:
+            if os.path.exists(fn_serverconf):
+                os.rename (fn_serverconf, fn_serverconf + '-disabled')
         except Exception, e:
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to deactivate server config: %s' % str(e))
         listener.unsetuid()
