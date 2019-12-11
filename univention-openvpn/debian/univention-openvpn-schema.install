@@ -1,1 +1,1 @@
-univention-openvpn.schema usr/share/univention-openvpn-schema
+univention-openvpn.schema usr/lib/openvpn-int/misc
