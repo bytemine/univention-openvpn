@@ -28,7 +28,7 @@ udm users/ldap remove "$@" --ignore_not_exists \
         --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
 udm users/ldap create "$@" \
         --position "cn=users,$ldap_base" \
-        --option "ldap_pwd" \
+        --set overridePWLength=1 \
         --set username=$name \
         --set lastname=$name \
         --set password=$pw

@@ -2,7 +2,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=14
+VERSION=15
 
 SERVICE="OpenVPN"
 
@@ -585,6 +585,7 @@ udm users/ldap remove "$@" --ignore_not_exists \
     --dn "uid=$name,cn=users,$ldap_base"
 udm users/ldap create "$@" \
     --position "cn=users,$ldap_base" \
+    --set overridePWLength=1 \
     --set username=$name \
     --set lastname=$name \
     --set password=$pw
