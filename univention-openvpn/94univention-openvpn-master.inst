@@ -209,6 +209,37 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set hook='None' || die
 
 udm settings/extended_attribute remove "$@" \
+    --dn "cn=UniventionOpenvpn-Masquerade,${eabas}" >/dev/null 2>&1
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+    --append module="computers/domaincontroller_master" \
+    --append module="computers/domaincontroller_slave" \
+    --append module="computers/domaincontroller_backup" \
+    --append module="computers/memberserver" \
+    --set default='0' \
+    --set ldapMapping='univentionOpenvpnMasquerade' \
+    --set objectClass='univentionOpenvpn' \
+    --set name='UniventionOpenvpn-Masquerade' \
+    --set shortDescription='Masquerade' \
+    --set longDescription='Traffic coming from above Network will appear to be coming from this host.' \
+    --set translationShortDescription='"de_DE" "Maskierung"' \
+    --set translationLongDescription='"de_DE" "Datenverkehr aus obigem Netz scheint von diesem Host zu kommen."' \
+    --set tabAdvanced='1' \
+    --set tabName='OpenVPN4UCS' \
+    --set groupName='User VPN' \
+    --set groupPosition='2' \
+    --set overwriteTab='0' \
+    --set valueRequired='0' \
+    --set fullWidth='1' \
+    --set CLIName='openvpnRedirect' \
+    --set syntax='boolean' \
+    --set mayChange='1' \
+    --set multivalue='0' \
+    --set deleteObjectClass='0' \
+    --set doNotSearch='0' \
+    --set hook='None' || die
+
+udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-Net,${eabas}" >/dev/null 2>&1
 univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
     --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
