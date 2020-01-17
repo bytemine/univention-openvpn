@@ -53,12 +53,13 @@ attributes  = [
     'univentionOpenvpnPort', 'univentionOpenvpnNet', 'univentionOpenvpnNetIPv6',
     'univentionOpenvpnRedirect', 'univentionOpenvpnDuplicate',
     'univentionOpenvpnFixedAddresses', 'univentionOpenvpnUserAddress',
-    'univentionOpenvpnDualfactorauth' ]
+    'univentionOpenvpnDualfactorauth', 'univentionOpenvpnMasquerade' ]
 modrdn      = 1
 
 action = None
 
 fn_serverconf = '/etc/openvpn/server.conf'
+fn_masqrule = '/etc/security/packetfilter.d/51_openvpn4ucs.sh'
 
 
 def handler(dn, new, old, command):
@@ -233,6 +234,11 @@ push "redirect-gateway def1"
         change_net(network, netmask, ccd, fn_ips, False)
         action = 'restart'
 
+    masq = new.get('univentionOpenvpnMasquerade', [None])[0]
+    update_masq(masq, network)
+    if masq != old.get('univentionOpenvpnMasquerade', [None])[0]:
+        action = 'restart'
+
     networkv6 = new.get('univentionOpenvpnNetIPv6', [None])[0]
     if networkv6 is not None:
         flist.append("server-ipv6 %s\n" % (networkv6))
@@ -293,6 +299,24 @@ push "redirect-gateway def1"
 
         assign_addresses(fn_ips, useraddressesv4, network, netmask, ccd, False)
         assign_addresses(fn_ipsv6, useraddressesv6, networkv6, netmaskv6, ccd, True)
+
+
+# enable/disable and adjust network in masquerading rule
+def update_masq(masq, network):
+    if masq:
+        try:
+            with open(fn_masqrule, "w") as f:
+                os.chmod(fn_masqrule, '0755')
+                tmpl = '#!/bin/sh\niptables --wait -t nat -A POSTROUTING -s {} ! -d {} -j MASQUERADE\n'
+                f.write(tmpl.format(network, network))
+        except Exception as e:
+            ud.debug(ud.LISTENER, ud.ERROR, '3 failed to write masqerade rule: {}'.format(e))
+    else:
+        try:
+            os.remove(fn_masqrule)
+        except Exception as e:
+            ud.debug(ud.LISTENER, ud.ERROR, '3 failed to remove masqerade rule: {}'.format(e))
+
 
 # adapt all stored addresses to new network
 def change_net(network, netmask, ccd, fn_ips, ipv6):
