@@ -303,10 +303,11 @@ push "redirect-gateway def1"
 
 # enable/disable and adjust network in masquerading rule
 def update_masq(masq, network):
+    listener.setuid(0)
     if masq:
         try:
             with open(fn_masqrule, "w") as f:
-                os.chmod(fn_masqrule, '0755')
+                os.chmod(fn_masqrule, 0755)
                 tmpl = '#!/bin/sh\niptables --wait -t nat -A POSTROUTING -s {} ! -d {} -j MASQUERADE\n'
                 f.write(tmpl.format(network, network))
         except Exception as e:
@@ -316,6 +317,7 @@ def update_masq(masq, network):
             os.remove(fn_masqrule)
         except Exception as e:
             ud.debug(ud.LISTENER, ud.ERROR, '3 failed to remove masqerade rule: {}'.format(e))
+    listener.unsetuid()
 
 
 # adapt all stored addresses to new network
