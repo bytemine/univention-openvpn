@@ -19,6 +19,8 @@ eval "$(ucr shell)"
 ucs_addServiceToLocalhost "$SERVICE" "$@"
 
 ucs_registerLDAPExtension "$@" \
+    --packagename=univention-openvpn-master \
+    --packageversion=1.1.19 \
     --schema /usr/lib/openvpn-int/misc/univention-openvpn.schema \
     --acl /usr/lib/openvpn-int/misc/63openvpn-sitetosite.acl \
     --udm_syntax /usr/lib/openvpn-int/misc/univention-openvpn-schema.py \
