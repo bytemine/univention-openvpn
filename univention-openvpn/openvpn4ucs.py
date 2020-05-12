@@ -40,6 +40,7 @@ import listener
 import univention.debug as ud
 import univention.uldap as ul
 import univention.config_registry as ucr
+import univention.config_registry.interfaces
 import netaddr
 
 from datetime import date
@@ -499,8 +500,7 @@ key /etc/openvpn/server.key
 crl-verify /etc/openvpn/o4uCA/crl.pem
 cipher AES-256-CBC
 ifconfig-pool-persist ipp.txt
-{dorouC}push "route {interfaces_eth0_network} {interfaces_eth0_netmask}"
-{donamC}push "dhcp-option DNS {nameserver1}"
+{routes}{donamC}push "dhcp-option DNS {nameserver1}"
 {dodomC}push "dhcp-option DOMAIN {dodom}"
 keepalive 10 120
 comp-lzo
@@ -521,8 +521,13 @@ port 443
 push "redirect-gateway def1"
 """
 
-    interfaces_eth0_network = listener.baseConfig['interfaces/eth0/network']
-    interfaces_eth0_netmask = listener.baseConfig['interfaces/eth0/netmask']
+    r = ''
+    for n, i in ucr.interfaces.Interfaces().all_interfaces:
+        try:
+            r += 'push "route {} {}"\n'.format(i['network'], i['netmask'])
+        except:
+            ud.debug(ud.LISTENER, ud.INFO, '3 ignoring interface ' + n)
+
     nameserver1 = listener.baseConfig['nameserver1']
     domain_domainname = listener.baseConfig['domain/domainname']
     domainname = listener.baseConfig['domainname']
@@ -531,11 +536,6 @@ push "redirect-gateway def1"
         dodom = domain_domainname
     else:
         dodom = domainname
-
-    if interfaces_eth0_network == '' or interfaces_eth0_netmask == '':
-        dorouC = '#'
-    else:
-        dorouC = ''
 
     if nameserver1 == '':
         donamC = '#'
@@ -549,11 +549,9 @@ push "redirect-gateway def1"
 
     context = {
         'hostname' : myname,
-        'dorouC' : dorouC,
+        'routes' : r,
         'donamC' : donamC,
         'dodomC' : dodomC,
-        'interfaces_eth0_network' : interfaces_eth0_network,
-        'interfaces_eth0_netmask' : interfaces_eth0_netmask,
         'nameserver1' : nameserver1,
         'dodom' : dodom
     }
@@ -569,8 +567,7 @@ def create_default_config_s2s():
 
 proto udp
 ifconfig-pool-persist ipp.txt
-{dorouC}push "route {interfaces_eth0_network} {interfaces_eth0_netmask}"
-{donamC}push "dhcp-option DNS {nameserver1}"
+{routes}{donamC}push "dhcp-option DNS {nameserver1}"
 {dodomC}push "dhcp-option DOMAIN {dodom}"
 keepalive 10 120
 comp-lzo
@@ -591,8 +588,13 @@ port 444
 ifconfig 10.0.0.1 10.0.0.2
 """
 
-    interfaces_eth0_network = listener.baseConfig['interfaces/eth0/network']
-    interfaces_eth0_netmask = listener.baseConfig['interfaces/eth0/netmask']
+    r = ''
+    for n, i in ucr.interfaces.Interfaces().all_interfaces:
+        try:
+            r += 'push "route {} {}"\n'.format(i['network'], i['netmask'])
+        except:
+            ud.debug(ud.LISTENER, ud.INFO, '3 ignoring interface ' + n)
+
     nameserver1 = listener.baseConfig['nameserver1']
     domain_domainname = listener.baseConfig['domain/domainname']
     domainname = listener.baseConfig['domainname']
@@ -601,11 +603,6 @@ ifconfig 10.0.0.1 10.0.0.2
         dodom = domain_domainname
     else:
         dodom = domainname
-
-    if interfaces_eth0_network == '' or interfaces_eth0_netmask == '':
-        dorouC = '#'
-    else:
-        dorouC = ''
 
     if nameserver1 == '':
         donamC = '#'
@@ -619,11 +616,9 @@ ifconfig 10.0.0.1 10.0.0.2
 
     context = {
         'hostname' : myname,
-        'dorouC' : dorouC,
+        'routes' : r,
         'donamC' : donamC,
         'dodomC' : dodomC,
-        'interfaces_eth0_network' : interfaces_eth0_network,
-        'interfaces_eth0_netmask' : interfaces_eth0_netmask,
         'nameserver1' : nameserver1,
         'dodom' : dodom,
         'fn_secret' : fn_secret
