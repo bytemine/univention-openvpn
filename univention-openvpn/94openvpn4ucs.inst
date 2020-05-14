@@ -582,11 +582,10 @@ umask 077
 create_machine_password >/etc/ldapper-m.secret
 pw=$(cat /etc/ldapper-m.secret)
 
-udm users/user remove "$@" \
+udm users/ldap remove "$@" --ignore_not_exists \
     --dn "uid=$name,cn=users,$ldap_base" > /dev/null 2>&1
-univention-directory-manager users/user create "$@" \
+udm users/ldap create "$@" \
     --position "cn=users,$ldap_base" \
-    --option "ldap_pwd" \
     --set username=$name \
     --set lastname=$name \
     --set password=$pw \
@@ -594,7 +593,7 @@ univention-directory-manager users/user create "$@" \
     --set overridePWLength=1
 
 
-univention-directory-manager groups/group create "$@" \
+udm groups/group create "$@" \
     --position "cn=groups,$ldap_base" \
     --set name="VPN Admins" \
     --set users="uid=Administrator,cn=users,$ldap_base"
