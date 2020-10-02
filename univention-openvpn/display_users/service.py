@@ -88,7 +88,7 @@ def license_stats():
     lo = ul.getMachineConnection()
     users = lo.search('univentionOpenvpnAccount=1')
     myname = listener.baseConfig['hostname']
-    me = lo.search('cn=%s' % myname)
+    me = lo.search('(&(cn=%s)(univentionOpenvpnLicense=*))' % myname)
     try:
         key = me[0][1]['univentionOpenvpnLicense'][0]
     except:
