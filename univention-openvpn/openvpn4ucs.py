@@ -169,6 +169,7 @@ lilog = lambda l, s: ud.debug(ud.LISTENER, l, 'openvpn4ucs - ' + s)
 fn_serverconf = '/etc/openvpn/server.conf'
 fn_sitetositeconf = '/etc/openvpn/sitetosite.conf'
 fn_secret = '/etc/openvpn/sitetosite.key'
+fn_masqrule = '/etc/security/packetfilter.d/51_openvpn4ucs.sh'
 
 action = None
 action_s2s = None
@@ -686,6 +687,9 @@ def adjust_ccd(old, new):
     if network != old.get('univentionOpenvpnNet', [None])[0]:
         change_net(network, netmask, ccd, ips, False)
 
+    masq = new.get('univentionOpenvpnMasquerade', [None])[0]
+    update_masq(masq, network)
+
     if networkv6 != old.get('univentionOpenvpnNetIPv6', [None])[0]:
         change_net(networkv6, netmaskv6, ccd, ipsv6, True)
 
@@ -922,6 +926,25 @@ def generate_ip(network, ip_map):
                 break
         if use:
             return str(newip)
+
+
+# enable/disable and adjust network in masquerading rule
+def update_masq(masq, network):
+    listener.setuid(0)
+    if masq:
+        try:
+            with open(fn_masqrule, "w") as f:
+                os.chmod(fn_masqrule, 0755)
+                tmpl = '#!/bin/sh\niptables --wait -t nat -A POSTROUTING -s {} ! -d {} -j MASQUERADE\n'
+                f.write(tmpl.format(network, network))
+        except Exception as e:
+            lilog(ud.ERROR, '3 failed to write masqerade rule: {}'.format(e))
+    else:
+        try:
+            os.remove(fn_masqrule)
+        except Exception as e:
+            lilog(ud.ERROR, '3 failed to remove masqerade rule: {}'.format(e))
+    listener.unsetuid()
 
 
 # adapt all stored addresses to new network
