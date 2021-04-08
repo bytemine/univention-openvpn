@@ -116,7 +116,7 @@ def postrun():
             # activate possible fw changes
             listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
 
-    except Exception, e:
+    except Exception as e:
         lilog(ud.ERROR, 'postrun (%s/%s) failed: %s' % (action, action_s2s, str(e)))
 
     finally:
@@ -194,7 +194,7 @@ def handle_server(dn, old, new, changes):
     cn = old.get('cn', [None])[0]
     if not cn:
       cn = new.get('cn', [None])[0]
-    myname = listener.baseConfig['hostname']
+    myname = listener.configRegistry['hostname']
     if cn != myname:
         lilog(ud.INFO, 'not this host')
         action = None
@@ -219,7 +219,7 @@ def handle_sitetosite(dn, old, new, changes):
 
     # check if the change is on this host 
     cn = obj.get('cn', [None])[0]
-    myname = listener.baseConfig['hostname']
+    myname = listener.configRegistry['hostname']
     if cn != myname:
         lilog(ud.INFO, 'not this host')
         action = None
@@ -262,7 +262,7 @@ def user_disable(dn, obj):
         listener.unsetuid()
 
     # remove readytogo data
-    myname = listener.baseConfig['hostname']
+    myname = listener.configRegistry['hostname']
     listener.setuid(0)
     try:
         listener.run('/usr/lib/openvpn-int/remove-bundle', ['remove-bundle', uid, myname], uid=0)
@@ -278,7 +278,7 @@ def user_disable(dn, obj):
     finally:
         listener.unsetuid()
 
-    myname = listener.baseConfig['hostname']
+    myname = listener.configRegistry['hostname']
     tmp, server = lo.search('(cn=' + myname + ')')[0]
     port = server.get('univentionOpenvpnPort', [None])[0]
     if port:
@@ -315,7 +315,7 @@ def user_enable(dn, obj):
     finally:
         listener.unsetuid()
 
-    name = listener.baseConfig['hostname']
+    name = listener.configRegistry['hostname']
 
     tmp, server = lo.search('(cn=' + name + ')')[0]
 
@@ -529,9 +529,9 @@ push "redirect-gateway def1"
         except:
             ud.debug(ud.LISTENER, ud.INFO, '3 ignoring interface ' + n)
 
-    nameserver1 = listener.baseConfig['nameserver1']
-    domain_domainname = listener.baseConfig['domain/domainname']
-    domainname = listener.baseConfig['domainname']
+    nameserver1 = listener.configRegistry['nameserver1']
+    domain_domainname = listener.configRegistry['domain/domainname']
+    domainname = listener.configRegistry['domainname']
 
     if domain_domainname is not None:
         dodom = domain_domainname
@@ -596,9 +596,9 @@ ifconfig 10.0.0.1 10.0.0.2
         except:
             ud.debug(ud.LISTENER, ud.INFO, '3 ignoring interface ' + n)
 
-    nameserver1 = listener.baseConfig['nameserver1']
-    domain_domainname = listener.baseConfig['domain/domainname']
-    domainname = listener.baseConfig['domainname']
+    nameserver1 = listener.configRegistry['nameserver1']
+    domain_domainname = listener.configRegistry['domain/domainname']
+    domainname = listener.configRegistry['domainname']
 
     if domain_domainname is not None:
         dodom = domain_domainname
@@ -858,7 +858,7 @@ def update_config_s2s(obj):
     #ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
     univention_openvpn_common.write_rc(5, [secret] if secret else [''], fn_secret)
     listener.setuid(0)
-    os.chmod(fn_secret, 0600)
+    os.chmod(fn_secret, 0o600)
     listener.unsetuid()
 
     univention_openvpn_common.write_rc(5, flist, fn_sitetositeconf)
@@ -934,7 +934,7 @@ def update_masq(masq, network):
     if masq:
         try:
             with open(fn_masqrule, "w") as f:
-                os.chmod(fn_masqrule, 0755)
+                os.chmod(fn_masqrule, 0o755)
                 tmpl = '#!/bin/sh\niptables --wait -t nat -A POSTROUTING -s {} ! -d {} -j MASQUERADE\n'
                 f.write(tmpl.format(network, network))
         except Exception as e:
