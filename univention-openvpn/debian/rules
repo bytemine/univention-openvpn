@@ -18,4 +18,4 @@ override_dh_auto_install:
 
 override_dh_auto_test:
 	dh_auto_test
-	ucslint
+	ucslint -i 0011-5,0010-6,0010-2

@@ -8,7 +8,7 @@ from datetime import date
 from M2Crypto import RSA, BIO
 from base64 import b64decode
 
-pubbio = BIO.MemoryBuffer('''
+pubbio = BIO.MemoryBuffer(b'''
 -----BEGIN PUBLIC KEY-----
 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAN0VVx22Oou8UTDsrug/UnZLiX2UcXeE
 GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==

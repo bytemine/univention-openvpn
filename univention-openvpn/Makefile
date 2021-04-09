@@ -18,5 +18,5 @@ tidy: clean
 
 build:
 	dpkg-buildpackage -us -uc
-	(cd common; python setup.py --command-packages=stdeb.command bdist_deb)
-	mv common/deb_dist/python-univention-openvpn-common_*.deb ..
+	(cd common; python3 setup.py --command-packages=stdeb.command bdist_deb)
+	mv common/deb_dist/python3-univention-openvpn-common_*.deb ..
