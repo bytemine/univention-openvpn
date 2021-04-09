@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## joinscript api: bindpwdfile
+
 VERSION=1
 
 SERVICE="OpenVPN"
