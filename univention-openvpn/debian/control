@@ -1,7 +1,7 @@
 Source: openvpn4ucs
 Section: univention
 Maintainer: bytemine GmbH <code@bytemine.net>
-Build-Depends: debhelper (>= 12~), univention-config-dev, python3-setuptools, python3-stdeb
+Build-Depends: debhelper (> 11~), univention-config-dev, python3-setuptools, python3-stdeb
 Standards-Version: 3.9.2
 Priority: optional
 
