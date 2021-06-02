@@ -7,7 +7,6 @@ Priority: optional
 
 Package: openvpn4ucs
 Architecture: all
-Provides: univention-openvpn-schema, univention-openvpn-master, univention-openvpn-server, univention-openvpn-sitetosite
 Conflicts: univention-openvpn-schema, univention-openvpn-master, univention-openvpn-server, univention-openvpn-sitetosite
 Replaces: univention-openvpn-schema, univention-openvpn-master, univention-openvpn-server, univention-openvpn-sitetosite
 Depends: ${shlibs:Depends}, ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn, python3-netaddr, python3-webpy, python3-univention-openvpn-common
