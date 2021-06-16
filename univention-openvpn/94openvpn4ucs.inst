@@ -25,7 +25,8 @@ ucs_registerLDAPExtension "$@" \
     --schema /usr/lib/openvpn-int/misc/univention-openvpn.schema \
     --acl /usr/lib/openvpn-int/misc/63openvpn-sitetosite.acl \
     --udm_syntax /usr/lib/openvpn-int/misc/univention-openvpn-schema.py \
-    --udm_hook /usr/lib/openvpn-int/misc/univention-openvpn.py
+    --udm_hook /usr/lib/openvpn-int/misc/univention-openvpn.py \
+    --ucsversionstart 4.4-1 --ucsversionend 5.99-0
 
 eabas="cn=openvpn,cn=custom attributes,cn=univention,$ldap_base"
 
