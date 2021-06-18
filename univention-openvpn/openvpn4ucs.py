@@ -531,6 +531,7 @@ push "redirect-gateway def1"
         except:
             ud.debug(ud.LISTENER, ud.INFO, '3 ignoring interface ' + n)
 
+    myname = listener.configRegistry['hostname']
     nameserver1 = listener.configRegistry['nameserver1']
     domain_domainname = listener.configRegistry['domain/domainname']
     domainname = listener.configRegistry['domainname']
@@ -598,6 +599,7 @@ ifconfig 10.0.0.1 10.0.0.2
         except:
             ud.debug(ud.LISTENER, ud.INFO, '3 ignoring interface ' + n)
 
+    myname = listener.configRegistry['hostname']
     nameserver1 = listener.configRegistry['nameserver1']
     domain_domainname = listener.configRegistry['domain/domainname']
     domainname = listener.configRegistry['domainname']
