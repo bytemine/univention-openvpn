@@ -807,9 +807,9 @@ def update_config(obj):
     if fixedaddresses == '1':
         options.append('client-config-dir %s\n' % ccd)
     if dualfactorauth == '1':
-        options.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/openvpn\n')
+        options.append('plugin /usr/lib/x86_64-linux-gnu/openvpn/plugins/openvpn-plugin-auth-pam.so /etc/pam.d/openvpn\n')
     else:
-        options.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass\n')
+        options.append('plugin /usr/lib/x86_64-linux-gnu/openvpn/plugins/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass\n')
 
     # read, update & write server config
     flist = univention_openvpn_common.load_rc(3, fn_serverconf)
