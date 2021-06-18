@@ -35,6 +35,7 @@ __package__ = ''  # workaround for PEP 366
 import re
 import os
 import operator as op
+import traceback
 
 import listener
 import univention.debug as ud
@@ -55,10 +56,10 @@ modrdn      = 1
 
 # handle changes wrt. openvpn4ucs
 def handler(dn, new, old, cmd):
-    global action, action_s2s
+  global action, action_s2s
 
-    lilog(ud.INFO, 'openvpn4ucs handler')
-
+  lilog(ud.INFO, 'openvpn4ucs handler')
+  try:
     action = None
     action_s2s = None
 
@@ -80,6 +81,8 @@ def handler(dn, new, old, cmd):
 
     if not (usr_chgd or srv_chgd or s2s_chgd):
         lilog(ud.INFO, 'nothing to do')
+  except Exception as e:
+    lilog(ud.INFO, traceback.format_exc())
 
 
 # perform any restarts necessary
