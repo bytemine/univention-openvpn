@@ -156,8 +156,8 @@ s2s_attrs = [
 def changed(old, new, alist):
     c = {}
     for a in alist:
-        old_a = old.get(a, [''])[0] if old else None
-        new_a = new.get(a, [''])[0] if new else None
+        old_a = old.get(a, [b''])[0] if old else None
+        new_a = new.get(a, [b''])[0] if new else None
         if new_a != old_a:
             c[a] = new_a.decode('utf8')
     return c
@@ -245,7 +245,7 @@ def handle_sitetosite(dn, old, new, changes):
 def user_disable(dn, obj):
     lilog(ud.INFO, 'user disable')
 
-    uid = obj.get('uid', [''])[0].decode('utf8')
+    uid = obj.get('uid', [b''])[0].decode('utf8')
     if not uid:
         lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
         return
@@ -280,7 +280,7 @@ def user_disable(dn, obj):
 
     myname = listener.configRegistry['hostname']
     tmp, server = lo.search('(cn=' + myname + ')')[0]
-    port = server.get('univentionOpenvpnPort', [''])[0].decode('utf8')
+    port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
     if port:
         ccd = '/etc/openvpn/ccd-' + port + '/'
         ips = '/etc/openvpn/ips-' + port
@@ -303,7 +303,7 @@ def user_enable(dn, obj):
     if not univention_openvpn_common.check_user_count(1):
         return			# do nothing
 
-    uid = obj.get('uid', [''])[0].decode('utf8')
+    uid = obj.get('uid', [b''])[0].decode('utf8')
     if not uid:
         lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
         return
@@ -318,15 +318,14 @@ def user_enable(dn, obj):
 
     tmp, server = lo.search('(cn=' + name + ')')[0]
 
-    port = server.get('univentionOpenvpnPort', [''])[0].decode('utf8')
-    addr = server.get('univentionOpenvpnAddress', [''])[0].decode('utf8')
+    port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+    addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
     proto = 'udp6' if addr and addr.count(':') else 'udp'
 
     if not name or not port or not addr:
         lilog(ud.ERROR, 'missings params')
         return
 
-    uid = uid.decode('utf8')
     lilog(ud.INFO, 'Create new certificate for %s' % uid)
 
     try:
@@ -338,7 +337,7 @@ def user_enable(dn, obj):
 
     # ccd config for user
 
-    network           = server.get('univentionOpenvpnNet', [''])[0].decode('utf8')
+    network           = server.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
     networkv6         = server.get('univentionOpenvpnNetIPv6', ['2001:db8:0:123::/64'])[0].decode('utf8')
 
     netmask, netmaskv6 = network2netmask(network, networkv6)
@@ -370,7 +369,7 @@ def server_disable(dn, obj):
     global action
     action = 'stop'
 
-    portnew = obj.get('univentionOpenvpnSitetoSitePort', [''])[0].decode('utf8')
+    portnew = obj.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
     adjust_firewall(portnew, {})
     adjust_ccd(obj, {})
 
@@ -390,9 +389,9 @@ def server_enable(dn, obj):
 
     action = 'start'
 
-    port = obj.get('univentionOpenvpnPort', [''])[0].decode('utf8')
-    name = obj.get('cn', [''])[0].decode('utf8')
-    addr = obj.get('univentionOpenvpnAddress', [''])[0].decode('utf8')
+    port = obj.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+    name = obj.get('cn', [b''])[0].decode('utf8')
+    addr = obj.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
 
     if port:
         adjust_firewall({}, port)
@@ -419,16 +418,16 @@ def server_modify(dn, old, new, changes):
     action = 'start'
 
     if 'univentionOpenvpnPort' in changes:
-        portold = old.get('univentionOpenvpnPort', [''])[0].decode('utf8')
-        portnew = new.get('univentionOpenvpnPort', [''])[0].decode('utf8')
+        portold = old.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+        portnew = new.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
         adjust_firewall(portold, portnew)
         adjust_ccd(old, new)
 
     if 'cn' in changes or 'univentionOpenvpnPort' in changes or 'univentionOpenvpnAddress' in changes:
         # create/update bundles for users
-        name = new.get('cn', [''])[0].decode('utf8')
-        port = new.get('univentionOpenvpnPort', [''])[0].decode('utf8')
-        addr = new.get('univentionOpenvpnAddress', [''])[0].decode('utf8')
+        name = new.get('cn', [b''])[0].decode('utf8')
+        port = new.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+        addr = new.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
         if name and port and addr:
             update_bundles(name, port, addr)
 
@@ -479,8 +478,8 @@ def sitetosite_modify(dn, old, new, changes):
     action = start
 
     if 'univentionOpenvpnSitetoSitePort' in changes:
-        portold = old.get('univentionOpenvpnSitetoSitePort', [''])[0].decode('utf8')
-        portnew = new.get('univentionOpenvpnSitetoSitePort', [''])[0].decode('utf8')
+        portold = old.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
+        portnew = new.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
         adjust_firewall(portold, portnew)
 
 
@@ -644,8 +643,8 @@ def adjust_firewall(portold, portnew):
 
 # create / update ccd path and contents (never remove)
 def adjust_ccd(old, new):
-    portold = old.get('univentionOpenvpnPort', [''])[0].decode('utf8')
-    portnew = new.get('univentionOpenvpnPort', [''])[0].decode('utf8')
+    portold = old.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+    portnew = new.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
 
     po = portold if portold else 'disabled'
     pn = portnew if portnew else 'disabled'
@@ -677,24 +676,24 @@ def adjust_ccd(old, new):
     if not new:
         return
 
-    network           = new.get('univentionOpenvpnNet', [''])[0].decode('utf8')
-    networkv6         = new.get('univentionOpenvpnNetIPv6', ['2001:db8:0:123::/64'])[0].decode('utf8')
-    useraddresses_raw = new.get('univentionOpenvpnUserAddress', ['']).decode('utf8')
+    network           = new.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
+    networkv6         = new.get('univentionOpenvpnNetIPv6', [b'2001:db8:0:123::/64'])[0].decode('utf8')
+    useraddresses_raw = new.get('univentionOpenvpnUserAddress', [b''])
 
     netmask, netmaskv6 = network2netmask(network, networkv6)
 
     # adapt ip_maps and ccd
-    if network != old.get('univentionOpenvpnNet', [''])[0].decode('utf8'):
+    if network != old.get('univentionOpenvpnNet', [b''])[0].decode('utf8'):
         change_net(network, netmask, ccd, ips, False)
 
-    masq = new.get('univentionOpenvpnMasquerade', [''])[0].decode('utf8')
+    masq = new.get('univentionOpenvpnMasquerade', [b''])[0].decode('utf8')
     update_masq(masq, network)
 
-    if networkv6 != old.get('univentionOpenvpnNetIPv6', [''])[0].decode('utf8'):
+    if networkv6 != old.get('univentionOpenvpnNetIPv6', [b''])[0].decode('utf8'):
         change_net(networkv6, netmaskv6, ccd, ipsv6, True)
 
-    if useraddresses_raw != old.get('univentionOpenvpnUserAddress', ['']).decode('utf8'):
-        useraddresses_clean = [x for x in useraddresses_raw if x]
+    if useraddresses_raw != old.get('univentionOpenvpnUserAddress', [b'']):
+        useraddresses_clean = [x.decode('utf8') for x in useraddresses_raw if x]
         useraddresses = map(lambda x: tuple(x.split(":", 1)), useraddresses_clean)
 
         useraddressesv4 = []
@@ -723,7 +722,7 @@ def update_bundles(name, port, addr):
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
 
     for dn, user in vpnusers:
-        uid = user.get('uid', [''])[0].decode('utf8')
+        uid = user.get('uid', [b''])[0].decode('utf8')
         if not uid:
             lilog(ud.ERROR, 'no uid on %s' % dn)
             continue
@@ -745,9 +744,9 @@ def update_bundles(name, port, addr):
 
 # update/create config with current values
 def update_config(obj):
-    port      = obj.get('univentionOpenvpnPort', [''])[0].decode('utf8')
-    addr      = obj.get('univentionOpenvpnAddress', [''])[0].decode('utf8')
-    network   = obj.get('univentionOpenvpnNet', [''])[0].decode('utf8')
+    port      = obj.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+    addr      = obj.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
+    network   = obj.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
 
     if not port or not addr or not network:
         lilog(ud.ERROR, 'missing params, not updating config')
@@ -769,11 +768,11 @@ def update_config(obj):
             create_default_config()
 
     # optional params
-    networkv6      = obj.get('univentionOpenvpnNetIPv6', [''])[0].decode('utf8')
-    redirect       = obj.get('univentionOpenvpnRedirect', [''])[0].decode('utf8')
-    duplicate      = obj.get('univentionOpenvpnDuplicate', [''])[0].decode('utf8')
-    dualfactorauth = obj.get('univentionOpenvpnDualfactorauth', [''])[0].decode('utf8')
-    fixedaddresses = obj.get('univentionOpenvpnFixedAddresses', [''])[0].decode('utf8')
+    networkv6      = obj.get('univentionOpenvpnNetIPv6', [b''])[0].decode('utf8')
+    redirect       = obj.get('univentionOpenvpnRedirect', [b''])[0].decode('utf8')
+    duplicate      = obj.get('univentionOpenvpnDuplicate', [b''])[0].decode('utf8')
+    dualfactorauth = obj.get('univentionOpenvpnDualfactorauth', [b''])[0].decode('utf8')
+    fixedaddresses = obj.get('univentionOpenvpnFixedAddresses', [b''])[0].decode('utf8')
 
     # derived values
     ip6conn = bool(addr and addr.count(':'))
@@ -818,10 +817,10 @@ def update_config(obj):
 
 # update/create sitetosite config with current values
 def update_config_s2s(obj):
-    peer = obj.get('univentionOpenvpnRemote', [''])[0].decode('utf8')
-    port = obj.get('univentionOpenvpnSitetoSitePort', [''])[0].decode('utf8')
-    tloc = obj.get('univentionOpenvpnLocalAddress', [''])[0].decode('utf8')
-    trem = obj.get('univentionOpenvpnRemoteAddress', [''])[0].decode('utf8')
+    peer = obj.get('univentionOpenvpnRemote', [b''])[0].decode('utf8')
+    port = obj.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
+    tloc = obj.get('univentionOpenvpnLocalAddress', [b''])[0].decode('utf8')
+    trem = obj.get('univentionOpenvpnRemoteAddress', [b''])[0].decode('utf8')
 
     if not (peer and port and tloc and trem):
         lilog(ud.ERROR, 'missing params, not updating config')
@@ -854,9 +853,9 @@ def update_config_s2s(obj):
     flist = [x for x in flist if not re.search("remote", x) and not re.search("port", x) and not re.search("ifconfig", x)]
     flist += options
 
-    secret = new.get('univentionOpenvpnSecret', [''])[0].decode('utf8')
+    secret = new.get('univentionOpenvpnSecret', [b''])[0].decode('utf8')
     #ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
-    univention_openvpn_common.write_rc(5, [secret] if secret else [''], fn_secret)
+    univention_openvpn_common.write_rc(5, [secret] if secret else [b''], fn_secret)
     listener.setuid(0)
     os.chmod(fn_secret, 0o600)
     listener.unsetuid()
@@ -964,7 +963,7 @@ def change_net(network, netmask, ccd, fn_ips, ipv6):
         listener.unsetuid()
 
     users = lo.search('univentionOpenvpnAccount=1')
-    users = map(lambda user: user[1].get('uid', [''])[0].decode('utf8'), users)
+    users = map(lambda user: user[1].get('uid', [b''])[0].decode('utf8'), users)
 
     for name in users:
         ip_new = generate_ip(network, ip_map_new)

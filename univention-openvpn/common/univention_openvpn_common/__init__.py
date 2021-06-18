@@ -82,7 +82,7 @@ def load_ip_map(no, path):
     ip_map = []
     listener.setuid(0)
     try:
-        with open(path, 'rb') as f:
+        with open(path, 'r') as f:
             r = csv.reader(f, delimiter=' ', quotechar='|')
             for row in r:
                 ip_map.append(row)
@@ -95,7 +95,7 @@ def load_ip_map(no, path):
 def write_ip_map(no, ip_map, path):
     listener.setuid(0)
     try:
-        with open(path, 'wb') as f:
+        with open(path, 'w') as f:
             w = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for i in ip_map:
                 w.writerow(i)
