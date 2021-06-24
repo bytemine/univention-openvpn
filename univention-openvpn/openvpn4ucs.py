@@ -145,6 +145,7 @@ srv_attrs = [
     'univentionOpenvpnUserAddress',
     'univentionOpenvpnDualfactorauth'
     'univentionOpenvpnLicense',
+    'univentionOpenvpnMasquerade',
 ]
 
 s2s_attrs = [
