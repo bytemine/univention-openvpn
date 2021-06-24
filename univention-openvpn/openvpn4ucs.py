@@ -221,7 +221,7 @@ def handle_sitetosite(dn, old, new, changes):
     lilog(ud.INFO, 'sitetosite handler')
 
     # check if the change is on this host
-    cn = obj.get('cn', [None])[0]
+    cn = old.get('cn', [None])[0]
     myname = listener.configRegistry['hostname']
     if cn and cn.decode('utf8') != myname:
         lilog(ud.INFO, 'not this host')
