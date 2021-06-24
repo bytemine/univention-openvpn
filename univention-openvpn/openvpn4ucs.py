@@ -373,8 +373,9 @@ def server_disable(dn, obj):
     global action
     action = 'stop'
 
-    portnew = obj.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
-    adjust_firewall(portnew, {})
+    port = obj.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+    adjust_firewall(port, {})
+    adjust_masq(False, '')
     adjust_ccd(obj, {})
 
 
@@ -396,9 +397,12 @@ def server_enable(dn, obj):
     port = obj.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
     name = obj.get('cn', [b''])[0].decode('utf8')
     addr = obj.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
+    masq = obj.get('univentionOpenvpnMasquerade', [b''])[0].decode('utf8')
+    network = obj.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
 
     if port:
         adjust_firewall({}, port)
+        adjust_masq(masq, network)
         adjust_ccd({}, obj)
 
         # create/update bundles for users
@@ -426,6 +430,11 @@ def server_modify(dn, old, new, changes):
         portnew = new.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
         adjust_firewall(portold, portnew)
         adjust_ccd(old, new)
+
+    if 'univentionOpenvpnMasquerade' in changes or 'univentionOpenvpnNet' in changes:
+        masq = new.get('univentionOpenvpnMasquerade', [b''])[0].decode('utf8')
+        network = new.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
+        adjust_masq(masq, network)
 
     if 'cn' in changes or 'univentionOpenvpnPort' in changes or 'univentionOpenvpnAddress' in changes:
         # create/update bundles for users
@@ -692,9 +701,6 @@ def adjust_ccd(old, new):
     if network != old.get('univentionOpenvpnNet', [b''])[0].decode('utf8'):
         change_net(network, netmask, ccd, ips, False)
 
-    masq = new.get('univentionOpenvpnMasquerade', [b''])[0].decode('utf8')
-    update_masq(masq, network)
-
     if networkv6 != old.get('univentionOpenvpnNetIPv6', [b''])[0].decode('utf8'):
         change_net(networkv6, netmaskv6, ccd, ipsv6, True)
 
@@ -733,7 +739,7 @@ def update_bundles(name, port, addr):
             lilog(ud.ERROR, 'no uid on %s' % dn)
             continue
 
-        lilog(ud.INFO, 'create new certificate for %s' % uid)
+        lilog(ud.INFO, 'updating bundle for %s' % uid)
 
         proto = 'udp6' if addr and addr.count(':') else 'udp'
         # update bundle for this openvpn server with new config
@@ -934,7 +940,8 @@ def generate_ip(network, ip_map):
 
 
 # enable/disable and adjust network in masquerading rule
-def update_masq(masq, network):
+def adjust_masq(masq, network):
+    lilog(ud.INFO, '3 adjust_masq({}, {})'.format(masq, network))
     listener.setuid(0)
     if masq:
         try:
