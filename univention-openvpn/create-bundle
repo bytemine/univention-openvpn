@@ -16,62 +16,21 @@ cacrt=/etc/openvpn/o4uCA/ca.crt
 ssl=/etc/openvpn/o4uCA/users
 
 # create certificate for user
+ls -al "${ssl}/$uid"
 if [ ! -d "${ssl}/$uid" ]; then
 	/usr/lib/openvpn-int/o4uCert_new "$uid"
 fi
 
-# prepare a matching client config (for versions < 2.3)
-cat > "${ssl}/${uid}/${server}-pre23.ovpn" <<-ENDOFCLIENTCONFIG
-	# client config for server ${server}
-
-	client
-	dev tun0
-	proto ${proto}
-	remote ${addr} ${port}
-	tls-remote ${server}
-	resolv-retry infinite
-	nobind
-	persist-key
-	persist-tun
-	ca CAcert.pem
-	cert cert.pem
-	key private.key
-	cipher AES-256-CBC
-	comp-lzo
-	verb 3
-	auth-user-pass
-
-	script-security 2
-	up /etc/openvpn/update-resolv-conf 
-	down /etc/openvpn/update-resolv-conf
-
-ENDOFCLIENTCONFIG
-
-# prepare a matching client config (windows, versions < 2.3)
-cat > "${ssl}/${uid}/win-${server}-pre23.ovpn" <<-ENDOFWINCLIENTCONFIG
-	# windows client config for server ${server}
-
-	client
-	dev tun
-	proto ${proto}
-	remote ${addr} ${port}
-	tls-remote ${server}
-	resolv-retry infinite
-	nobind
-	persist-key
-	persist-tun
-	ca CAcert.pem
-	cert cert.pem
-	key private.key
-	cipher AES-256-CBC
-	comp-lzo
-	verb 3
-	auth-user-pass
-
-ENDOFWINCLIENTCONFIG
+(
+  echo '<ca>'; cat "$cacrt"; echo -e '</ca>\n<cert>';
+  cat "${ssl}/${uid}/cert.pem"; echo -e '</cert>\n<key>';
+  cat "${ssl}/${uid}/private.key"; echo '</key>'
+) > "${ssl}/${uid}/${server}.ovpn"
+cp "${ssl}/${uid}/${server}.ovpn" "${ssl}/${uid}/win-${server}.ovpn"
 
 # prepare a matching client config
-cat > "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
+cat >> "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
+
 	# client config for server ${server}
 
 	client
@@ -98,7 +57,8 @@ cat > "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 ENDOFCLIENTCONFIG
 
 # prepare a matching client config (windows)
-cat > "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
+cat >> "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
+
 	# windows client config for server ${server}
 
 	client
@@ -154,13 +114,8 @@ bundle="${readytogo}/openvpn-${server}-${uid}.zip"
 umask 037
 
 zip -j "$bundle" \
-    "${cacrt}" \
-    "${ssl}/${uid}/cert.pem" \
-    "${ssl}/${uid}/private.key" \
     "${ssl}/${uid}/${server}.ovpn" \
-    "${ssl}/${uid}/win-${server}.ovpn" \
-    "${ssl}/${uid}/${server}-pre23.ovpn" \
-    "${ssl}/${uid}/win-${server}-pre23.ovpn"
+    "${ssl}/${uid}/win-${server}.ovpn"
 chown "$uid" "$bundle"
 chgrp www-data "$bundle"
 
