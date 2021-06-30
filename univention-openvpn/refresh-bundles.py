@@ -40,7 +40,7 @@ lo = ul.getMachineConnection()
 maxu = 5
 lobs = lo.search('(univentionOpenvpnLicense=*)')
 for lob in lobs:
-    key = lob[1].get('univentionOpenvpnLicense', [None])[0]
+    key = lob[1].get('univentionOpenvpnLicense', [b''])[0]
     mu = maxvpnusers(0, key)
     if mu > maxu: maxu = mu
 
@@ -51,15 +51,15 @@ if len(vpnusers) > maxu:
 vpnservers = lo.search('(&(objectClass=univentionOpenvpn)(univentionOpenvpnActive=1))')
 
 for (tmp, server) in vpnservers:
-    name = server.get('cn', [None])[0]
-    port = server.get('univentionOpenvpnPort', [None])[0]
-    addr = server.get('univentionOpenvpnAddress', [None])[0]
+    name = server.get('cn', [b''])[0]
+    port = server.get('univentionOpenvpnPort', [b''])[0]
+    addr = server.get('univentionOpenvpnAddress', [b''])[0]
     if not name or not port or not addr:
         continue
     for user in vpnusers:
-        uid = user[1].get('uid', [None])[0]
-        proto = 'udp6' if addr and addr.count(':') else 'udp'
+        uid = user[1].get('uid', [b''])[0]
+        proto = b'udp6' if addr and addr.count(b':') else b'udp'
         if uid:
-            system('/usr/lib/openvpn-int/create-bundle %s %s %s %s %s' % (uid, name, addr, port, proto))
+            system(b'/usr/lib/openvpn-int/create-bundle %s %s %s %s %s' % (uid, name, addr, port, proto))
 
 ### end ###

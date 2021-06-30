@@ -42,9 +42,6 @@ cat >> "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 	nobind
 	persist-key
 	persist-tun
-	ca CAcert.pem
-	cert cert.pem
-	key private.key
 	cipher AES-256-CBC
 	comp-lzo
 	verb 3
@@ -70,9 +67,6 @@ cat >> "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 	nobind
 	persist-key
 	persist-tun
-	ca CAcert.pem
-	cert cert.pem
-	key private.key
 	cipher AES-256-CBC
 	comp-lzo
 	verb 3
@@ -113,6 +107,7 @@ fi
 bundle="${readytogo}/openvpn-${server}-${uid}.zip"
 umask 037
 
+rm -f "$bundle"
 zip -j "$bundle" \
     "${ssl}/${uid}/${server}.ovpn" \
     "${ssl}/${uid}/win-${server}.ovpn"
