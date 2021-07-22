@@ -33,6 +33,7 @@ import listener
 import os
 import univention.uldap as ul
 from socket_handler import *
+from OpenSSL import crypto
 import univention_openvpn_common
 
 # turn off debug mode (exceptions as html pages)
@@ -65,7 +66,11 @@ def connected_users():
             connected_users.append({'name': user, 'connected': 0, 'type': 0, 'realip': '', 'virtips': '', 'cons': '', 'conr': '', 'recv': 0, 'sent': 0})
 
     for user in connected_users:
-        user['cert'] = os.popen("/usr/sbin/univention-certificate dump -name %s|grep 'Not After'|cut -d ':' -f2-" % user['name']).read()
+        pem = open('/etc/openvpn/o4uCA/users/{}/cert.pem'.format(user['name']))
+        cxd = crypto.load_certificate(crypto.FILETYPE_PEM, pem.read())
+        pem.close()
+        dat = cxd.get_notAfter().decode('ascii')
+        user['cert'] = '{}-{}-{}'.format(dat[0:4], dat[4:6], dat[6:8])
 
     data = {"users": connected_users}
 
