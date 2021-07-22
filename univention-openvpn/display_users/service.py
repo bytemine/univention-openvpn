@@ -54,9 +54,9 @@ def connected_users():
     listener.setuid(0)
     lo = ul.getMachineConnection()
     users = lo.search('univentionOpenvpnAccount=1')
-    users = map(lambda user: "%s.openvpn" % user[1].get('uid', [None])[0], users)
+    users = map(lambda user: user[1].get('uid', [None])[0].decode('utf8', 'ignore'), users)
     myname = listener.configRegistry['hostname']
-    me = lo.search('cn=%s' % myname)
+    me = lo.search('cn=' + myname)
     listener.unsetuid()
     connected_users = userlist()
 
@@ -122,8 +122,6 @@ def license_stats():
 
 class display_users:
     def GET(self, name):
-
-        name = name.encode('ascii','ignore')
         name_pieces = name.split('/')
 
         if 'connected_users' == name_pieces[0]:
