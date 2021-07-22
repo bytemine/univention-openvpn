@@ -33,9 +33,6 @@ import listener
 import os
 import univention.uldap as ul
 from socket_handler import *
-from datetime import date
-from M2Crypto import RSA, BIO
-from base64 import b64decode
 import univention_openvpn_common
 
 # turn off debug mode (exceptions as html pages)
