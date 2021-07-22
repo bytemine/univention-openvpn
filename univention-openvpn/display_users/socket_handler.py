@@ -41,18 +41,17 @@ def userlist():
         return []
 
     s.recv(1024)
-    s.sendall('status 3\n')
+    s.sendall(b'status 3\n')
     data = []
-    buf = ''
+    buf = b''
     while True:
         buf += s.recv(1024)
-        lns = buf.split('\r\n')
+        lns = buf.split(b'\r\n')
         if len(lns) > 1:
             buf = lns.pop()
-            data += lns
-            if lns.count('END'):
+            data += [ln.decode('utf8', 'ignore') for ln in lns]
+            if lns.count(b'END'):
                 break
-
     s.close()
 
     if data and data[0].startswith('TITLE\tOpenVPN 2.4'):
@@ -72,7 +71,7 @@ def userlist():
         realaddress = centries[2]
 
         conntype = 0
-        virtaddresses = ""
+        virtaddresses = ''
 
         reltime = str(datetime.timedelta(seconds=(int(time.time()) - int(centries[7+offset]))))
 
@@ -88,7 +87,7 @@ def userlist():
                     conntype |= 1
                 elif IPAddress(rvirtaddress).version == 6:
                     conntype |= 2
-                virtaddresses += rvirtaddress + "\n"
+                virtaddresses += rvirtaddress + '\n'
 
         result.append({'name': name, 'conn': 1, 'type': conntype, 'realip': realaddress, 'virtips': virtaddresses, 'cons': centries[6+offset], 'conr': reltime, 'recv': centries[4+offset], 'sent': centries[5+offset]})
 
@@ -103,7 +102,7 @@ def killuser(id):
         return "socket not found"
 
     s.recv(1024)
-    s.sendall('kill %s\n' % id)
+    s.sendall(b'kill %s\n' % id)
     data = s.recv(1024)
 
     s.close()
