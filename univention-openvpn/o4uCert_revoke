@@ -1,0 +1,23 @@
+#!/bin/bash
+
+CADIR=/etc/openvpn/o4uCA
+USERS=${CADIR}/users
+
+if [ -z $1 ]; then
+	echo "usage: $0 <username>" >&2
+	exit 1
+fi
+
+if [ ! -d ${USERS}/"$1" ]; then
+	echo "ERROR: ${USERS}/$1 does not exist" >&2
+	exit 1
+fi
+if [ ! -f ${USERS}/"$1"/cert.pem ]; then
+	echo "ERROR: ${USERS}/$1/cert.pem does not exist" >&2
+	exit 1
+fi
+
+openssl ca -config ${CADIR}/config -name o4uCA -revoke ${USERS}/"$1"/cert.pem \
+	&& rm -rf ${USERS}/"$1"
+
+openssl ca -config ${CADIR}/config -name o4uCA -gencrl -out ${CADIR}/crl.pem

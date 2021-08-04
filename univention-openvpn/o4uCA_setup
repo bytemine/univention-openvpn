@@ -1,0 +1,80 @@
+#!/bin/bash
+
+OVPND=/etc/openvpn
+CADIR=/${OVPND}/o4uCA
+
+if [ -d ${CADIR} ]; then
+    echo "NOTICE: ${CADIR} already exists. Skipping CA setup."
+    exit 0
+fi
+
+umask 027
+mkdir -p ${CADIR}/users
+mkdir -p ${CADIR}/issued
+let y=($(date +%y)+10)%100
+y=$(printf %02d $y)
+ENDDATE=$(date +${y}%m%d000000Z)
+
+openssl req -x509 -days 3652 -nodes -newkey rsa:2048 -keyout ${CADIR}/ca.key -out ${CADIR}/ca.crt -config <(cat<<_ENDOFCONFIG_
+[req]
+prompt			= no
+default_md		= sha256
+x509_extensions		= v3_ca
+distinguished_name	= dn
+[v3_ca]
+subjectKeyIdentifier	= hash
+authorityKeyIdentifier	= keyid:always,issuer
+basicConstraints	= CA:true
+nsCertType		= sslCA
+[dn]
+CN			= $(hostname) OpenVPN4UCS CA
+_ENDOFCONFIG_
+)
+
+: > ${CADIR}/db
+openssl rand -hex 8 > ${CADIR}/serial
+
+cat > ${CADIR}/config <<_ENDOFCONFIG_
+[o4uCA]
+dir			= ${CADIR}
+certificate		= \$dir/ca.crt
+private_key		= \$dir/ca.key
+serial			= \$dir/serial
+database		= \$dir/db
+new_certs_dir		= \$dir/issued
+name_opt 		= ca_default
+cert_opt 		= ca_default
+default_enddate		= ${ENDDATE}
+default_crl_days	= 30
+default_md		= sha256
+policy			= cn_only
+x509_extensions		= usr_cert
+
+[cn_only]
+commonName		= supplied
+
+[usr_cert]
+nsCertType		= client
+subjectKeyIdentifier	= hash
+authorityKeyIdentifier	= keyid,issuer
+
+[srv_cert]
+nsCertType		= server
+subjectKeyIdentifier	= hash
+authorityKeyIdentifier	= keyid,issuer
+_ENDOFCONFIG_
+
+openssl ca -config ${CADIR}/config -name o4uCA -gencrl -out ${CADIR}/crl.pem
+
+openssl ca -config ${CADIR}/config -name o4uCA -batch -extensions srv_cert -notext -out ${OVPND}/server.crt -in <(
+openssl req -nodes -newkey rsa:2048 -keyout ${OVPND}/server.key -config <(
+cat <<_ENDOFCONFIG_
+[req]
+prompt			= no
+default_md		= sha256
+distinguished_name	= dn
+[dn]
+CN			= $(hostname)
+_ENDOFCONFIG_
+))
+

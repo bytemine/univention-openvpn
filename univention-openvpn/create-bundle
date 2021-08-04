@@ -183,6 +183,92 @@ if [ -d "$home" ]; then
     chown "$uid"."Domain Users" "${bundle2}"
 fi
 
+
+# ----- now the bundles for the new/upcoming pki -----
+
+cacrt=/etc/openvpn/o4uCA/ca.crt
+ssl=/etc/openvpn/o4uCA/users
+
+# create certificate for user
+ls -al "${ssl}/$uid"
+if [ ! -d "${ssl}/$uid" ]; then
+	/usr/lib/openvpn-int/o4uCert_new "$uid"
+fi
+
+(
+  echo '<ca>'; cat "$cacrt"; echo -e '</ca>\n<cert>';
+  cat "${ssl}/${uid}/cert.pem"; echo -e '</cert>\n<key>';
+  cat "${ssl}/${uid}/private.key"; echo '</key>'
+) > "${ssl}/${uid}/${server}.ovpn"
+cp "${ssl}/${uid}/${server}.ovpn" "${ssl}/${uid}/win-${server}.ovpn"
+
+# prepare a matching client config
+cat >> "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
+
+	# client config for server ${server}
+
+	client
+	dev tun0
+	proto ${proto}
+	remote ${addr} ${port}
+	verify-x509-name ${server} name-prefix
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	cipher AES-256-CBC
+	comp-lzo
+	verb 3
+	auth-user-pass
+
+	script-security 2
+	up /etc/openvpn/update-resolv-conf 
+	down /etc/openvpn/update-resolv-conf
+
+ENDOFCLIENTCONFIG
+
+# prepare a matching client config (windows)
+cat >> "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
+
+	# windows client config for server ${server}
+
+	client
+	dev tun
+	proto ${proto}
+	remote ${addr} ${port}
+	verify-x509-name ${server} name-prefix
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	cipher AES-256-CBC
+	comp-lzo
+	verb 3
+	auth-user-pass
+
+ENDOFWINCLIENTCONFIG
+
+eval "$(ucr shell)"
+
+# zip all files and put a copy into download directory for user
+umask 037
+rdy2gobas="/var/www/readytogo"
+readytogo="${rdy2gobas}/${uid}/"
+mkdir -p "${readytogo}/npki"
+
+chmod 750 "${readytogo}/npki"
+chgrp www-data "${readytogo}/npki"
+
+bundle="${readytogo}/npki/openvpn-${server}-${uid}.zip"
+umask 037
+
+rm -f "$bundle"
+zip -j "$bundle" \
+    "${ssl}/${uid}/${server}.ovpn" \
+    "${ssl}/${uid}/win-${server}.ovpn"
+chown "$uid" "$bundle"
+chgrp www-data "$bundle"
+
 # insert a list of all available packages for the user into download.html
 umask 037
 templates=/usr/lib/openvpn-int/templates
@@ -191,11 +277,11 @@ cp ${templates}/download.head "${readytogo}/download.html"
 for rtgp in $(cd "${readytogo}" && echo "openvpn-"*"-${uid}.zip"); do
     echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
 done >> "${readytogo}/download.html"
+for rtgp in $(cd "${readytogo}" && echo "npki/openvpn-"*"-${uid}.zip"); do
+    echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+done >> "${readytogo}/download.html"
 cat ${templates}/download.tail >> "${readytogo}/download.html"
 chgrp www-data "${readytogo}/download.html"
 chmod 640 "${readytogo}/download.html"
-
-
-
 
 exit 0
