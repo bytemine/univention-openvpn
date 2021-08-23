@@ -1,0 +1,14 @@
+#!/bin/sh
+
+#DEBHELPER#
+
+if [ "$1" = "remove" ]; then
+	ucr unset \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/description/de \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/description \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/label/de \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/label \
+		ucs/web/overview/entries/service/openvpn4ucs_dl/link
+fi
+
+exit 0

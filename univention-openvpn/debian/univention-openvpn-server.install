@@ -16,3 +16,6 @@ openvpn-server2.py usr/lib/univention-directory-listener/system
 cron/openvpn4ucs etc/cron.d
 pam.d/ldaponly-auth etc/pam.d
 pam.d/vpncheckpass etc/pam.d
+o4uCA_setup usr/lib/openvpn-int
+o4uCert_new usr/lib/openvpn-int
+o4uCert_revoke usrlib/openvpn-int

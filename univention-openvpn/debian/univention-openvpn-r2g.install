@@ -1,0 +1,12 @@
+create-bundle usr/lib/openvpn-int
+remove-bundle usr/lib/openvpn-int
+refresh-bundles.py usr/lib/openvpn-int
+openvpn4ucs.svg var/www/download
+download/css /var/www/download
+download/files /var/www/download
+download/images /var/www/download
+download/imprint.html /var/www/download
+download/index.html /var/www/download
+download/lib /var/www/download
+download/userdir/download.head usr/lib/openvpn-int/templates
+download/userdir/download.tail usr/lib/openvpn-int/templates

@@ -16,6 +16,9 @@ addr=$4
 port=$5
 proto=$6
 
+# only run this part on the master
+if [ $(ucr get server/role) = domaincontroller_master ]; then
+
 ssl=/etc/univention/ssl
 
 # create or renew certificate for user
@@ -183,11 +186,16 @@ if [ -d "$home" ]; then
     chown "$uid"."Domain Users" "${bundle2}"
 fi
 
+fi	# if domaincontroller_master
+
 
 # ----- now the bundles for the new/upcoming pki -----
 
 cacrt=/etc/openvpn/o4uCA/ca.crt
 ssl=/etc/openvpn/o4uCA/users
+
+# only run this part where the actual openvpn server runs
+if [ -f $cacrt ]; then
 
 # create certificate for user
 ls -al "${ssl}/$uid"
@@ -268,6 +276,11 @@ zip -j "$bundle" \
     "${ssl}/${uid}/win-${server}.ovpn"
 chown "$uid" "$bundle"
 chgrp www-data "$bundle"
+
+fi	# if $cacrt exists
+
+
+# always run this part
 
 # insert a list of all available packages for the user into download.html
 umask 037

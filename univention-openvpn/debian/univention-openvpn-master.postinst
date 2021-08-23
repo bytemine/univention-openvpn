@@ -5,14 +5,6 @@
 ui=/usr/lib/univention-install/06univention-openvpn-master-uninstall.uinst
 
 if [ "$1" = "configure" ]; then
-	ucr set \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/description='OpenVPN4UCS - ready2go packages' \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/description/de='OpenVPN4UCS - ready2go Pakete' \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/label='OpenVPN4UCS - ready2go packages' \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/label/de='OpenVPN4UCS - ready2go Pakete' \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/icon='download/openvpn4ucs.svg' \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/link='/download'
-
 	[ -e "$ui" ] && rm "$ui"
 	invoke-rc.d univention-directory-listener restart
 

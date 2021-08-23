@@ -53,6 +53,9 @@ if [ "$1" = "configure" ]; then
 	    rm -f "${ocf},,"
 	  fi
 	done
+
+	/usr/lib/openvpn-int/o4uCA_setup
+	/usr/bin/python /usr/lib/openvpn-int/refresh-bundles.py
 fi
 
 exit 0
