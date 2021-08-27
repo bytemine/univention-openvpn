@@ -1,3 +1,9 @@
+univention-openvpn (1.1.20) unstable; urgency=low
+  * support for upcoming (ucs5) new/own PKI
+
+ -- Holger Rasch <rasch@bytemine.net>  Mon, 23 Aug 2021 17:00:00 +0100
+
+
 univention-openvpn (1.1.19) unstable; urgency=low
   * new option to enabled masquerading for VPN addresses
   * ignore password check for technical users
