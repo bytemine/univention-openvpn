@@ -289,14 +289,15 @@ def user_disable(dn, obj):
         ccd = '/etc/openvpn/ccd-' + port + '/'
         ips = '/etc/openvpn/ips-' + port
         ipsv6 = '/etc/openvpn/ipsv6-' + port
+	filnam = ccd + uid + '.openvpn'
 
         listener.setuid(0)
         try:
-            os.remove(ccd + uid + '.openvpn')
+            os.remove(filnam)
             delete_entry(uid, ips)
             delete_entry(uid, ipsv6)
         except Exception as e:
-            lilog(ud.ERROR, '%d Failed to write file "%s": %s' % (no, wfile, str(e)))
+            lilog(ud.ERROR, 'failed to write file "{}": {}'.format(filnam, str(e)))
         finally:
             listener.unsetuid()
 
@@ -896,7 +897,7 @@ def ensure_exists(path, dir=False):
             if dir:
                 os.makedirs(path)
             else:
-                open(ips, 'a').close()
+                open(path, 'a').close()
     except:
         lilog(ud.ERROR, 'failed to create ' + path)
     finally:
@@ -950,12 +951,12 @@ def adjust_masq(masq, network):
                 tmpl = '#!/bin/sh\niptables --wait -t nat -A POSTROUTING -s {} ! -d {} -j MASQUERADE\n'
                 f.write(tmpl.format(network, network))
         except Exception as e:
-            lilog(ud.ERROR, '3 failed to write masqerade rule: {}'.format(e))
+            lilog(ud.ERROR, 'failed to write masqerade rule: {}'.format(e))
     else:
         try:
             os.remove(fn_masqrule)
         except Exception as e:
-            lilog(ud.ERROR, '3 failed to remove masqerade rule: {}'.format(e))
+            lilog(ud.ERROR, 'failed to remove masqerade rule: {}'.format(e))
     listener.unsetuid()
 
 
