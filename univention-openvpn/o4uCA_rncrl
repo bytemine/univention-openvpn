@@ -1,0 +1,14 @@
+#!/bin/bash
+
+OVPND=/etc/openvpn
+CADIR=${OVPND}/o4uCA
+
+test -f ${CADIR}/crl.pem || exit 1
+
+exp=$(date -d "$(openssl crl -noout -nextupdate < ${CADIR}/crl.pem | cut -b 12-)" +%s)
+let soon=$(date +%s)+300000
+
+if [ $exp -lt $soon ]; then
+    echo "CRL is going to expire soon, renewing"
+    openssl ca -config ${CADIR}/config -name o4uCA -gencrl -out ${CADIR}/crl.pem
+fi

@@ -1,1 +1,1 @@
-58 *	* * *	root	/usr/bin/wget -qO /etc/openvpn/ca.crl http://$(/usr/sbin/ucr get ldap/master)/ucsCA.crl && /usr/bin/openssl crl -inform der -outform pem -in /etc/openvpn/ca.crl -out /etc/openvpn/crl.pem
+58 2	* * *	root	/usr/lib/openvpn-int/o4uCA_rncrl 2>1 | logger -t openvpn4ucs
