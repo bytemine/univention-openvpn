@@ -2,6 +2,7 @@ create-bundle usr/lib/openvpn-int
 remove-bundle usr/lib/openvpn-int
 refresh-bundles.py usr/lib/openvpn-int
 o4uCA_setup usr/lib/openvpn-int
+o4uCA_rncrl usr/lib/openvpn-int
 o4uCert_new usr/lib/openvpn-int
 o4uCert_revoke usr/lib/openvpn-int
 univention-openvpn.schema usr/lib/openvpn-int/misc
