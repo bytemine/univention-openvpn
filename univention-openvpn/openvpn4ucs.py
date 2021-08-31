@@ -43,10 +43,12 @@ import univention.uldap as ul
 import univention.config_registry as ucr
 import univention.config_registry.interfaces
 import netaddr
+import csv
 
 from datetime import date
+from M2Crypto import RSA, BIO
+from base64 import b64decode
 
-import univention_openvpn_common
 
 name        = 'openvpn4ucs'
 description = 'handle openvpn4ucs related config changes'
@@ -305,7 +307,7 @@ def user_disable(dn, obj):
 def user_enable(dn, obj):
     lilog(ud.INFO, 'user enable')
 
-    if not univention_openvpn_common.check_user_count(1):
+    if not check_user_count():
         return			# do nothing
 
     uid = obj.get('uid', [b''])[0].decode('utf8')
@@ -362,7 +364,7 @@ def user_enable(dn, obj):
     lines.append("ifconfig-push " + ip + " " + netmask + "\n")
     lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
 
-    univention_openvpn_common.write_rc(4, lines, ccd + uid + ".openvpn")
+    write_rc(lines, ccd + uid + ".openvpn")
 
 
 # -----------
@@ -386,11 +388,11 @@ def server_enable(dn, obj):
     global action
     action = None
 
-    if not univention_openvpn_common.check_user_count(2):
+    if not check_user_count():
         return          # do nothing
 
     if not update_config(obj):
-        lilog('config update failed, skipping actions')
+        lilog(ud.INFO, 'config update failed, skipping actions')
         return
 
     action = 'start'
@@ -414,14 +416,14 @@ def server_enable(dn, obj):
 def server_modify(dn, old, new, changes):
     lilog(ud.INFO, 'server modify')
 
-    if not univention_openvpn_common.check_user_count(2):
+    if not check_user_count():
         return          # do nothing
 
     global action
     action = None
 
     if not update_config(new):
-        lilog('config update failed, skipping actions')
+        lilog(ud.INFO, 'config update failed, skipping actions')
         return
 
     action = 'start'
@@ -462,11 +464,11 @@ def sitetosite_enable(dn, obj):
     global action
     action = None
 
-    if not univention_openvpn_common.check_sitetosite(5):
+    if not check_sitetosite():
         return		# do nothing
 
     if not update_config_s2s(obj):
-        lilog('config update failed, skipping actions')
+        lilog(ud.INFO, 'config update failed, skipping actions')
         return
 
     action = start
@@ -482,11 +484,11 @@ def sitetosite_modify(dn, old, new, changes):
     global action
     action = None
 
-    if not univention_openvpn_common.check_sitetosite(5):
+    if not check_sitetosite():
         return		# do nothing
 
     if not update_config_s2s(new):
-        lilog('config update failed, skipping actions')
+        lilog(ud.INFO, 'config update failed, skipping actions')
         return
 
     action = start
@@ -571,7 +573,7 @@ push "redirect-gateway def1"
         'dodom' : dodom
     }
 
-    univention_openvpn_common.write_rc(3, config.format(**context), fn_serverconf)
+    write_rc(config.format(**context), fn_serverconf)
     return
 
 
@@ -640,7 +642,7 @@ ifconfig 10.0.0.1 10.0.0.2
         'fn_secret' : fn_secret
     }
 
-    univention_openvpn_common.write_rc(5, config.format(**context), fn_sitetositeconf)
+    write_rc(config.format(**context), fn_sitetositeconf)
     return
 
 
@@ -820,11 +822,11 @@ def update_config(obj):
         options.append('plugin /usr/lib/x86_64-linux-gnu/openvpn/plugins/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass\n')
 
     # read, update & write server config
-    flist = univention_openvpn_common.load_rc(3, fn_serverconf)
+    flist = load_rc(fn_serverconf)
     flist = [x for x in flist if not re.search("^\s*port\s", x) and not re.search('^\s*push "redirect-gateway', x) and not re.search("^\s*duplicate-cn", x) and not re.search("^\s*server\s", x) and not re.search("^\s*server-ipv6\s", x) and not re.search("^\s*client-config-dir\s", x) and not re.search("^\s*proto\s", x) and not re.search("^\s*plugin\s", x)]
     flist += options
 
-    univention_openvpn_common.write_rc(3, flist, fn_serverconf)
+    write_rc(flist, fn_serverconf)
     return True
 
 
@@ -862,18 +864,18 @@ def update_config_s2s(obj):
     ]
 
     # read, update & write server config
-    flist = univention_openvpn_common.load_rc(5, fn_sitetositeconf)
+    flist = load_rc(fn_sitetositeconf)
     flist = [x for x in flist if not re.search("remote", x) and not re.search("port", x) and not re.search("ifconfig", x)]
     flist += options
 
     secret = new.get('univentionOpenvpnSecret', [b''])[0].decode('utf8')
     #ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
-    univention_openvpn_common.write_rc(5, [secret] if secret else [b''], fn_secret)
+    write_rc([secret] if secret else [b''], fn_secret)
     listener.setuid(0)
     os.chmod(fn_secret, 0o600)
     listener.unsetuid()
 
-    univention_openvpn_common.write_rc(5, flist, fn_sitetositeconf)
+    write_rc(flist, fn_sitetositeconf)
     return True
 
 
@@ -906,21 +908,21 @@ def ensure_exists(path, dir=False):
 
 # generate and write entry for given user and return generated ip
 def write_entry(uid, ips, network):
-    ip_map = univention_openvpn_common.load_ip_map(4, ips)
+    ip_map = load_ip_map(ips)
     ip = generate_ip(network, ip_map)
     ip_map.append((uid, ip))
-    univention_openvpn_common.write_ip_map(4, ip_map, ips)
+    write_ip_map(ip_map, ips)
     return ip
 
 
 # delete entry of given user in corresponding ip_map
 def delete_entry(uid, ips):
-    ip_map_old = univention_openvpn_common.load_ip_map(4, ips)
+    ip_map_old = load_ip_map(ips)
     ip_map_new = []
     for (name, ip) in ip_map_old:
         if name != uid:
             ip_map_new.append((name, ip))
-    univention_openvpn_common.write_ip_map(4, ip_map_new, ips)
+    write_ip_map(ip_map_new, ips)
 
 
 # generate ip for given network which does not exist in ip_map
@@ -984,20 +986,20 @@ def change_net(network, netmask, ccd, fn_ips, ipv6):
         ip_map_new.append((name, ip_new))
 
         # write entry in ccd
-        cc = univention_openvpn_common.load_rc(3, ccd + name + ".openvpn")
+        cc = load_rc(ccd + name + ".openvpn")
         if cc is None:
             cc = []
         else:
             cc = [x for x in cc if not re.search(option, x)]
         cc.append(option + " " + ip_new + appendix)
-        univention_openvpn_common.write_rc(3, cc, ccd + name + ".openvpn")
+        write_rc(cc, ccd + name + ".openvpn")
 
-    univention_openvpn_common.write_ip_map(3, ip_map_new, fn_ips)
+    write_ip_map(ip_map_new, fn_ips)
 
 
 # store explicitly assigned addresses and resolve arising conlicts
 def assign_addresses(fn_ips, useraddresses, network, netmask, ccd, ipv6):
-    ip_map_old = univention_openvpn_common.load_ip_map(3, fn_ips)
+    ip_map_old = load_ip_map(fn_ips)
 
     if ipv6:
         option = "ifconfig-ipv6-push"
@@ -1025,16 +1027,160 @@ def assign_addresses(fn_ips, useraddresses, network, netmask, ccd, ipv6):
 
     # write entries in ccd
     for (name, ip) in ip_map_new:
-        cc = univention_openvpn_common.load_rc(3, ccd + name + ".openvpn")
+        cc = load_rc(ccd + name + ".openvpn")
         if cc is None:
             cc = []
         else:
             cc = [x for x in cc if not re.search(option, x)]
         cc.append(option + " " + ip + appendix)
-        univention_openvpn_common.write_rc(3, cc, ccd + name + ".openvpn")
+        write_rc(cc, ccd + name + ".openvpn")
 
-    univention_openvpn_common.write_ip_map(3, ip_map_new, fn_ips)
+    write_ip_map(ip_map_new, fn_ips)
 
+
+
+# ===================================================================================================
+
+pubbio = BIO.MemoryBuffer(b'''
+-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAN0VVx22Oou8UTDsrug/UnZLiX2UcXeE
+GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==
+-----END PUBLIC KEY-----
+''')
+pub = RSA.load_pub_key_bio(pubbio)
+pbs = pub.__len__() / 8
+
+def license(key):
+    try:
+        enc = b64decode(key)
+        raw = ''
+        while len(enc) > pbs:
+            d, key = (enc[:pbs], enc[pbs:])
+            raw = raw + pub.public_decrypt(d, 1)
+        if len(enc) != pbs:
+            return None		# invalid license
+        raw = raw + pub.public_decrypt(enc, 1)
+        #
+        items = raw.rstrip().split('\n')
+        if not items:
+            return None		# invalid license
+        vdate = int(items.pop(0))
+        if date.today().toordinal() > vdate:
+            lilog(ud.ERROR, 'license has expired')
+            return None		# expired
+        l = {'valid': True, 'vdate': vdate} # at least one feature returned
+        while items:
+            kv = items.pop(0).split('=', 1)
+            kv.append(True)
+            l[kv[0]] = kv[1]
+
+        lilog(ud.INFO, '| Processing license with ID {}:'.format(l['id']))
+        lilog(ud.INFO, '| Valid until: {}'.format(date.fromordinal(l['vdate'])))
+        lilog(ud.INFO, '| Users: {}'.format(l['u']))
+        lilog(ud.INFO, '| Site-2-Site: {}'.format(l['s2s']))
+        return l			# valid license
+    except:
+        return None			# invalid license
+
+def maxvpnusers(key):
+    mnlu = 5
+    try:
+        return max(int(license(key)['u']), mnlu)
+    except:
+        lilog(ud.ERROR, 'invalid license')
+        return mnlu			# invalid license
+
+
+# function to open a textfile with setuid(0) for root-action
+def load_rc(ofile):
+    l = None
+    listener.setuid(0)
+    try:
+        f = open(ofile,"r")
+        l = f.readlines()
+        f.close()
+    except Exception as e:
+        lilog(ud.ERROR, 'failed to read file "{}": {}'.format(ofile, str(e)))
+    listener.unsetuid()
+    return l
+
+# function to write to a textfile with setuid(0) for root-action
+def write_rc(flist, wfile):
+    listener.setuid(0)
+    try:
+        f = open(wfile,"w")
+        f.writelines(flist)
+        f.close()
+    except Exception as e:
+        lilog(ud.ERROR, 'failed to write file "{}": {}'.format(wfile, str(e)))
+    listener.unsetuid()
+
+# function to open an ip map with setuid(0) for root-action
+def load_ip_map(path):
+    ip_map = []
+    listener.setuid(0)
+    try:
+        with open(path, 'r') as f:
+            r = csv.reader(f, delimiter=' ', quotechar='|')
+            for row in r:
+                ip_map.append(row)
+    except Exception as e:
+        lilog(ud.ERROR, 'failed to load ip map: {}'.format(str(e)))
+    listener.unsetuid()
+    return ip_map
+
+# function to write an ip map with setuid(0) for root-action
+def write_ip_map(ip_map, path):
+    listener.setuid(0)
+    try:
+        with open(path, 'w') as f:
+            w = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for i in ip_map:
+                w.writerow(i)
+    except Exception as e:
+        lilog(ud.ERROR, 'failed to write ip map: {}'.format(str(e)))
+    listener.unsetuid()
+
+def check_user_count():
+    listener.setuid(0)
+    lo = ul.getMachineConnection()
+    listener.unsetuid()
+
+    servers = lo.search('(univentionOpenvpnLicense=*)')
+    vpnusers = lo.search('(univentionOpenvpnAccount=1)')
+    vpnuc = len(vpnusers)
+    maxu = 5
+    for server in servers:
+        key = server[1].get('univentionOpenvpnLicense', [None])[0]
+        mu = maxvpnusers(key)
+        if mu > maxu: maxu = mu
+    lilog(ud.INFO, 'found {} active openvpn users ({} allowed)'.format(vpnuc, maxu))
+    if vpnuc > maxu:
+        lilog(ud.INFO, 'skipping actions')
+        return False
+    else:
+        return True
+
+def check_sitetosite():
+    listener.setuid(0)
+    lo = ul.getMachineConnection()
+    listener.unsetuid()
+
+    servers = lo.search('(univentionOpenvpnLicense=*)')
+    sitetosite = False
+    for server in servers:
+        key = server[1].get('univentionOpenvpnLicense', [None])[0]
+        try:
+            l = license(key)
+            if l.get('s2s'): sitetosite = True
+            break
+        except:
+            pass
+    if not sitetosite:
+        lilog(ud.INFO, 'skipping actions')
+        return False
+    else:
+        return True
 
 
 # ===================================================================================================
