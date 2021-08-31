@@ -34,7 +34,8 @@ import os
 import univention.uldap as ul
 from socket_handler import *
 from OpenSSL import crypto
-import univention_openvpn_common
+from M2Crypto import RSA, BIO
+from base64 import b64decode
 
 # turn off debug mode (exceptions as html pages)
 web.config.debug = False
@@ -100,9 +101,9 @@ def license_stats():
 
     c_connected_users = len(connected_users)
     c_users = len(users)
-    c_licenced = univention_openvpn_common.maxvpnusers(0, key)
+    c_licenced = maxvpnusers(key)
     try:
-        l = univention_openvpn_common.license(0, key)
+        l = license(key)
         valid = str(date.fromordinal(l['vdate']))
     except:
         valid = "No valid license on this host"
@@ -140,6 +141,51 @@ class display_users:
 
         else:
             return ""
+
+pubbio = BIO.MemoryBuffer(b'''
+-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAN0VVx22Oou8UTDsrug/UnZLiX2UcXeE
+GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==
+-----END PUBLIC KEY-----
+''')
+pub = RSA.load_pub_key_bio(pubbio)
+pbs = pub.__len__() / 8
+
+def license(key):
+    try:
+        enc = b64decode(key)
+        raw = ''
+        while len(enc) > pbs:
+            d, key = (enc[:pbs], enc[pbs:])
+            raw = raw + pub.public_decrypt(d, 1)
+        if len(enc) != pbs:
+            return None		# invalid license
+        raw = raw + pub.public_decrypt(enc, 1)
+        #
+        items = raw.rstrip().split('\n')
+        if not items:
+            return None		# invalid license
+        vdate = int(items.pop(0))
+        if date.today().toordinal() > vdate:
+            lilog(ud.ERROR, 'license has expired')
+            return None		# expired
+        l = {'valid': True, 'vdate': vdate} # at least one feature returned
+        while items:
+            kv = items.pop(0).split('=', 1)
+            kv.append(True)
+            l[kv[0]] = kv[1]
+
+        return l			# valid license
+    except:
+        return None			# invalid license
+
+def maxvpnusers(key):
+    mnlu = 5
+    try:
+        return max(int(license(key)['u']), mnlu)
+    except:
+        lilog(ud.ERROR, 'invalid license')
+        return mnlu			# invalid license
 
 
 if __name__ == "__main__":
