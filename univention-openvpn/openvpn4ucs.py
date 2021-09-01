@@ -291,7 +291,7 @@ def user_disable(dn, obj):
         ccd = '/etc/openvpn/ccd-' + port + '/'
         ips = '/etc/openvpn/ips-' + port
         ipsv6 = '/etc/openvpn/ipsv6-' + port
-	filnam = ccd + uid + '.openvpn'
+        filnam = ccd + uid + '.openvpn'
 
         listener.setuid(0)
         try:
