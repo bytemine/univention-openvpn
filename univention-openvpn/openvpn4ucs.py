@@ -543,9 +543,10 @@ push "redirect-gateway def1"
     r = ''
     for n, i in ucr.interfaces.Interfaces().all_interfaces:
         try:
-            r += 'push "route {} {}"\n'.format(i['network'], i['netmask'])
+            nw = netaddr.IPNetwork('{}/{}'.format(i['address'], i['netmask']))
+            r += 'push "route {} {}"\n'.format(nw.ip, nw.netmask)
         except:
-            ud.debug(ud.LISTENER, ud.INFO, '3 ignoring interface ' + n)
+            lilog(ud.INFO, 'ignoring interface ' + n)
 
     myname = listener.configRegistry['hostname']
     nameserver1 = listener.configRegistry['nameserver1']
@@ -611,9 +612,10 @@ ifconfig 10.0.0.1 10.0.0.2
     r = ''
     for n, i in ucr.interfaces.Interfaces().all_interfaces:
         try:
-            r += 'push "route {} {}"\n'.format(i['network'], i['netmask'])
+            nw = netaddr.IPNetwork('{}/{}'.format(i['address'], i['netmask']))
+            r += 'push "route {} {}"\n'.format(nw.ip, nw.netmask)
         except:
-            ud.debug(ud.LISTENER, ud.INFO, '3 ignoring interface ' + n)
+            lilog(ud.INFO, 'ignoring interface ' + n)
 
     myname = listener.configRegistry['hostname']
     nameserver1 = listener.configRegistry['nameserver1']
