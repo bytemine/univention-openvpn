@@ -377,9 +377,11 @@ def server_disable(dn, obj):
     action = 'stop'
 
     port = obj.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+    masq = obj.get('univentionOpenvpnMasquerade', [b''])[0].decode('utf8')
     adjust_firewall(port, {})
-    adjust_masq(False, '')
     adjust_ccd(obj, {})
+    if masq:
+        adjust_masq(False, '')
 
 
 def server_enable(dn, obj):
@@ -405,8 +407,9 @@ def server_enable(dn, obj):
 
     if port:
         adjust_firewall({}, port)
-        adjust_masq(masq, network)
         adjust_ccd({}, obj)
+        if masq:
+            adjust_masq(masq, network)
 
         # create/update bundles for users
         if name and addr:
@@ -434,8 +437,8 @@ def server_modify(dn, old, new, changes):
         adjust_firewall(portold, portnew)
         adjust_ccd(old, new)
 
-    if 'univentionOpenvpnMasquerade' in changes or 'univentionOpenvpnNet' in changes:
-        masq = new.get('univentionOpenvpnMasquerade', [b''])[0].decode('utf8')
+    masq = new.get('univentionOpenvpnMasquerade', [b''])[0].decode('utf8')
+    if 'univentionOpenvpnMasquerade' in changes or 'univentionOpenvpnNet' in changes and masq:
         network = new.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
         adjust_masq(masq, network)
 
@@ -944,7 +947,7 @@ def generate_ip(network, ip_map):
 
 # enable/disable and adjust network in masquerading rule
 def adjust_masq(masq, network):
-    lilog(ud.INFO, '3 adjust_masq({}, {})'.format(masq, network))
+    lilog(ud.INFO, 'adjust_masq({}, {})'.format(masq, network))
     listener.setuid(0)
     if masq:
         try:
