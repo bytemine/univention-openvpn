@@ -689,7 +689,7 @@ def adjust_ccd(old, new):
             if os.path.exists(oipsv6):
                 os.rename(oipsv6, ipsv6)
 
-        ensure_exists(ccd)
+        ensure_exists(ccd, True)
         ensure_exists(ips)
         ensure_exists(ipsv6)
 
@@ -907,6 +907,7 @@ def ensure_exists(path, dir=False):
                 open(path, 'a').close()
     except:
         lilog(ud.ERROR, 'failed to create ' + path)
+        lilog(ud.INFO, '{} {}'.format(path, dir))
     finally:
         listener.unsetuid()
 
