@@ -16,7 +16,7 @@ cacrt=/etc/openvpn/o4uCA/ca.crt
 ssl=/etc/openvpn/o4uCA/users
 
 # create certificate for user
-ls -al "${ssl}/$uid"
+ls -al "${ssl}/$uid" 2>/dev/null
 if [ ! -d "${ssl}/$uid" ]; then
 	/usr/lib/openvpn-int/o4uCert_new "$uid"
 fi
