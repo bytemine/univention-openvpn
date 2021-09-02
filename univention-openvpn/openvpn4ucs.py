@@ -233,10 +233,10 @@ def handle_sitetosite(dn, old, new, changes):
 
     active = new.get('univentionOpenvpnSitetoSiteActive', [None])[0]
 
-    if isin_and('univentionOpenvpnSitetoSiteActive', changes, op.eq, b'1'):
+    if isin_and('univentionOpenvpnSitetoSiteActive', changes, op.eq, '1'):
         return sitetosite_enable(dn, new)
 
-    if isin_and('univentionOpenvpnSitetoSiteActive', changes, op.ne, b'1'):
+    if isin_and('univentionOpenvpnSitetoSiteActive', changes, op.ne, '1'):
         return sitetosite_disable(dn, old)
 
     if active == b'1':
