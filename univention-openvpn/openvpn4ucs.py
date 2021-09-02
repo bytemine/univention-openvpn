@@ -875,7 +875,7 @@ def update_config_s2s(obj):
     flist = [x for x in flist if not re.search("remote", x) and not re.search("port", x) and not re.search("ifconfig", x)]
     flist += options
 
-    secret = new.get('univentionOpenvpnSecret', [b''])[0].decode('utf8')
+    secret = obj.get('univentionOpenvpnSecret', [b''])[0].decode('utf8')
     #ud.debug(ud.LISTENER, ud.INFO, '5 secret: %s' % (secret))
     write_rc([secret] if secret else [b''], fn_secret)
     listener.setuid(0)
