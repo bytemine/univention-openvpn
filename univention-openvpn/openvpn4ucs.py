@@ -228,7 +228,7 @@ def handle_sitetosite(dn, old, new, changes):
     myname = listener.configRegistry['hostname']
     if cn and cn.decode('utf8') != myname:
         lilog(ud.INFO, 'not this host')
-        action = None
+        action_s2s = None
         return
 
     active = new.get('univentionOpenvpnSitetoSiteActive', [None])[0]
@@ -457,15 +457,15 @@ def server_modify(dn, old, new, changes):
 def sitetosite_disable(dn, obj):
     lilog(ud.INFO, 'sitetosite disable')
 
-    global action
-    action = None
+    global action_s2s
+    action_s2s = 'stop'
 
 
 def sitetosite_enable(dn, obj):
     lilog(ud.INFO, 'sitetosite enable')
 
-    global action
-    action = None
+    global action_s2s
+    action_s2s = None
 
     if not check_sitetosite():
         return		# do nothing
@@ -479,13 +479,14 @@ def sitetosite_enable(dn, obj):
     portnew = new.get('univentionOpenvpnSitetoSitePort', [None])[0]
     adjust_firewall({}, portnew)
 
+    action_s2s = 'start'
 
 
 def sitetosite_modify(dn, old, new, changes):
     lilog(ud.INFO, 'sitetosite modify')
 
-    global action
-    action = None
+    global action_s2s
+    action_s2s = None
 
     if not check_sitetosite():
         return		# do nothing
@@ -494,12 +495,12 @@ def sitetosite_modify(dn, old, new, changes):
         lilog(ud.INFO, 'config update failed, skipping actions')
         return
 
-    action = start
-
     if 'univentionOpenvpnSitetoSitePort' in changes:
         portold = old.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
         portnew = new.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
         adjust_firewall(portold, portnew)
+
+    action_s2s = 'start'
 
 
 # -----------------------------------------------------------------------------
