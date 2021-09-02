@@ -460,6 +460,8 @@ def sitetosite_disable(dn, obj):
     global action_s2s
     action_s2s = 'stop'
 
+    port = obj.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
+    adjust_firewall(port, {})
 
 def sitetosite_enable(dn, obj):
     lilog(ud.INFO, 'sitetosite enable')
@@ -474,9 +476,7 @@ def sitetosite_enable(dn, obj):
         lilog(ud.INFO, 'config update failed, skipping actions')
         return
 
-    action = start
-
-    portnew = new.get('univentionOpenvpnSitetoSitePort', [None])[0]
+    portnew = new.get('univentionOpenvpnSitetoSitePort', [b''])[0].decode('utf8')
     adjust_firewall({}, portnew)
 
     action_s2s = 'start'
