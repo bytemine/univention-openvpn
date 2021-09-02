@@ -860,13 +860,14 @@ def update_config_s2s(obj):
             finally:
                 listener.unsetuid()
         else:
-            create_default_config()
+            lilog(ud.INFO, 'create default s2s config')
+            create_default_config_s2s()
 
     # config lines for params
     options = [
-        'port %s\n' % port,
-        'remote %s\n' % peer,
-        'ifconfig %s %s\n' % (localaddress, remoteaddress)
+        'port {}\n'.format(port),
+        'remote {}\n'.format(peer),
+        'ifconfig {} {}\n'.format(tloc, trem)
     ]
 
     # read, update & write server config
