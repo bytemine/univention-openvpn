@@ -1058,16 +1058,18 @@ GvQ6kWcXBhqvSUl0cVavYL5Su45RXz7CeoImotwUzrVB8JnsIcrPYw8CAwEAAQ==
 pub = RSA.load_pub_key_bio(pubbio)
 pbs = pub.__len__() / 8
 
+import traceback
+
 def license(key):
     try:
         enc = b64decode(key)
         raw = ''
         while len(enc) > pbs:
             d, key = (enc[:pbs], enc[pbs:])
-            raw = raw + pub.public_decrypt(d, 1)
+            raw = raw + pub.public_decrypt(d, 1).decode('utf8')
         if len(enc) != pbs:
             return None		# invalid license
-        raw = raw + pub.public_decrypt(enc, 1)
+        raw = raw + pub.public_decrypt(enc, 1).decode('utf8')
         #
         items = raw.rstrip().split('\n')
         if not items:
@@ -1088,6 +1090,7 @@ def license(key):
         lilog(ud.INFO, '| Site-2-Site: {}'.format(l['s2s']))
         return l			# valid license
     except:
+        lilog(ud.ERROR, traceback.format_exc())
         return None			# invalid license
 
 def maxvpnusers(key):
