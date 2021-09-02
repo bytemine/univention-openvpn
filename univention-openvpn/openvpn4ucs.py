@@ -110,7 +110,7 @@ def postrun():
 
         if action_s2s == 'stop':
             # stop openvon, deactivate config
-            listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@sitetosite.service'], uid=0)
+            listener.run('/bin/systemctl', ['systemctl', 'stop', 'openvpn@sitetosite.service'], uid=0)
             os.rename (fn_sitetositeconf, fn_sitetositeconf + '-disabled')
 
         elif action_s2s == 'start':
