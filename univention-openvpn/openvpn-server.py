@@ -53,7 +53,7 @@ attributes  = [
     'univentionOpenvpnPort', 'univentionOpenvpnNet', 'univentionOpenvpnNetIPv6',
     'univentionOpenvpnRedirect', 'univentionOpenvpnDuplicate',
     'univentionOpenvpnFixedAddresses', 'univentionOpenvpnUserAddress',
-    'univentionOpenvpnDualfactorauth', 'univentionOpenvpnMasquerade' ]
+    'univentionOpenvpnMasquerade' ]
 modrdn      = 1
 
 action = None
@@ -128,10 +128,10 @@ status /var/log/openvpn/openvpn-status.log
 management /var/run/management-udp unix
 dev tun
 topology subnet
+plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
 
 ### Values which can be changed through UDM
 
-plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
 server 10.0.1.0 255.255.255.0
 port 443
 push "redirect-gateway def1"
@@ -212,7 +212,7 @@ push "redirect-gateway def1"
     # write new server config
     flist = univention_openvpn_common.load_rc(3, fn_serverconf)
 
-    flist = [x for x in flist if not re.search("^\s*port\s", x) and not re.search('^\s*push "redirect-gateway', x) and not re.search("^\s*duplicate-cn", x) and not re.search("^\s*server\s", x) and not re.search("^\s*server-ipv6\s", x) and not re.search("^\s*client-config-dir\s", x) and not re.search("^\s*proto\s", x) and not re.search("^\s*plugin\s", x)]
+    flist = [x for x in flist if not re.search("^\s*port\s", x) and not re.search('^\s*push "redirect-gateway', x) and not re.search("^\s*duplicate-cn", x) and not re.search("^\s*server\s", x) and not re.search("^\s*server-ipv6\s", x) and not re.search("^\s*client-config-dir\s", x) and not re.search('^\s*proto\s', x)]
 
     flist.append("port %s\n" % portnew)
 
@@ -271,14 +271,6 @@ push "redirect-gateway def1"
     if fixedaddresses == '1':
         flist.append('client-config-dir %s\n' % ccd)
     if fixedaddresses != old.get('univentionOpenvpnFixedAddresses', [None])[0]:
-        action = 'restart'
-
-    dualfactorauth = new.get('univentionOpenvpnDualfactorauth', [None])[0]
-    if dualfactorauth == '1':
-        flist.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/openvpn\n')
-    else:
-        flist.append('plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass\n')
-    if dualfactorauth != old.get('univentionOpenvpnDualfactorauth', [None])[0]:
         action = 'restart'
 
     univention_openvpn_common.write_rc(3, flist, fn_serverconf)

@@ -93,35 +93,6 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set hook='None' || die
 
 udm settings/extended_attribute remove "$@" \
-    --dn "cn=UniventionOpenvpn-Dualfactorauth,${eabas}" >/dev/null 2>&1
-univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
-    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
-    --append module="computers/domaincontroller_master" \
-    --append module="computers/domaincontroller_slave" \
-    --append module="computers/domaincontroller_backup" \
-    --append module="computers/memberserver" \
-    --set ldapMapping='univentionOpenvpnDualfactorauth' \
-    --set objectClass='univentionOpenvpn' \
-    --set name='UniventionOpenvpn-Dualfactorauth' \
-    --set shortDescription='OpenVPN dual-factor authentication' \
-    --set longDescription='In order to use dual-factor authentication with privacyIDEA, this option has to be enabled.' \
-    --set translationShortDescription='"de_DE" "Zwei-Faktor Authentifizierung"' \
-    --set translationLongDescription='"de_DE" "Um eine Zwei-Faktor Authentifizierung mit Hilfe von privacyIDEA zu nutzen, muss diese Option aktiviert werden."' \
-    --set tabAdvanced='1' \
-    --set tabName='OpenVPN4UCS' \
-    --set groupName='User VPN' \
-    --set groupPosition='2' \
-    --set overwriteTab='0' \
-    --set valueRequired='0' \
-    --set CLIName='openvpnDualfactorauth' \
-    --set syntax='boolean' \
-    --set mayChange='1' \
-    --set multivalue='0' \
-    --set deleteObjectClass='0' \
-    --set doNotSearch='0' \
-    --set hook='None' || die
-
-udm settings/extended_attribute remove "$@" \
     --dn "cn=UniventionOpenvpn-Duplicate,${eabas}" >/dev/null 2>&1
 univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
     --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
