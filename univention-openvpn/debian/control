@@ -7,5 +7,7 @@ Priority: optional
 
 Package: openvpn4ucs
 Architecture: all
+Breaks: univention-openvpn-schema, univention-openvpn-master, univention-openvpn-server, univention-openvpn-sitetosite, univention-openvpn-r2g, python-univention-openvpn-common
+Replaces: univention-openvpn-schema, univention-openvpn-master, univention-openvpn-server, univention-openvpn-sitetosite, univention-openvpn-r2g, python-univention-openvpn-common
 Depends: ${misc:Depends}, univention-join (>= 5.0.20-1), shell-univention-lib (>= 2.0.17-1), openvpn, python3-netaddr, python3-webpy
 Description: UCS integration for OpenVPN
