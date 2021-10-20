@@ -61,7 +61,7 @@ def load_rc(no, ofile):
         f = open(ofile,"r")
         l = f.readlines()
         f.close()
-    except Exception, e:
+    except Exception as e:
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to read file "%s": %s' % (no, ofile, str(e)) )
     listener.unsetuid()
     return l
@@ -73,7 +73,7 @@ def write_rc(no, flist, wfile):
         f = open(wfile,"w")
         f.writelines(flist)
         f.close()
-    except Exception, e:
+    except Exception as e:
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to write file "%s": %s' % (no, wfile, str(e)))
     listener.unsetuid()
 
@@ -82,7 +82,7 @@ def create_dir(no, path):
     listener.setuid(0)
     try:
         os.makedirs(path)
-    except Exception, e:
+    except Exception as e:
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to make directory "%s": %s' % (no, path, str(e)))
     listener.unsetuid()
 
@@ -91,7 +91,7 @@ def rename_dir(no, pathold, pathnew):
     listener.setuid(0)
     try:
         os.rename(pathold, pathnew)
-    except Exception, e:
+    except Exception as e:
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to rename directory "%s" to "%s": %s' % (no, pathold, pathnew, str(e)))
     listener.unsetuid()
 
@@ -100,7 +100,7 @@ def delete_dir(no, fn):
     listener.setuid(0)
     try:
         os.rmdir(fn)
-    except Exception, e:
+    except Exception as e:
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to remove directory "%s": %s' % (no, fn, str(e)))
     listener.unsetuid()
 
@@ -109,7 +109,7 @@ def delete_file(no, fn):
     listener.setuid(0)
     try:
         os.remove(fn)
-    except Exception, e:
+    except Exception as e:
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to remove file "%s": %s' % (no, fn, str(e)))
     listener.unsetuid()
 
@@ -122,7 +122,7 @@ def load_ip_map(no, path):
             r = csv.reader(f, delimiter=' ', quotechar='|')
             for row in r:
                 ip_map.append(row)
-    except Exception, e:
+    except Exception as e:
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to load ip map: %s' % (no, str(e)))
     listener.unsetuid()
     return ip_map
@@ -135,7 +135,7 @@ def write_ip_map(no, ip_map, path):
             w = csv.writer(f, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for i in ip_map:
                 w.writerow(i)
-    except Exception, e:
+    except Exception as e:
         ud.debug(ud.LISTENER, ud.ERROR, '%d Failed to write ip map: %s' % (no, str(e)))
     listener.unsetuid()
 

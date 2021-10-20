@@ -1,3 +1,10 @@
+univention-openvpn (1.1.21) unstable; urgency=low
+  * remove support for privacyidea
+  * prepare for update to UCS 5 (avoid breaking pre-update checks)
+
+ -- Holger Rasch <rasch@bytemine.net>  Mon, 20 Oct 2021 17:00:00 +0100
+
+
 univention-openvpn (1.1.20) unstable; urgency=low
   * support for upcoming (ucs5) new/own PKI
 

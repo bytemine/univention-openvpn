@@ -1,7 +1,7 @@
 Source: univention-openvpn
 Section: univention
 Maintainer: bytemine GmbH <code@bytemine.net>
-Build-Depends: debhelper (>= 8.0.0), univention-config-dev, python-setuptools, python-stdeb
+Build-Depends: debhelper (>= 9.0.0), univention-config-dev, python-setuptools, python-stdeb
 Standards-Version: 3.9.2
 Priority: optional
 

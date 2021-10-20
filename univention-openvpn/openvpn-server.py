@@ -99,7 +99,7 @@ def handler(dn, new, old, command):
         try:
             listener.setuid(0)
             os.rename (fn_serverconf + '-disabled', fn_serverconf)
-        except Exception, e:
+        except Exception as e:
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to activate server config: %s' % str(e))
         listener.unsetuid()
         action = 'restart'
@@ -137,7 +137,7 @@ port 443
 push "redirect-gateway def1"
 """
 
-	r = ''
+        r = ''
         for n, i in ucr.interfaces.Interfaces().all_interfaces:
             try:
                 r += 'push "route {} {}"\n'.format(i['network'], i['netmask'])
@@ -299,7 +299,7 @@ def update_masq(masq, network):
     if masq:
         try:
             with open(fn_masqrule, "w") as f:
-                os.chmod(fn_masqrule, 0755)
+                os.chmod(fn_masqrule, 0o755)
                 tmpl = '#!/bin/sh\niptables --wait -t nat -A POSTROUTING -s {} ! -d {} -j MASQUERADE\n'
                 f.write(tmpl.format(network, network))
         except Exception as e:
@@ -361,8 +361,8 @@ def assign_addresses(fn_ips, useraddresses, network, netmask, ccd, ipv6):
 
     # keep old entries if no conflict arises, otherwise store name in conflict_users
     for (name, ip) in ip_map_old:
-        if not name in map(lambda (u, i): u, ip_map_new):
-            if not ip in map(lambda (u, i): i, ip_map_new):
+        if not name in map(lambda u, i: u, ip_map_new):
+            if not ip in map(lambda u, i: i, ip_map_new):
                 ip_map_new.append((name, ip))
             else:
                 conflict_users.append(name)
@@ -417,7 +417,7 @@ def postrun():
         try:
             if os.path.exists(fn_serverconf):
                 os.rename (fn_serverconf, fn_serverconf + '-disabled')
-        except Exception, e:
+        except Exception as e:
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to deactivate server config: %s' % str(e))
         listener.unsetuid()
 
@@ -427,7 +427,7 @@ def postrun():
             listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@server.service'], uid=0)
             listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
             listener.run('/etc/init.d/display_users', ['display_users', 'restart'], uid=0)
-        except Exception, e:
+        except Exception as e:
             ud.debug(ud.LISTENER, ud.ERROR, '3 Failed to restart services: %s' % str(e))
         listener.unsetuid()
 
