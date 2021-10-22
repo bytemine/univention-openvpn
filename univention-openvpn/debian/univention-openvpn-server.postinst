@@ -8,6 +8,9 @@ if [ "$1" = "configure" ]; then
 	# make sure the pre 1.0.5 .htaccess is gone
 	rm -f /var/www/display_users/.htaccess
 
+	# make sure the pre 1.1.21 ucs pam.d template is gone
+	rm -f /etc/univention/templates/files/etc/pam.d/openvpn
+
 	# configure display active users
 	if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
 		a2enmod ldap
