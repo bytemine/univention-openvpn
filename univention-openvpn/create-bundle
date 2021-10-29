@@ -16,6 +16,37 @@ addr=$4
 port=$5
 proto=$6
 
+
+eval "$(ucr shell)"
+
+umask 037
+rdy2gobas="/var/www/readytogo"
+readytogo="${rdy2gobas}/${uid}/"
+mkdir -p "${readytogo}"
+
+pw=$(cat /etc/ldapper-m.secret)
+
+cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
+AuthBasicProvider ldap
+AuthType Basic
+AuthName "secret"
+AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
+AuthLDAPBindDN "uid=ldapper-m-$hostname,cn=users,$ldap_base"
+AuthLDAPBindPassword $pw
+Require ldap-user ${uid}
+
+ENDOFHTACCESS
+chgrp www-data "${readytogo}/.htaccess" "${rdy2gobas}" "${rdy2gobas}/.htaccess" "${rdy2gobas}/notfound.html" "${readytogo}"
+chmod 640 "${readytogo}/.htaccess"
+chmod 750 "${rdy2gobas}" "${rdy2gobas}/.htaccess" "${rdy2gobas}/notfound.html" "${readytogo}"
+
+if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
+    a2enmod ldap
+    a2enmod authnz_ldap
+    /etc/init.d/apache2 restart
+fi
+
+
 # only run this part on the master
 if [ $(ucr get server/role) = domaincontroller_master ]; then
 
@@ -133,37 +164,6 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 	auth-user-pass
 
 ENDOFWINCLIENTCONFIG
-
-eval "$(ucr shell)"
-
-# zip all required files into home if it exists,
-# always put a copy into download directory for user
-umask 037
-rdy2gobas="/var/www/readytogo"
-readytogo="${rdy2gobas}/${uid}/"
-mkdir -p "${readytogo}"
-
-pw=$(cat /etc/ldapper-m.secret)
-
-cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
-AuthBasicProvider ldap
-AuthType Basic
-AuthName "secret"
-AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
-AuthLDAPBindDN "uid=ldapper-m-$hostname,cn=users,$ldap_base"
-AuthLDAPBindPassword $pw
-Require ldap-user ${uid}
-
-ENDOFHTACCESS
-chgrp www-data "${readytogo}/.htaccess" "${rdy2gobas}" "${rdy2gobas}/.htaccess" "${rdy2gobas}/notfound.html" "${readytogo}"
-chmod 640 "${readytogo}/.htaccess"
-chmod 750 "${rdy2gobas}" "${rdy2gobas}/.htaccess" "${rdy2gobas}/notfound.html" "${readytogo}"
-
-if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
-    a2enmod ldap
-    a2enmod authnz_ldap
-    /etc/init.d/apache2 restart
-fi
 
 bundle="${readytogo}/openvpn-${server}-${uid}.zip"
 umask 037
@@ -288,10 +288,14 @@ templates=/usr/lib/openvpn-int/templates
 rm -f "${readytogo}/download.html"
 cp ${templates}/download.head "${readytogo}/download.html"
 for rtgp in $(cd "${readytogo}" && echo "openvpn-"*"-${uid}.zip"); do
-    echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+    if [ -f ${readytogo}/${rtgp} ]; then
+        echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+    fi
 done >> "${readytogo}/download.html"
 for rtgp in $(cd "${readytogo}" && echo "npki/openvpn-"*"-${uid}.zip"); do
-    echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+    if [ -f ${readytogo}/${rtgp} ]; then
+        echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+    fi
 done >> "${readytogo}/download.html"
 cat ${templates}/download.tail >> "${readytogo}/download.html"
 chgrp www-data "${readytogo}/download.html"
