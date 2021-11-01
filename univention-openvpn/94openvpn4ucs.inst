@@ -601,10 +601,12 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
 
 
 # initial site2site secret generation
-eval "$(ucr shell server/role ldap/hostdn)"
-openvpn --genkey --secret "${NEWKEY}"
-udm computers/${server_role} modify "$@" --dn "${ldap_hostdn}" \
-	--set openvpnSecret="$(<${NEWKEY})"
+if [ ! -f ${NEWKEY} ]; then
+    openvpn --genkey --secret "${NEWKEY}"
+    eval "$(ucr shell server/role ldap/hostdn)"
+    udm computers/${server_role} modify "$@" --dn "${ldap_hostdn}" \
+	--set openvpnSecret="$(cat ${NEWKEY})"
+fi
 
 
 # present in versions < 0.7
