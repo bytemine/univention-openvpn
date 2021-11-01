@@ -69,6 +69,10 @@ if [ "$1" = "configure" ]; then
 	    mv "${ocf},," $ocf 
 	  fi
 	done
+
+	# remove all /var/www/readytogo/*/npki dirs and content (only used in 1.1.21)
+	rm -rf /var/www/readytogo/*/npki/openvpn-*.zip
+	rmdir /var/www/readytogo/*/npki/
 fi
 
 exit 0
