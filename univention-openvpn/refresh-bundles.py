@@ -51,7 +51,7 @@ def main():
     lo = ul.getMachineConnection()
 
     lobs = lo.search('(univentionOpenvpnLicense=*)')
-    lul = []
+    lul = [MAX_UNLIC_USERS]
     for lob in lobs:
         key = lob[1].get('univentionOpenvpnLicense', [b''])[0]
         lul.append(maxvpnusers(key))
