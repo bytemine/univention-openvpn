@@ -52,7 +52,7 @@ if [ "$1" = "configure" ]; then
 	    ( echo 'cipher AES-256-CBC'
 	      grep -v '^[       ]*cipher[       ]' $ocf
 	    ) > "${ocf},,"
-	    sed 's@^plugin /usr/lib/openvpn/openvpn-auth-pam.so@plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so@' "${ocf},," > $ocf
+	    sed 's@^plugin .*openvpn-auth-pam.so.*$@plugin openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass@' "${ocf},," > $ocf
 	    rm -f "${ocf},,"
 	  fi
 	done

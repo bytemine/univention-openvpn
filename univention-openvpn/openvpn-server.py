@@ -128,7 +128,7 @@ status /var/log/openvpn/openvpn-status.log
 management /var/run/management-udp unix
 dev tun
 topology subnet
-plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
+plugin openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
 
 ### Values which can be changed through UDM
 
