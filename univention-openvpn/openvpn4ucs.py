@@ -145,7 +145,6 @@ srv_attrs = [
     'univentionOpenvpnDuplicate',
     'univentionOpenvpnFixedAddresses',
     'univentionOpenvpnUserAddress',
-    'univentionOpenvpnDualfactorauth'
     'univentionOpenvpnLicense',
     'univentionOpenvpnMasquerade',
 ]
@@ -532,10 +531,10 @@ status /var/log/openvpn/openvpn-status.log
 management /var/run/management-udp unix
 dev tun
 topology subnet
+plugin openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
 
 ### Values which can be changed through UDM
 
-plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
 server 10.0.1.0 255.255.255.0
 port 443
 push "redirect-gateway def1"
@@ -792,7 +791,6 @@ def update_config(obj):
     networkv6      = obj.get('univentionOpenvpnNetIPv6', [b''])[0].decode('utf8')
     redirect       = obj.get('univentionOpenvpnRedirect', [b''])[0].decode('utf8')
     duplicate      = obj.get('univentionOpenvpnDuplicate', [b''])[0].decode('utf8')
-    dualfactorauth = obj.get('univentionOpenvpnDualfactorauth', [b''])[0].decode('utf8')
     fixedaddresses = obj.get('univentionOpenvpnFixedAddresses', [b''])[0].decode('utf8')
 
     # derived values
@@ -822,14 +820,10 @@ def update_config(obj):
         options.append('duplicate-cn\n')
     if fixedaddresses == '1':
         options.append('client-config-dir %s\n' % ccd)
-    if dualfactorauth == '1':
-        options.append('plugin /usr/lib/x86_64-linux-gnu/openvpn/plugins/openvpn-plugin-auth-pam.so /etc/pam.d/openvpn\n')
-    else:
-        options.append('plugin /usr/lib/x86_64-linux-gnu/openvpn/plugins/openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass\n')
 
     # read, update & write server config
     flist = load_rc(fn_serverconf)
-    flist = [x for x in flist if not re.search("^\s*port\s", x) and not re.search('^\s*push "redirect-gateway', x) and not re.search("^\s*duplicate-cn", x) and not re.search("^\s*server\s", x) and not re.search("^\s*server-ipv6\s", x) and not re.search("^\s*client-config-dir\s", x) and not re.search("^\s*proto\s", x) and not re.search("^\s*plugin\s", x)]
+    flist = [x for x in flist if not re.search("^\s*port\s", x) and not re.search('^\s*push "redirect-gateway', x) and not re.search("^\s*duplicate-cn", x) and not re.search("^\s*server\s", x) and not re.search("^\s*server-ipv6\s", x) and not re.search("^\s*client-config-dir\s", x) and not re.search("^\s*proto\s", x)]
     flist += options
 
     write_rc(flist, fn_serverconf)
