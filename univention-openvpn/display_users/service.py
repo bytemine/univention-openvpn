@@ -34,6 +34,7 @@ import os
 import univention.uldap as ul
 from socket_handler import *
 from OpenSSL import crypto
+from datetime import date
 from M2Crypto import RSA, BIO
 from base64 import b64decode
 
@@ -157,10 +158,10 @@ def license(key):
         raw = ''
         while len(enc) > pbs:
             d, key = (enc[:pbs], enc[pbs:])
-            raw = raw + pub.public_decrypt(d, 1)
+            raw = raw + pub.public_decrypt(d, 1).decode('utf8')
         if len(enc) != pbs:
             return None		# invalid license
-        raw = raw + pub.public_decrypt(enc, 1)
+        raw = raw + pub.public_decrypt(enc, 1).decode('utf8')
         #
         items = raw.rstrip().split('\n')
         if not items:
