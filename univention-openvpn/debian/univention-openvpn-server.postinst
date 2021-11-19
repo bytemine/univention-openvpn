@@ -57,6 +57,10 @@ if [ "$1" = "configure" ]; then
 	  fi
 	done
 
+	# openvpn plugin search path does not contain the dir
+	# where the package puts the plugins (only req. for 1.1.21)
+	ln -s /usr/lib/openvpn/openvpn-plugin-auth-pam.so /usr/lib
+
 	/usr/lib/openvpn-int/o4uCA_setup
 	/usr/bin/python /usr/lib/openvpn-int/refresh-bundles.py
 fi
