@@ -600,39 +600,6 @@ udm groups/group create "$@" --ignore_exists \
     --set users="uid=Administrator,cn=users,$ldap_base"
 
 
-rdy2gobas="/var/www/readytogo"
-templates=/usr/lib/openvpn-int/templates
-
-mkdir -p "${rdy2gobas}"
-
-cat > "${rdy2gobas}/.htaccess" <<-ENDOFHTACCESS
-ErrorDocument 404 /readytogo/notfound.html
-ENDOFHTACCESS
-
-cp ${templates}/download.head "${rdy2gobas}/notfound.html"
-echo "<p>This page does not exist. Please talk to your VPN admin who should consider a license issue.</p>" >> "${rdy2gobas}/notfound.html"
-cat ${templates}/download.tail >> "${rdy2gobas}/notfound.html"
-
-
-cat > /etc/apache2/sites-available/openvpn4ucs2.conf <<-ENDOFSITECFG
-<Location /readytogo>
-    Options -Indexes
-</Location>
-ENDOFSITECFG
-
-chmod 0600 /etc/apache2/sites-available/openvpn4ucs2.conf
-
-
-for dir in /var/www/readytogo/*/
-do
-    sed -i "/AuthLDAPBindPassword/c\AuthLDAPBindPassword ${pw}" $dir.htaccess
-    sed -i "/AuthLDAPBindDN/c\AuthLDAPBindDN \"uid=$name,cn=users,$ldap_base\"" $dir.htaccess
-done
-
-a2ensite openvpn4ucs2
-
-/etc/init.d/apache2 restart
-
 
 stop_udm_cli_server
 

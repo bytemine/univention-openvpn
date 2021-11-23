@@ -3,12 +3,19 @@
 #DEBHELPER#
 
 if [ "$1" = "remove" ]; then
+	if [ $(ucr get server/role) = domaincontroller_master ]; then
+		ident=openvpn4ucs_dl
+	else
+		ident=openvpn4ucs_ndl
+	fi
 	ucr unset \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/description/de \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/description \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/label/de \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/label \
-		ucs/web/overview/entries/service/openvpn4ucs_dl/link
+		ucs/web/overview/entries/service/${ident}/description/de \
+		ucs/web/overview/entries/service/${ident}/description \
+		ucs/web/overview/entries/service/${ident}/label/de \
+		ucs/web/overview/entries/service/${ident}/label \
+		ucs/web/overview/entries/service/${ident}/icon \
+		ucs/web/overview/entries/service/${ident}/link
+	fi
 fi
 
 exit 0
