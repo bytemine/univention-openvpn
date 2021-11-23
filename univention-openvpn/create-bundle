@@ -24,14 +24,20 @@ rdy2gobas="/var/www/readytogo"
 readytogo="${rdy2gobas}/${uid}/"
 mkdir -p "${readytogo}"
 
-pw=$(cat /etc/ldapper-m.secret)
+if -f /etc/ldapper-m.secret; then
+    pw=$(cat /etc/ldapper-m.secret)
+    m_or_s=m
+else
+    pw=$(cat /etc/ldapper-s.secret)
+    m_or_s=s
+fi
 
 cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
 AuthBasicProvider ldap
 AuthType Basic
 AuthName "secret"
 AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
-AuthLDAPBindDN "uid=ldapper-m-$hostname,cn=users,$ldap_base"
+AuthLDAPBindDN "uid=ldapper-${m_or_s}-$hostname,cn=users,$ldap_base"
 AuthLDAPBindPassword $pw
 Require ldap-user ${uid}
 
