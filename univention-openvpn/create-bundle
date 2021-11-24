@@ -24,7 +24,7 @@ rdy2gobas="/var/www/readytogo"
 readytogo="${rdy2gobas}/${uid}/"
 mkdir -p "${readytogo}"
 
-if -f /etc/ldapper-m.secret; then
+if [ -f /etc/ldapper-m.secret ]; then
     pw=$(cat /etc/ldapper-m.secret)
     m_or_s=m
 else
