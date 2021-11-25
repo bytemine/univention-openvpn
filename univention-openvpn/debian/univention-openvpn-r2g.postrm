@@ -15,7 +15,6 @@ if [ "$1" = "remove" ]; then
 		ucs/web/overview/entries/service/${ident}/label \
 		ucs/web/overview/entries/service/${ident}/icon \
 		ucs/web/overview/entries/service/${ident}/link
-	fi
 fi
 
 exit 0

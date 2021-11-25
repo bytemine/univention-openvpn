@@ -10,6 +10,7 @@ if [ "$1" = "remove" ]; then
 		ucs/web/overview/entries/service/openvpn4ucs/description \
 		ucs/web/overview/entries/service/openvpn4ucs/label/de \
 		ucs/web/overview/entries/service/openvpn4ucs/label \
+		ucs/web/overview/entries/service/openvpn4ucs/icon \
 		ucs/web/overview/entries/service/openvpn4ucs/link
 
 	. /usr/share/univention-lib/base.sh
