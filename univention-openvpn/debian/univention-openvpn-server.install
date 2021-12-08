@@ -19,4 +19,4 @@ pam.d/ldaponly-auth etc/pam.d
 pam.d/vpncheckpass etc/pam.d
 o4uCA_setup usr/lib/openvpn-int
 o4uCert_new usr/lib/openvpn-int
-o4uCert_revoke usrlib/openvpn-int
+o4uCert_revoke usr/lib/openvpn-int
