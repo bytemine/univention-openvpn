@@ -135,8 +135,7 @@ def handle_server(dn, old, new, changes):
         action = None
         return
 
-    if active == b'1':
-        return server_modify(dn, old, new, changes)
+    return server_modify(dn, old, new, changes)
 
     lilog(ud.INFO, 'nothing to do')
 
@@ -167,7 +166,7 @@ def user_disable(dn, obj):
     myname = listener.configRegistry['hostname']
     listener.setuid(0)
     try:
-        listener.run('/usr/lib/openvpn-int/remove-bundle', ['remove-bundle', uid, myname], uid=0)
+        listener.run('/usr/lib/openvpn-int/remove-bundle', ['remove-bundle', uid, '/nonexistent/bla', myname], uid=0)
     except:
         lilog(ud.ERROR, 'removing readytogo packages failed')
     finally:
@@ -184,6 +183,8 @@ def user_enable(dn, obj):
     if not uid:
         lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
         return
+
+    home = obj.get('homeDirectory', [b''])[0].decode('utf8')
 
     listener.setuid(0)
     try:
@@ -208,7 +209,7 @@ def user_enable(dn, obj):
     try:
         listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', 'yes', uid, home, name, addr, port, proto], uid=0)
     except:
-            lilog(ud.ERROR, 'create-bundle failed')
+        lilog(ud.ERROR, 'create-bundle failed')
     finally:
         listener.unsetuid()
 
