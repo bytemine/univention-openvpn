@@ -1,0 +1,2 @@
+#!/bin/sh
+apt-get -q purge python-univention-openvpn-common univention-openvpn-master univention-openvpn-r2g univention-openvpn-schema

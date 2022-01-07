@@ -5,3 +5,4 @@ openvpn-master.py usr/lib/univention-directory-listener/system
 openvpn-master2.py usr/lib/univention-directory-listener/system
 94univention-openvpn-master.inst usr/lib/univention-install
 06univention-openvpn-master-uninstall.uinst usr/lib/univention-uninstall
+cleanup-dmp /usr/lib/openvpn-int
