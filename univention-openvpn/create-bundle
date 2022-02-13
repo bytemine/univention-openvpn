@@ -16,6 +16,46 @@ addr=$4
 port=$5
 proto=$6
 
+
+eval "$(ucr shell)"
+
+umask 037
+rdy2gobas="/var/www/readytogo"
+readytogo="${rdy2gobas}/${uid}/"
+mkdir -p "${readytogo}"
+
+if [ -f /etc/ldapper-m.secret ]; then
+    pw=$(cat /etc/ldapper-m.secret)
+    m_or_s=m
+else
+    pw=$(cat /etc/ldapper-s.secret)
+    m_or_s=s
+fi
+
+cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
+AuthBasicProvider ldap
+AuthType Basic
+AuthName "secret"
+AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
+AuthLDAPBindDN "uid=ldapper-${m_or_s}-$hostname,cn=users,$ldap_base"
+AuthLDAPBindPassword $pw
+Require ldap-user ${uid}
+
+ENDOFHTACCESS
+chgrp www-data "${readytogo}/.htaccess" "${rdy2gobas}" "${rdy2gobas}/.htaccess" "${rdy2gobas}/notfound.html" "${readytogo}"
+chmod 640 "${readytogo}/.htaccess"
+chmod 750 "${rdy2gobas}" "${rdy2gobas}/.htaccess" "${rdy2gobas}/notfound.html" "${readytogo}"
+
+if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
+    a2enmod ldap
+    a2enmod authnz_ldap
+    /etc/init.d/apache2 restart
+fi
+
+
+# only run this part on the master
+if [ $(ucr get server/role) = domaincontroller_master ]; then
+
 ssl=/etc/univention/ssl
 
 # create or renew certificate for user
@@ -30,6 +70,44 @@ if /usr/sbin/univention-certificate check -name "${uid}.openvpn"; then
 else
     univention-certificate new -name "${uid}.openvpn"
 fi
+
+# prepare a matching client config (for iOS)
+cat > "${ssl}/${uid}.openvpn/${server}-ios.ovpn" <<-ENDOFCLIENTCONFIG
+	# client config for server ${server}
+	client
+	dev tun0
+	proto ${proto}
+	remote ${addr} ${port}
+	tls-remote ${server}
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	cipher AES-256-CBC
+	comp-lzo
+	verb 3
+	auth-user-pass
+	script-security 2
+	up /etc/openvpn/update-resolv-conf
+	down /etc/openvpn/update-resolv-conf
+
+ENDOFCLIENTCONFIG
+
+#append the CA cert to ios
+echo "<ca>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+cat ${ssl}/ucsCA/CAcert.pem | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+echo "</ca>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+
+#append the client cert to ios
+echo "<cert>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+cat ${ssl}/${uid}.openvpn/cert.pem | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+echo "</cert>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+
+#append the client private key to ios
+echo "<key>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+cat ${ssl}/${uid}.openvpn/private.key >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+echo "</key>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+
 
 # prepare a matching client config (for versions < 2.3)
 cat > "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" <<-ENDOFCLIENTCONFIG
@@ -57,45 +135,6 @@ cat > "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" <<-ENDOFCLIENTCONFIG
 	down /etc/openvpn/update-resolv-conf
 
 ENDOFCLIENTCONFIG
-
-
-# prepare a matching client config (for iOS)
-cat > "${ssl}/${uid}.openvpn/${server}-ios.ovpn" <<-ENDOFCLIENTCONFIG
-	# client config for server ${server}
-	client
-	dev tun0
-	proto ${proto}
-	remote ${addr} ${port}
-	tls-remote ${server}
-	resolv-retry infinite
-	nobind
-	persist-key
-	persist-tun
-	cipher AES-256-CBC
-	comp-lzo
-	verb 3
-	auth-user-pass
-	script-security 2
-	up /etc/openvpn/update-resolv-conf
-	down /etc/openvpn/update-resolv-conf
-
-ENDOFCLIENTCONFIG
-
-#Now, append the CA pem for ios
-echo "<ca>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-cat ${ssl}/ucsCA/CAcert.pem | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-echo "</ca>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-
-#Next append the client pem for ios
-echo "<cert>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-cat ${ssl}/${uid}.openvpn/cert.pem | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-echo "</cert>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-
-#Then, append the client private key for ios
-echo "<key>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-cat ${ssl}/${uid}.openvpn/private.key >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-echo "</key>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-
 
 # prepare a matching client config (windows, versions < 2.3)
 cat > "${ssl}/${uid}.openvpn/win-${server}-pre23.ovpn" <<-ENDOFWINCLIENTCONFIG
@@ -170,37 +209,6 @@ cat > "${ssl}/${uid}.openvpn/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 
 ENDOFWINCLIENTCONFIG
 
-eval "$(ucr shell)"
-
-# zip all required files into home if it exists,
-# always put a copy into download directory for user
-umask 037
-rdy2gobas="/var/www/readytogo"
-readytogo="${rdy2gobas}/${uid}/"
-mkdir -p "${readytogo}"
-
-pw=$(cat /etc/ldapper-m.secret)
-
-cat > "${readytogo}/.htaccess" <<-ENDOFHTACCESS
-AuthBasicProvider ldap
-AuthType Basic
-AuthName "secret"
-AuthLDAPURL "ldap://$ldap_server_name:$ldap_server_port/$ldap_base?uid"
-AuthLDAPBindDN "uid=ldapper-m-$hostname,cn=users,$ldap_base"
-AuthLDAPBindPassword $pw
-Require ldap-user ${uid}
-
-ENDOFHTACCESS
-chgrp www-data "${readytogo}/.htaccess" "${rdy2gobas}" "${rdy2gobas}/.htaccess" "${rdy2gobas}/notfound.html" "${readytogo}"
-chmod 640 "${readytogo}/.htaccess"
-chmod 750 "${rdy2gobas}" "${rdy2gobas}/.htaccess" "${rdy2gobas}/notfound.html" "${readytogo}"
-
-if [ ! -f /etc/apache2/mods-enabled/ldap.load ] || [ ! -f /etc/apache2/mods-enabled/authnz_ldap.load ]; then
-    a2enmod ldap
-    a2enmod authnz_ldap
-    /etc/init.d/apache2 restart
-fi
-
 bundle="${readytogo}/openvpn-${server}-${uid}.zip"
 umask 037
 
@@ -210,7 +218,7 @@ zip -j "$bundle" \
     "${ssl}/${uid}.openvpn/private.key" \
     "${ssl}/${uid}.openvpn/${server}.ovpn" \
     "${ssl}/${uid}.openvpn/win-${server}.ovpn" \
-    "${ssl}/${uid}.openvpn/${server}-ios.ovpn" \
+	"${ssl}/${uid}.openvpn/${server}-ios.ovpn" \
     "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" \
     "${ssl}/${uid}.openvpn/win-${server}-pre23.ovpn"
 chown "$uid" "$bundle"
@@ -223,19 +231,119 @@ if [ -d "$home" ]; then
     chown "$uid"."Domain Users" "${bundle2}"
 fi
 
+fi	# if domaincontroller_master
+
+
+# ----- now the bundles for the new/upcoming pki -----
+
+cacrt=/etc/openvpn/o4uCA/ca.crt
+ssl=/etc/openvpn/o4uCA/users
+
+# only run this part where the actual openvpn server runs
+if [ -f $cacrt ]; then
+
+# create certificate for user
+ls -al "${ssl}/$uid"
+if [ ! -d "${ssl}/$uid" ]; then
+	/usr/lib/openvpn-int/o4uCert_new "$uid"
+fi
+
+(
+  echo '<ca>'; cat "$cacrt"; echo -e '</ca>\n<cert>';
+  cat "${ssl}/${uid}/cert.pem"; echo -e '</cert>\n<key>';
+  cat "${ssl}/${uid}/private.key"; echo '</key>'
+) > "${ssl}/${uid}/${server}.ovpn"
+cp "${ssl}/${uid}/${server}.ovpn" "${ssl}/${uid}/win-${server}.ovpn"
+
+# prepare a matching client config
+cat >> "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
+
+	# client config for server ${server}
+
+	client
+	dev tun0
+	proto ${proto}
+	remote ${addr} ${port}
+	verify-x509-name ${server} name-prefix
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	cipher AES-256-CBC
+	comp-lzo
+	verb 3
+	auth-user-pass
+
+	script-security 2
+	up /etc/openvpn/update-resolv-conf 
+	down /etc/openvpn/update-resolv-conf
+
+ENDOFCLIENTCONFIG
+
+# prepare a matching client config (windows)
+cat >> "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
+
+	# windows client config for server ${server}
+
+	client
+	dev tun
+	proto ${proto}
+	remote ${addr} ${port}
+	verify-x509-name ${server} name-prefix
+	resolv-retry infinite
+	nobind
+	persist-key
+	persist-tun
+	cipher AES-256-CBC
+	comp-lzo
+	verb 3
+	auth-user-pass
+
+ENDOFWINCLIENTCONFIG
+
+eval "$(ucr shell)"
+
+# zip all files and put a copy into download directory for user
+umask 037
+rdy2gobas="/var/www/readytogo"
+readytogo="${rdy2gobas}/${uid}/"
+mkdir -p "${readytogo}/npki"
+
+chmod 750 "${readytogo}/npki"
+chgrp www-data "${readytogo}/npki"
+
+bundle="${readytogo}/npki/openvpn-${server}-${uid}.zip"
+umask 037
+
+rm -f "$bundle"
+zip -j "$bundle" \
+    "${ssl}/${uid}/${server}.ovpn" \
+    "${ssl}/${uid}/win-${server}.ovpn"
+chown "$uid" "$bundle"
+chgrp www-data "$bundle"
+
+fi	# if $cacrt exists
+
+
+# always run this part
+
 # insert a list of all available packages for the user into download.html
 umask 037
 templates=/usr/lib/openvpn-int/templates
 rm -f "${readytogo}/download.html"
 cp ${templates}/download.head "${readytogo}/download.html"
 for rtgp in $(cd "${readytogo}" && echo "openvpn-"*"-${uid}.zip"); do
-    echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+    if [ -f ${readytogo}/${rtgp} ]; then
+        echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+    fi
+done >> "${readytogo}/download.html"
+for rtgp in $(cd "${readytogo}" && echo "npki/openvpn-"*"-${uid}.zip"); do
+    if [ -f ${readytogo}/${rtgp} ]; then
+        echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+    fi
 done >> "${readytogo}/download.html"
 cat ${templates}/download.tail >> "${readytogo}/download.html"
 chgrp www-data "${readytogo}/download.html"
 chmod 640 "${readytogo}/download.html"
-
-
-
 
 exit 0
