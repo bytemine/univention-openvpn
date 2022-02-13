@@ -72,7 +72,7 @@ else
 fi
 
 # prepare a matching client config (for iOS)
-cat > "${ssl}/${uid}.openvpn/${server}-ios.ovpn" <<-ENDOFCLIENTCONFIG
+cat > "${ssl}/${uid}.openvpn/$ios-{server}.ovpn" <<-ENDOFCLIENTCONFIG
 	# client config for server ${server}
 	client
 	dev tun0
@@ -94,19 +94,19 @@ cat > "${ssl}/${uid}.openvpn/${server}-ios.ovpn" <<-ENDOFCLIENTCONFIG
 ENDOFCLIENTCONFIG
 
 #append the CA cert to ios
-echo "<ca>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-cat ${ssl}/ucsCA/CAcert.pem | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-echo "</ca>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+echo "<ca>" >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
+cat ${ssl}/ucsCA/CAcert.pem | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
+echo "</ca>" >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
 
 #append the client cert to ios
-echo "<cert>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-cat ${ssl}/${uid}.openvpn/cert.pem | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-echo "</cert>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+echo "<cert>" >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
+cat ${ssl}/${uid}.openvpn/cert.pem | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
+echo "</cert>" >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
 
 #append the client private key to ios
-echo "<key>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-cat ${ssl}/${uid}.openvpn/private.key >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
-echo "</key>" >> ${ssl}/${uid}.openvpn/${server}-ios.ovpn
+echo "<key>" >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
+cat ${ssl}/${uid}.openvpn/private.key >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
+echo "</key>" >> ${ssl}/${uid}.openvpn/$ios-{server}.ovpn
 
 
 # prepare a matching client config (for versions < 2.3)
@@ -218,7 +218,7 @@ zip -j "$bundle" \
     "${ssl}/${uid}.openvpn/private.key" \
     "${ssl}/${uid}.openvpn/${server}.ovpn" \
     "${ssl}/${uid}.openvpn/win-${server}.ovpn" \
-	"${ssl}/${uid}.openvpn/${server}-ios.ovpn" \
+	"${ssl}/${uid}.openvpn/$ios-{server}.ovpn" \
     "${ssl}/${uid}.openvpn/${server}-pre23.ovpn" \
     "${ssl}/${uid}.openvpn/win-${server}-pre23.ovpn"
 chown "$uid" "$bundle"
