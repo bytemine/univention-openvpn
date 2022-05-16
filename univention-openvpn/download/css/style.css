@@ -105,7 +105,7 @@ h5 {
 
 /* #dunkelrot */
 a, nav li a:hover, .active, .active-sub, #hotline,  .side-navigation li a:hover, .side-navigation li a:active {
-    color: #760b25;
+    color: #002e59;
 }
 
 .active {
@@ -145,7 +145,7 @@ label {
 }
 
 .red {
-    color: #8b0000 !important;
+    color: #002e59 !important;
 }
 
 #container {
@@ -478,7 +478,7 @@ header {
 }
 
 .hotline .red {
-    color: #760b25 !important;
+    color: #002e59 !important;
 }
 
 #logo {
