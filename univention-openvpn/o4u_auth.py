@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import sys
+import syslog
+import os
 import pam
 import pyotp
 import base64
-
 
 
 def mfaauth(user, pwstr, secret):
@@ -23,12 +24,18 @@ def mfaauth(user, pwstr, secret):
     ores = totp.verify(otp)
     pres = pamauth(user, pwd)
 
+    if pres and not ores:
+        syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' TOTP mismatch'.format(user))
+
     return ores and pres
 
 
 def pamauth(user, pwstr):
     a = pam.pam()
-    return a.authenticate(user, pwstr)
+    r = a.authenticate(user, pwstr)
+    if not r:
+        syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' password mismatch'.format(user))
+    return r
 
 
 def main():
@@ -40,6 +47,11 @@ def main():
         lines = creds.split('\n')
         user = lines[0]
         pwstr = lines[1]
+
+        cn = os.environ.get('common_name')
+        if user + '.openvpn' != cn:
+            syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' cert mismatch ({})'.format(user, cn))
+            return 1
 
         # check if user has totp configured
         secret = None
@@ -58,10 +70,12 @@ def main():
 
         ares = mfaauth(user, pwstr, secret) if secret else pamauth(user, pwstr)
 
-        exit(0 if ares else 1)
-    except:
-        exit(1)
+        return 0 if ares else 1
+    except Exception as e:
+        syslog.syslog(syslog.LOG_ERR, 'user \'{}\' {}'.format(user, e))
+        return 1
 
 
 if __name__ == '__main__':
-    main()
+    syslog.openlog('openvpn4ucs/auth', 0, syslog.LOG_AUTH)
+    exit(main())
