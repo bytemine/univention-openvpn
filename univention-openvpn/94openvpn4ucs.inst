@@ -363,6 +363,30 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set doNotSearch='0' \
     --set hook='None' || die
 
+udm settings/extended_attribute remove "$@" \
+    --dn "cn=UniventionOpenvpn-TOTP,${eabas}" >/dev/null 2>&1
+univention-directory-manager settings/extended_attribute create "$@" --ignore_exists \
+    --position "cn=openvpn,cn=custom attributes,cn=univention,$ldap_base" \
+    --set module="users/user" \
+    --set ldapMapping='univentionOpenvpnTOTP' \
+    --set objectClass='univentionOpenvpnUser' \
+    --set name='UniventionOpenvpn-TOTP' \
+    --set shortDescription='enable TOTP' \
+    --set longDescription='enable additional TOTP for this account ' \
+    --set translationShortDescription='"de_DE" "TOTP aktivieren"' \
+    --set translationLongDescription='"de_DE" "Wenn diese Option gesetzt wird, dann wird beim OpenVPN Login zusätzlich zum UCS Passwort auch ein TOTP erforderlich."' \
+    --set tabAdvanced='1' \
+    --set tabName='OpenVPN4UCS' \
+    --set overwriteTab='0' \
+    --set valueRequired='0' \
+    --set CLIName='openvpnTOTP' \
+    --set syntax='boolean' \
+    --set mayChange='1' \
+    --set multivalue='0' \
+    --set deleteObjectClass='0' \
+    --set doNotSearch='0' \
+    --set hook='None' || die
+
 
 # extension of computer objects for sitetosite
 
