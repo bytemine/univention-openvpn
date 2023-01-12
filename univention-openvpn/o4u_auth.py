@@ -39,6 +39,7 @@ def pamauth(user, pwstr):
 
 
 def main():
+    user = ''
     try:
         f = open(sys.argv[1])
         creds = f.read()
@@ -72,7 +73,7 @@ def main():
 
         return 0 if ares else 1
     except Exception as e:
-        syslog.syslog(syslog.LOG_ERR, 'user \'{}\' {}'.format(user, e))
+        syslog.syslog(syslog.LOG_ERR, 'user {:.32} {}'.format(repr(user), e))
         return 1
 
 
