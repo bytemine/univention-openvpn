@@ -15,7 +15,7 @@ for l in f:
         q.add_data('otpauth://totp/bytemine.net:{}?secret={}&issuer=bytemine.net&digits=6'.format(u, s))
         q.make (fit=True)
         pngpath = '/var/www/readytogo/{}/qrcode.png'.format(u)
-        x = q.make_image)
+        x = q.make_image()
         x.save(pngpath)
         os.chmod(pngpath, 0640)
         uid = pwd.getpwnam(u).pw_uid
