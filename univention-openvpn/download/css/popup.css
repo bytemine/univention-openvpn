@@ -1,0 +1,40 @@
+.triggerText {
+  display: block;
+  position: relative;
+  cursor: pointer;
+}
+
+.otpPopup {
+  visibility: hidden;
+  background-color: #888;
+  width: auto;
+  Position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  font-size: 0;
+  padding: 8px;
+  border-radius: 8px;
+  margin: 0;
+}
+
+.otpQrcode {
+  object-fit: none; 
+  padding: 0;
+  margin: 0;
+}
+
+.otpSecret {
+  color: #000;
+  background-color: #ddd;
+  font-size: 10pt;
+  font-family: monospace;
+  text-align: center;
+  padding: 16px;
+  margin: 0;
+}
+
+.show {
+  visibility: visible;
+}
