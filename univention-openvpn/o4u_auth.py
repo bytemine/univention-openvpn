@@ -45,8 +45,8 @@ def main():
         f.close()
 
         lines = creds.split('\n')
-        user = lines[0]
-        pwstr = lines[1]
+        user = lines[0][:64]
+        pwstr = lines[1][:64]
 
         cn = os.environ.get('common_name')
         if user + '.openvpn' != cn:
