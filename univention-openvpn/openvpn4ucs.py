@@ -133,6 +133,7 @@ def postrun():
 
 usr_attrs  = [
     'univentionOpenvpnAccount',
+    'univentionOpenvpnTOTP',
 ]
 
 srv_attrs = [
@@ -172,6 +173,7 @@ isin_and = lambda k, d, o, v: k in d and o(d[k], v)
 lilog = lambda l, s: ud.debug(ud.LISTENER, l, 'openvpn4ucs - ' + s)
 
 fn_serverconf = '/etc/openvpn/server.conf'
+fn_mfasecrets = '/etc/openvpn/mfa/secrets'
 fn_sitetositeconf = '/etc/openvpn/sitetosite.conf'
 fn_secret = '/etc/openvpn/sitetosite.key'
 fn_masqrule = '/etc/security/packetfilter.d/51_openvpn4ucs.sh'
@@ -188,6 +190,12 @@ def handle_user(dn, obj, changes):
 
     if isin_and('univentionOpenvpnAccount', changes, op.ne, '1'):
         return user_disable(dn, obj)
+
+    if isin_and('univentionOpenvpnTOTP', changes, op.eq, '1'):
+        return totp_enable(dn, obj)
+
+    if isin_and('univentionOpenvpnTOTP', changes, op.ne, '1'):
+        return totp_disable(dn, obj)
 
     lilog(ud.INFO, 'nothing to do')
 
@@ -366,6 +374,47 @@ def user_enable(dn, obj):
     write_rc(lines, ccd + uid + ".openvpn")
 
 
+def totp_disable(dn, obj):
+    lilog(ud.INFO, 'totp disable')
+
+    if not check_user_count():
+        return			# do nothing
+
+    uid = obj.get('uid', [b''])[0].decode('utf8')
+    if not uid:
+        lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
+        return
+
+    lilog(ud.INFO, 'removing totp secret for ' + uid)
+
+    listener.setuid(0)
+    r = [ (u, s) for u, s in read_secrets() if u != uid]
+    write_secrets(r)
+    listener.unsetuid()
+
+
+def totp_enable(dn, obj):
+    lilog(ud.INFO, 'totp enable')
+
+    if not check_user_count():
+        return			# do nothing
+
+    uid = obj.get('uid', [b''])[0].decode('utf8')
+    if not uid:
+        lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
+        return
+
+    listener.setuid(0)
+    r = [ (u, s) for u, s in read_secrets() if u != uid]
+    try:
+        s = base64.b32encode(os.urandom(15))
+        r.append((uid, s))
+        write_secrets(r)
+    except:
+        ud.debug(ud.LISTENER, ud.WARNING, 'failed to generate secret for {}'.format(uid)
+    listener.unsetuid()
+
+
 # -----------
 
 
@@ -517,7 +566,7 @@ ca /etc/openvpn/o4uCA/ca.crt
 cert /etc/openvpn/server.crt
 key /etc/openvpn/server.key
 crl-verify /etc/openvpn/o4uCA/crl.pem
-cipher AES-256-CBC
+cipher AES-256-GCM
 ifconfig-pool-persist ipp.txt
 {routes}{donamC}push "dhcp-option DNS {nameserver1}"
 {dodomC}push "dhcp-option DOMAIN {dodom}"
@@ -600,7 +649,7 @@ status /var/log/openvpn/openvpn-sitetosite-status.log
 management /var/run/management-udp-sitetosite unix
 dev tun
 secret {fn_secret}
-cipher AES-256-CBC
+cipher AES-256-GCM
 
 ### Values which can be changed through UDM
 
@@ -878,6 +927,26 @@ def update_config_s2s(obj):
 
     write_rc(flist, fn_sitetositeconf)
     return True
+
+
+# read users and secrets
+def read_secrets():
+    with open(fn_mfasecrets) as f:
+        r = []
+        for l in f:
+            try:
+                u, s = l.tstrip().split(':')[:2]
+                r.append((u, s))
+            except:
+                ud.debug(ud.LISTENER, ud.INFO, 'ignoring line \'{}\''.format(l[:64]))
+        return r
+
+
+# write users and secrets
+def write_secrets(l):
+    with open(fn_mfasecrets, 'w') as f:
+        for u, s in l:
+            f.write('{}:{}\n'.format(u, s))
 
 
 # extract netmasks from network strings

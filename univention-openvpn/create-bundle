@@ -42,10 +42,11 @@ cat >> "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
 	nobind
 	persist-key
 	persist-tun
-	cipher AES-256-CBC
-	comp-lzo
+	cipher AES-256-GCM
+	com-lzo
 	verb 3
 	auth-user-pass
+	auth-nocache
 
 	script-security 2
 	up /etc/openvpn/update-resolv-conf 
