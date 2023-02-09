@@ -34,6 +34,8 @@ __package__ = ''  # workaround for PEP 366
 
 import re
 import os
+import pwd
+import grp
 import operator as op
 import traceback
 
@@ -43,11 +45,12 @@ import univention.uldap as ul
 import univention.config_registry as ucr
 import univention.config_registry.interfaces
 import netaddr
+import qrcode
 import csv
 
 from datetime import date
 from M2Crypto import RSA, BIO
-from base64 import b64decode
+from base64 import b64decode, b32encode
 
 
 name        = 'openvpn4ucs'
@@ -177,6 +180,7 @@ fn_mfasecrets = '/etc/openvpn/mfa/secrets'
 fn_sitetositeconf = '/etc/openvpn/sitetosite.conf'
 fn_secret = '/etc/openvpn/sitetosite.key'
 fn_masqrule = '/etc/security/packetfilter.d/51_openvpn4ucs.sh'
+fn_ready2go = '/var/www/readytogo'
 
 action = None
 action_s2s = None
@@ -390,6 +394,10 @@ def totp_disable(dn, obj):
     listener.setuid(0)
     r = [ (u, s) for u, s in read_secrets() if u != uid]
     write_secrets(r)
+    try:
+        os.unlink('{}/{}/qrcode.png'.format(fn_ready2go, uid))
+    except Exception as e:
+        ud.debug(ud.LISTENER, ud.WARNING, 'cannot remove qrcode for {}: {}'.format(uid), e)
     listener.unsetuid()
 
 
@@ -407,11 +415,23 @@ def totp_enable(dn, obj):
     listener.setuid(0)
     r = [ (u, s) for u, s in read_secrets() if u != uid]
     try:
-        s = base64.b32encode(os.urandom(15))
+        s = b32encode(os.urandom(15))
         r.append((uid, s))
         write_secrets(r)
     except:
-        ud.debug(ud.LISTENER, ud.WARNING, 'failed to generate secret for {}'.format(uid)
+        ud.debug(ud.LISTENER, ud.WARNING, 'failed to generate secret for {}'.format(uid))
+    try:
+        q = qrcode.QRCode(box_size=5)
+        q.add_data('otpauth://totp/OpenVPN4UCS:{}?secret={}&issuer=OpenVPN4UCS&digits=6'.format(uid, s))
+        p = '{}/{}/qrcode.png'.format(fn_ready2go, uid)
+        x = q.make_image()
+        x.save(p)
+        os.chmod(p, 0640)
+        uid = pwd.getpwnam(uid).pw_uid
+        gid = grp.getgrnam('www-data').gr_gid
+        os.chown(p, uid, gid)
+    except:
+        ud.debug(ud.LISTENER, ud.WARNING, 'failed to generate qrcode for {}'.format(uid))
     listener.unsetuid()
 
 
