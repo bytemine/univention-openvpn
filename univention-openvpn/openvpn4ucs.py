@@ -392,12 +392,35 @@ def totp_disable(dn, obj):
     lilog(ud.INFO, 'removing totp secret for ' + uid)
 
     listener.setuid(0)
+    try:
+        lo = ul.getMachineConnection()
+
+        name = listener.configRegistry['hostname']
+
+        tmp, server = lo.search('(cn=' + name + ')')[0]
+
+        port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+        addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
+        proto = 'udp6' if addr and addr.count(':') else 'udp'
+    except:
+        pass
+
+    if not name or not port or not addr:
+        lilog(ud.ERROR, 'missings params')
+        return
+
     r = [ (u, s) for u, s in read_secrets() if u != uid]
     write_secrets(r)
+
     try:
         os.unlink('{}/{}/qrcode.png'.format(fn_ready2go, uid))
     except Exception as e:
         ud.debug(ud.LISTENER, ud.WARNING, 'cannot remove qrcode for {}: {}'.format(uid), e)
+    try:
+        listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+    except:
+        lilog(ud.ERROR, 'create-bundle failed')
+
     listener.unsetuid()
 
 
@@ -413,6 +436,7 @@ def totp_enable(dn, obj):
         return
 
     listener.setuid(0)
+
     r = [ (u, s) for u, s in read_secrets() if u != uid]
     try:
         s = b32encode(os.urandom(15))
@@ -420,6 +444,7 @@ def totp_enable(dn, obj):
         write_secrets(r)
     except:
         ud.debug(ud.LISTENER, ud.WARNING, 'failed to generate secret for {}'.format(uid))
+
     try:
         q = qrcode.QRCode(box_size=5)
         q.add_data('otpauth://totp/OpenVPN4UCS:{}?secret={}&issuer=OpenVPN4UCS&digits=6'.format(uid, s))
@@ -432,6 +457,22 @@ def totp_enable(dn, obj):
         os.chown(p, uid, gid)
     except:
         ud.debug(ud.LISTENER, ud.WARNING, 'failed to generate qrcode for {}'.format(uid))
+
+    try:
+        lo = ul.getMachineConnection()
+
+        name = listener.configRegistry['hostname']
+
+        tmp, server = lo.search('(cn=' + name + ')')[0]
+
+        port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+        addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
+        proto = 'udp6' if addr and addr.count(':') else 'udp'
+
+        listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+    except:
+        lilog(ud.ERROR, 'create-bundle failed')
+
     listener.unsetuid()
 
 
