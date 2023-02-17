@@ -97,7 +97,8 @@ objectclass ( 1.3.6.1.4.1.10176.99998.7697.2.2
 	NAME 'univentionOpenvpnUser'
 	DESC 'OpenVPN User'
 	SUP top AUXILIARY
-	MAY univentionOpenvpnAccount $ univentionOpenvpnTOTP )
+	MAY ( univentionOpenvpnAccount $ univentionOpenvpnTOTP )
+)
 
 attributetype ( 1.3.6.1.4.1.10176.99998.7697.1.12
 	Name 'univentionOpenvpnRemote'
