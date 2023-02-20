@@ -353,6 +353,9 @@ def user_enable(dn, obj):
     finally:
         listener.unsetuid()
 
+    if isin_and('univentionOpenvpnTOTP', obj, op.eq, b'1'):
+        totp_enable(dn, obj)
+
     # ccd config for user
 
     network           = server.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
@@ -415,7 +418,7 @@ def totp_disable(dn, obj):
     try:
         os.unlink('{}/{}/qrcode.png'.format(fn_ready2go, uid))
     except Exception as e:
-        ud.debug(ud.LISTENER, ud.WARNING, 'cannot remove qrcode for {}: {}'.format(uid), e)
+        ud.debug(ud.LISTENER, ud.ERROR, 'cannot remove qrcode for {}: {}'.format(uid, e))
     try:
         listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
     except:
@@ -438,12 +441,14 @@ def totp_enable(dn, obj):
     listener.setuid(0)
 
     r = [ (u, s) for u, s in read_secrets() if u != uid]
+    ud.debug(ud.LISTENER, ud.INFO, '{}'.format(r))
     try:
-        s = b32encode(os.urandom(15))
+        s = b32encode(os.urandom(15)).decode('ascii')
         r.append((uid, s))
         write_secrets(r)
+        ud.debug(ud.LISTENER, ud.INFO, 'generated secret for {}'.format(uid))
     except:
-        ud.debug(ud.LISTENER, ud.WARNING, 'failed to generate secret for {}'.format(uid))
+        ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate secret for {}'.format(uid))
 
     try:
         q = qrcode.QRCode(box_size=5)
@@ -451,12 +456,12 @@ def totp_enable(dn, obj):
         p = '{}/{}/qrcode.png'.format(fn_ready2go, uid)
         x = q.make_image()
         x.save(p)
-        os.chmod(p, 0640)
+        os.chmod(p, 0o640)
         uid = pwd.getpwnam(uid).pw_uid
         gid = grp.getgrnam('www-data').gr_gid
         os.chown(p, uid, gid)
     except:
-        ud.debug(ud.LISTENER, ud.WARNING, 'failed to generate qrcode for {}'.format(uid))
+        ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate qrcode for {}'.format(uid))
 
     try:
         lo = ul.getMachineConnection()
@@ -996,7 +1001,7 @@ def read_secrets():
         r = []
         for l in f:
             try:
-                u, s = l.tstrip().split(':')[:2]
+                u, s = l.strip().split(':')[:2]
                 r.append((u, s))
             except:
                 ud.debug(ud.LISTENER, ud.INFO, 'ignoring line \'{}\''.format(l[:64]))
