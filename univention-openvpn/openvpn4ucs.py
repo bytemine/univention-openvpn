@@ -349,11 +349,11 @@ def user_enable(dn, obj):
     try:
         listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
     except:
-            lilog(ud.ERROR, 'create-bundle failed')
+        lilog(ud.ERROR, 'create-bundle failed')
     finally:
         listener.unsetuid()
 
-    if isin_and('univentionOpenvpnTOTP', obj, op.eq, b'1'):
+    if obj.get('univentionOpenvpnTOTP', [b''])[0] == b'1':
         totp_enable(dn, obj)
 
     # ccd config for user
