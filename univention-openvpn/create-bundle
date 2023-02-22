@@ -68,7 +68,7 @@ cat >> "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 	nobind
 	persist-key
 	persist-tun
-	cipher AES-256-CBC
+	cipher AES-256-GCM
 	comp-lzo
 	verb 3
 	auth-user-pass

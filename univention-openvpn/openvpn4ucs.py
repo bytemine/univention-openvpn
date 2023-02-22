@@ -646,7 +646,9 @@ status /var/log/openvpn/openvpn-status.log
 management /var/run/management-udp unix
 dev tun
 topology subnet
-plugin openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass
+script-security 2
+auth-user-pass-verify /usr/lib/openvpn-int/o4u_auth.py via-file
+auth-gen-token 50000
 
 ### Values which can be changed through UDM
 
