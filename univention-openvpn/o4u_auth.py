@@ -25,7 +25,7 @@ def mfaauth(user, pwstr, secret):
     pres = pamauth(user, pwd)
 
     if not ores:
-        syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' TOTP mismatch'.format(repr(user)))
+        syslog.syslog(syslog.LOG_NOTICE, 'user {} TOTP mismatch'.format(repr(user)))
 
     return ores and pres
 
@@ -34,7 +34,7 @@ def pamauth(user, pwstr):
     a = pam.pam()
     r = a.authenticate(user, pwstr)
     if not r:
-        syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' password mismatch'.format(repr(user)))
+        syslog.syslog(syslog.LOG_NOTICE, 'user {} password mismatch'.format(repr(user)))
     return r
 
 
@@ -50,7 +50,7 @@ def main():
 
         cn = os.environ.get('common_name')
         if user + '.openvpn' != cn:
-            syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' cert mismatch ({})'.format(repr(user), cn))
+            syslog.syslog(syslog.LOG_NOTICE, 'user {} cert mismatch ({})'.format(repr(user), cn))
             sleep(3)
             return 1
 
