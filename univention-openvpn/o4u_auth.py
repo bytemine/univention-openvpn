@@ -6,7 +6,7 @@ import os
 import pam
 import pyotp
 import base64
-
+from time import sleep
 
 def mfaauth(user, pwstr, secret):
     if pwstr.startswith('SCRV1:'):
@@ -24,8 +24,8 @@ def mfaauth(user, pwstr, secret):
     ores = totp.verify(otp)
     pres = pamauth(user, pwd)
 
-    if pres and not ores:
-        syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' TOTP mismatch'.format(user))
+    if not ores:
+        syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' TOTP mismatch'.format(repr(user)))
 
     return ores and pres
 
@@ -34,15 +34,15 @@ def pamauth(user, pwstr):
     a = pam.pam()
     r = a.authenticate(user, pwstr)
     if not r:
-        syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' password mismatch'.format(user))
+        syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' password mismatch'.format(repr(user)))
     return r
 
 
 def main():
+    user = ''
     try:
-        f = open(sys.argv[1])
-        creds = f.read()
-        f.close()
+        with open(sys.argv[1]) as f:
+            creds = f.read()
 
         lines = creds.split('\n')
         user = lines[0][:64]
@@ -50,29 +50,32 @@ def main():
 
         cn = os.environ.get('common_name')
         if user + '.openvpn' != cn:
-            syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' cert mismatch ({})'.format(user, cn))
+            syslog.syslog(syslog.LOG_NOTICE, 'user \'{}\' cert mismatch ({})'.format(repr(user), cn))
+            sleep(3)
             return 1
 
         # check if user has totp configured
         secret = None
         try:
-            f = open('/etc/openvpn/mfa/secrets')
-            for l in f:
-                try:
-                    u, s = l.rstrip().split(':')[:2]
-                except:
-                    u = ''
-                    pass
-                if user == u:
-                    secret = s
+            with open('/etc/openvpn/mfa/secrets') as f:
+                for l in f:
+                    try:
+                        u, s = l.rstrip().split(':')[:2]
+                    except:
+                        u = ''
+                        pass
+                    if user == u:
+                        secret = s
         except:
             pass
 
         ares = mfaauth(user, pwstr, secret) if secret else pamauth(user, pwstr)
 
         return 0 if ares else 1
+
     except Exception as e:
-        syslog.syslog(syslog.LOG_ERR, 'user \'{}\' {}'.format(user, e))
+        syslog.syslog(syslog.LOG_ERR, 'user {} {}'.format(repr(user), e))
+        sleep(3)
         return 1
 
 
