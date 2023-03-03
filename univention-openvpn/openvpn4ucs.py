@@ -176,7 +176,8 @@ isin_and = lambda k, d, o, v: k in d and o(d[k], v)
 lilog = lambda l, s: ud.debug(ud.LISTENER, l, 'openvpn4ucs - ' + s)
 
 fn_serverconf = '/etc/openvpn/server.conf'
-fn_mfasecrets = '/etc/openvpn/mfa/secrets'
+fn_mfadir = '/etc/openvpn/mfa'
+fn_mfasecrets = fn_mfadir + '/secrets'
 fn_sitetositeconf = '/etc/openvpn/sitetosite.conf'
 fn_secret = '/etc/openvpn/sitetosite.key'
 fn_masqrule = '/etc/security/packetfilter.d/51_openvpn4ucs.sh'
@@ -346,15 +347,15 @@ def user_enable(dn, obj):
 
     lilog(ud.INFO, 'Create new certificate for %s' % uid)
 
-    try:
-        listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
-    except:
-        lilog(ud.ERROR, 'create-bundle failed')
-    finally:
-        listener.unsetuid()
-
     if obj.get('univentionOpenvpnTOTP', [b''])[0] == b'1':
         totp_enable(dn, obj)
+    else:
+        try:
+            listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+        except:
+            lilog(ud.ERROR, 'create-bundle failed')
+        finally:
+            listener.unsetuid()
 
     # ccd config for user
 
@@ -441,7 +442,6 @@ def totp_enable(dn, obj):
     listener.setuid(0)
 
     r = [ (u, s) for u, s in read_secrets() if u != uid]
-    ud.debug(ud.LISTENER, ud.INFO, '{}'.format(r))
     try:
         s = b32encode(os.urandom(15)).decode('ascii')
         r.append((uid, s))
@@ -451,6 +451,7 @@ def totp_enable(dn, obj):
         ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate secret for {}'.format(uid))
 
     try:
+        os.makedirs('{}/{}'.format(fn_ready2go, uid), exist_ok=True)
         q = qrcode.QRCode(box_size=5)
         q.add_data('otpauth://totp/OpenVPN4UCS:{}?secret={}&issuer=OpenVPN4UCS&digits=6'.format(uid, s))
         p = '{}/{}/qrcode.png'.format(fn_ready2go, uid)
@@ -999,6 +1000,7 @@ def update_config_s2s(obj):
 
 # read users and secrets
 def read_secrets():
+    ensure_secrets()
     with open(fn_mfasecrets) as f:
         r = []
         for l in f:
@@ -1012,9 +1014,18 @@ def read_secrets():
 
 # write users and secrets
 def write_secrets(l):
+    ensure_secrets()
     with open(fn_mfasecrets, 'w') as f:
         for u, s in l:
             f.write('{}:{}\n'.format(u, s))
+
+
+# ensure secrets file exists
+def ensure_secrets():
+    if not os.path.exists(fn_mfasecrets):
+        os.makedirs(fn_mfadir, mode=0o700, exist_ok=True)
+        open(fn_mfasecrets, 'a').close()
+        os.chmod(fn_mfasecrets, 0o600)
 
 
 # extract netmasks from network strings
