@@ -21,43 +21,26 @@ if [ ! -d "${ssl}/$uid" ]; then
 	/usr/lib/openvpn-int/o4uCert_new "$uid"
 fi
 
+ovpncfg="${ssl}/${uid}/${server}.ovpn"
+ovpncfg_old="${ssl}/${uid}/${server}-pre_2_5.ovpn"
+
+rdy2gobas="/var/www/readytogo"
+readytogo="${rdy2gobas}/${uid}/"
+
+if [ -f ${readytogo}/qrcode.png ]; then
+    otpsupport='static-challenge "TOTP pin: " 0'
+else
+    otpsupport=''
+fi
+
+# prepare a matching client config
 (
   echo '<ca>'; cat "$cacrt"; echo -e '</ca>\n<cert>';
   cat "${ssl}/${uid}/cert.pem"; echo -e '</cert>\n<key>';
   cat "${ssl}/${uid}/private.key"; echo '</key>'
-) > "${ssl}/${uid}/${server}.ovpn"
-cp "${ssl}/${uid}/${server}.ovpn" "${ssl}/${uid}/win-${server}.ovpn"
 
-# prepare a matching client config
-cat >> "${ssl}/${uid}/${server}.ovpn" <<-ENDOFCLIENTCONFIG
-
+cat <<-ENDOFCLIENTCONFIG
 	# client config for server ${server}
-
-	client
-	dev tun0
-	proto ${proto}
-	remote ${addr} ${port}
-	verify-x509-name ${server} name-prefix
-	resolv-retry infinite
-	nobind
-	persist-key
-	persist-tun
-	cipher AES-256-GCM
-	com-lzo
-	verb 3
-	auth-user-pass
-	auth-nocache
-
-	script-security 2
-	up /etc/openvpn/update-resolv-conf 
-	down /etc/openvpn/update-resolv-conf
-
-ENDOFCLIENTCONFIG
-
-# prepare a matching client config (windows)
-cat >> "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
-
-	# windows client config for server ${server}
 
 	client
 	dev tun
@@ -68,19 +51,22 @@ cat >> "${ssl}/${uid}/win-${server}.ovpn" <<-ENDOFWINCLIENTCONFIG
 	nobind
 	persist-key
 	persist-tun
-	cipher AES-256-GCM
-	comp-lzo
 	verb 3
 	auth-user-pass
+	auth-nocache
+	${otpsupport}
+ENDOFCLIENTCONFIG
 
-ENDOFWINCLIENTCONFIG
+) > "$ovpncfg"
+cp "$ovpncfg" "$ovpncfg_old"
+
+echo "cipher AES-256-GCM" >> "$ovpncfg_old"
+
 
 eval "$(ucr shell)"
 
 # zip all files and put a copy into download directory for user
 umask 037
-rdy2gobas="/var/www/readytogo"
-readytogo="${rdy2gobas}/${uid}/"
 mkdir -p "${readytogo}"
 
 pw=$(cat /etc/ldapper-m.secret) 
@@ -110,8 +96,8 @@ umask 037
 
 rm -f "$bundle"
 zip -j "$bundle" \
-    "${ssl}/${uid}/${server}.ovpn" \
-    "${ssl}/${uid}/win-${server}.ovpn"
+    "$ovpncfg" \
+    "$ovpncfg_old"
 chown "$uid" "$bundle"
 chgrp www-data "$bundle"
 
@@ -121,8 +107,22 @@ templates=/usr/lib/openvpn-int/templates
 rm -f "${readytogo}/download.html"
 cp ${templates}/download.head "${readytogo}/download.html"
 for rtgp in $(cd "${readytogo}" && echo "openvpn-"*"-${uid}.zip"); do
-    echo "<p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
+    echo "    <p><a href=\"/readytogo/${uid}/${rtgp}\">${rtgp}</a><hr/></p>"
 done >> "${readytogo}/download.html"
+
+if [ -n "$otpsupport" ]; then
+    otpsecret=$(awk -F: "/^${uid}:/{print \$2}" /etc/openvpn/mfa/secrets)
+
+cat <<-ENDOFTOTPPART
+    <p class="triggerText" onclick="otp_popup()">display TOTP QR code and secret (for 10s)<hr/></p>
+    <div class="otpPopup" id="otppopup">
+      <img class="otpQrcode" src="/readytogo/${uid}/qrcode.png" alt="QR Code">
+      <p class="otpSecret">${otpsecret}</p>
+    </div>
+ENDOFTOTPPART
+
+fi >> "${readytogo}/download.html"
+
 cat ${templates}/download.tail >> "${readytogo}/download.html"
 chgrp www-data "${readytogo}/download.html"
 chmod 640 "${readytogo}/download.html"
