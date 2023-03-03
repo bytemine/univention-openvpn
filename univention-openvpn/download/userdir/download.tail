@@ -1,4 +1,4 @@
-    <div class="clear">&nbsp;</div>
+      <div class="clear">&nbsp;</div>
     </div>
   </div>
   <footer>
@@ -9,10 +9,11 @@
         <hr class="smart">
         <p>bytemine GmbH<br/>Im Technologiepark 4<br/>26129 Oldenburg</p>
         <p>
-        <span class="phone_desktop">+49 441.309197-69</span>
-        <a href="tel://004944130919769" class="phone_mobile">+49 441.309197-69</a>
-        <br/>
-        <a href="mailto:info@bytemine.net">info@bytemine.net</a></p>
+          <span class="phone_desktop">+49 441.309197-69</span>
+          <a href="tel://004944130919769" class="phone_mobile">+49 441.309197-69</a>
+          <br/>
+          <a href="mailto:info@bytemine.net">info@bytemine.net</a>
+        </p>
       </div>
     </div>
     <div class="clear">&nbsp;</div>
