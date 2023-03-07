@@ -38,7 +38,6 @@ import pwd
 import grp
 import operator as op
 import traceback
-import queue
 
 import listener
 import univention.debug as ud
@@ -132,6 +131,7 @@ def postrun():
         listener.unsetuid()
         action = None
         action_s2s = None
+        action_user = None
 
 
 # -----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ def postrun():
 
 action = None
 action_s2s = None
-action_user = queue.Queue()
+action_user = None
 
 usr_attrs  = [
     'univentionOpenvpnAccount',
@@ -262,6 +262,84 @@ def handle_sitetosite(dn, old, new, changes):
 # -----------
 
 
+def totp_disable(dn, obj):
+    lilog(ud.INFO, 'totp disable')
+
+    if not check_user_count():
+        return			# do nothing
+
+    if obj.get('univentionOpenvpnAccount', [b''])[0] != b'1':
+        lilog(ud.INFO, 'ignoring non vpn user')
+        return
+
+    uid = obj.get('uid', [b''])[0].decode('utf8')
+    if not uid:
+        lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
+        return
+
+    lilog(ud.INFO, 'removing totp secret for ' + uid)
+
+    listener.setuid(0)
+    try:
+        lo = ul.getMachineConnection()
+
+        name = listener.configRegistry['hostname']
+
+        tmp, server = lo.search('(cn=' + name + ')')[0]
+
+        port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+        addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
+        proto = 'udp6' if addr and addr.count(':') else 'udp'
+    except:
+        pass
+
+    if not name or not port or not addr:
+        lilog(ud.ERROR, 'missings params')
+        return
+
+    r = [ (u, s) for u, s in read_secrets() if u != uid]
+    write_secrets(r)
+
+    try:
+        os.unlink('{}/{}/qrcode.png'.format(fn_ready2go, uid))
+    except Exception as e:
+        ud.debug(ud.LISTENER, ud.ERROR, 'cannot remove qrcode for {}: {}'.format(uid, e))
+
+    listener.unsetuid()
+    action_user = 'bundle'
+
+
+def totp_enable(dn, obj):
+    lilog(ud.INFO, 'totp enable')
+    global action_user
+
+    if not check_user_count():
+        return			# do nothing
+
+    if obj.get('univentionOpenvpnAccount', [b''])[0] != b'1':
+        lilog(ud.INFO, 'ignoring non vpn user')
+        return
+
+    uid = obj.get('uid', [b''])[0].decode('utf8')
+    if not uid:
+        lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
+        return
+
+    listener.setuid(0)
+
+    r = [ (u, s) for u, s in read_secrets() if u != uid]
+    try:
+        s = b32encode(os.urandom(15)).decode('ascii')
+        r.append((uid, s))
+        write_secrets(r)
+        ud.debug(ud.LISTENER, ud.INFO, 'generated secret for {}'.format(uid))
+    except:
+        ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate secret for {}'.format(uid))
+
+    listener.unsetuid()
+    action_user = 'bundle'
+
+
 def user_disable(dn, obj):
     lilog(ud.INFO, 'user disable')
 
@@ -342,11 +420,8 @@ def user_enable(dn, obj):
         lilog(ud.ERROR, 'missings params')
         return
 
-    lilog(ud.INFO, 'Create new certificate for %s' % uid)
-
-    action_user.put((uid, name, addr, port, proto))
-
     try:
+        listener.setuid(0)
         os.makedirs('{}/{}'.format(fn_ready2go, uid), exist_ok=True)
         q = qrcode.QRCode(box_size=5)
         q.add_data('otpauth://totp/OpenVPN4UCS:{}?secret={}&issuer=OpenVPN4UCS&digits=6'.format(uid, s))
@@ -359,9 +434,16 @@ def user_enable(dn, obj):
         os.chown(p, uid, gid)
     except:
         ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate qrcode for {}'.format(uid))
+    finally:
+        listener.unsetuid()
+
+    lilog(ud.INFO, 'create_bundle for {}'.format(uid))
+    try:
+        listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+    except:
+        lilog(ud.ERROR, 'create-bundle failed')
 
     # ccd config for user
-
     network           = server.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
     networkv6         = server.get('univentionOpenvpnNetIPv6', ['2001:db8:0:123::/64'])[0].decode('utf8')
 
@@ -383,93 +465,6 @@ def user_enable(dn, obj):
     lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
 
     write_rc(lines, ccd + uid + ".openvpn")
-
-
-def create_bundle(params):
-    lilog(ud.INFO, 'create_bundle for {}'.format(uid))
-    uid, name, addr, port, proto = params
-    try:
-        listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
-    except:
-        lilog(ud.ERROR, 'create-bundle failed')
-
-
-def totp_disable(dn, obj):
-    lilog(ud.INFO, 'totp disable')
-
-    if not check_user_count():
-        return			# do nothing
-
-    if obj.get('univentionOpenvpnAccount', [b''])[0] != b'1':
-        lilog(ud.INFO, 'ignoring non vpn user')
-        return
-
-    uid = obj.get('uid', [b''])[0].decode('utf8')
-    if not uid:
-        lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
-        return
-
-    lilog(ud.INFO, 'removing totp secret for ' + uid)
-
-    listener.setuid(0)
-    try:
-        lo = ul.getMachineConnection()
-
-        name = listener.configRegistry['hostname']
-
-        tmp, server = lo.search('(cn=' + name + ')')[0]
-
-        port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
-        addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
-        proto = 'udp6' if addr and addr.count(':') else 'udp'
-    except:
-        pass
-
-    if not name or not port or not addr:
-        lilog(ud.ERROR, 'missings params')
-        return
-
-    r = [ (u, s) for u, s in read_secrets() if u != uid]
-    write_secrets(r)
-
-    try:
-        os.unlink('{}/{}/qrcode.png'.format(fn_ready2go, uid))
-    except Exception as e:
-        ud.debug(ud.LISTENER, ud.ERROR, 'cannot remove qrcode for {}: {}'.format(uid, e))
-
-    listener.unsetuid()
-
-
-def totp_enable(dn, obj):
-    lilog(ud.INFO, 'totp enable')
-    global action_user
-
-    if not check_user_count():
-        return			# do nothing
-
-    if obj.get('univentionOpenvpnAccount', [b''])[0] != b'1':
-        lilog(ud.INFO, 'ignoring non vpn user')
-        return
-
-    uid = obj.get('uid', [b''])[0].decode('utf8')
-    if not uid:
-        lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
-        return
-
-    listener.setuid(0)
-
-    r = [ (u, s) for u, s in read_secrets() if u != uid]
-    try:
-        s = b32encode(os.urandom(15)).decode('ascii')
-        r.append((uid, s))
-        write_secrets(r)
-        ud.debug(ud.LISTENER, ud.INFO, 'generated secret for {}'.format(uid))
-    except:
-        ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate secret for {}'.format(uid))
-
-    listener.unsetuid()
-
-    action_user = 'bundle'
 
 
 # -----------
