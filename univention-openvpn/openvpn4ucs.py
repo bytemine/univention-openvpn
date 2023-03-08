@@ -83,55 +83,78 @@ def handler(dn, new, old, cmd):
     if not (usr_chgd or srv_chgd or s2s_chgd):
         lilog(ud.INFO, 'nothing to do')
   except Exception as e:
-    lilog(ud.INFO, traceback.format_exc())
+    lilog(ud.ERROR, traceback.format_exc())
 
 
 # perform any restarts necessary
 def postrun():
     global action, action_s2s, action_user
 
-    lilog(ud.INFO, 'postrun action = %s, action_s2s = %s' % (action, action_s2s))
+    lilog(ud.INFO, 'postrun action = {}, action_s2s = {}, {} user actions'.format(action, action_s2s, len(action_user)))
 
-    try:
-        listener.setuid(0)
+    if action_user:
+        try:
+            listener.setuid(0)
+            lo = ul.getMachineConnection()
+            name = listener.configRegistry['hostname']
+            tmp, server = lo.search('(cn=' + name + ')')[0]
 
-        while not action_user.empty():
-            params = action_user.get()
-            create_bundle(params)
+            port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
+            addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
+            proto = 'udp6' if addr and addr.count(':') else 'udp'
 
-        if action == 'stop':
-            # stop openvpn, display_users and deactivate config
+            if not name or not port or not addr:
+                lilog(ud.ERROR, 'missings params')
+            else:
+                for uid, secret in [(u, s) if u in set(action_user) else (u, None) for u, s in read_secrets()]:
+                    create_bundle(uid, name, addr, port, proto, secret)
+        except Exception as e:
+            lilog(ud.ERROR, traceback.format_exc())
+        finally:
+            listener.unsetuid()
+            action_user.clear()
+
+    if action == 'stop':
+        # stop openvpn, display_users and deactivate config
+        try:
             listener.run('/etc/init.d/display_users', ['display_users', 'stop'], uid=0)
             listener.run('/bin/systemctl', ['systemctl', 'stop', 'openvpn@server.service'], uid=0)
             os.rename (fn_serverconf, fn_serverconf + '-disabled')
+        except Exception as e:
+            lilog(ud.ERROR, 'stop action failed: {}'.format(e))
 
-        elif action == 'start':
-            # (re)start
-            listener.setuid(0)
+    elif action == 'start':
+        # (re)start
+        try:
             listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@server.service'], uid=0)
             listener.run('/etc/init.d/display_users', ['display_users', 'start'], uid=0)
+        except Exception as e:
+            lilog(ud.ERROR, 'start action failed: {}'.format(e))
 
-        if action_s2s == 'stop':
-            # stop openvon, deactivate config
+    if action_s2s == 'stop':
+        # stop openvon, deactivate config
+        try:
             listener.run('/bin/systemctl', ['systemctl', 'stop', 'openvpn@sitetosite.service'], uid=0)
             os.rename (fn_sitetositeconf, fn_sitetositeconf + '-disabled')
+        except Exception as e:
+            lilog(ud.ERROR, 's2s stop action failed: {}'.format(e))
 
-        elif action_s2s == 'start':
-            # (re)start
+    elif action_s2s == 'start':
+        # (re)start
+        try:
             listener.run('/bin/systemctl', ['systemctl', 'restart', 'openvpn@sitetosite.service'], uid=0)
+        except Exception as e:
+            lilog(ud.ERROR, 's2s start action failed: {}'.format(e))
 
-        if action or action_s2s:
-            # activate possible fw changes
+    if action or action_s2s:
+        # activate possible fw changes
+        try:
             listener.run('/etc/init.d/univention-firewall', ['univention-firewall', 'restart'], uid=0)
+        except Exception as e:
+            lilog(ud.ERROR, 'firewall restart failed: {}'.format(e))
 
-    except Exception as e:
-        lilog(ud.ERROR, 'postrun (%s/%s) failed: %s' % (action, action_s2s, str(e)))
-
-    finally:
-        listener.unsetuid()
-        action = None
-        action_s2s = None
-        action_user = None
+    action = None
+    action_s2s = None
 
 
 # -----------------------------------------------------------------------------
@@ -139,7 +162,7 @@ def postrun():
 
 action = None
 action_s2s = None
-action_user = None
+action_user = []
 
 usr_attrs  = [
     'univentionOpenvpnAccount',
@@ -280,22 +303,6 @@ def totp_disable(dn, obj):
     lilog(ud.INFO, 'removing totp secret for ' + uid)
 
     listener.setuid(0)
-    try:
-        lo = ul.getMachineConnection()
-
-        name = listener.configRegistry['hostname']
-
-        tmp, server = lo.search('(cn=' + name + ')')[0]
-
-        port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
-        addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
-        proto = 'udp6' if addr and addr.count(':') else 'udp'
-    except:
-        pass
-
-    if not name or not port or not addr:
-        lilog(ud.ERROR, 'missings params')
-        return
 
     r = [ (u, s) for u, s in read_secrets() if u != uid]
     write_secrets(r)
@@ -306,7 +313,7 @@ def totp_disable(dn, obj):
         ud.debug(ud.LISTENER, ud.ERROR, 'cannot remove qrcode for {}: {}'.format(uid, e))
 
     listener.unsetuid()
-    action_user = 'bundle'
+    action_user.append(uid)
 
 
 def totp_enable(dn, obj):
@@ -337,7 +344,7 @@ def totp_enable(dn, obj):
         ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate secret for {}'.format(uid))
 
     listener.unsetuid()
-    action_user = 'bundle'
+    action_user.append(uid)
 
 
 def user_disable(dn, obj):
@@ -402,48 +409,19 @@ def user_enable(dn, obj):
         lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
         return
 
+    action_user.append(uid)
+
     listener.setuid(0)
     try:
         lo = ul.getMachineConnection()
     finally:
         listener.unsetuid()
 
-    name = listener.configRegistry['hostname']
-
-    tmp, server = lo.search('(cn=' + name + ')')[0]
-
-    port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
-    addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
-    proto = 'udp6' if addr and addr.count(':') else 'udp'
-
-    if not name or not port or not addr:
-        lilog(ud.ERROR, 'missings params')
-        return
-
-    try:
-        listener.setuid(0)
-        os.makedirs('{}/{}'.format(fn_ready2go, uid), exist_ok=True)
-        q = qrcode.QRCode(box_size=5)
-        q.add_data('otpauth://totp/OpenVPN4UCS:{}?secret={}&issuer=OpenVPN4UCS&digits=6'.format(uid, s))
-        p = '{}/{}/qrcode.png'.format(fn_ready2go, uid)
-        x = q.make_image()
-        x.save(p)
-        os.chmod(p, 0o640)
-        uid = pwd.getpwnam(uid).pw_uid
-        gid = grp.getgrnam('www-data').gr_gid
-        os.chown(p, uid, gid)
-    except:
-        ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate qrcode for {}'.format(uid))
-    finally:
-        listener.unsetuid()
-
-    lilog(ud.INFO, 'create_bundle for {}'.format(uid))
-    try:
-        listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
-    except:
-        lilog(ud.ERROR, 'create-bundle failed')
+    myname = listener.configRegistry['hostname']
+    tmp, server = lo.search('(cn=' + myname + ')')[0]
 
     # ccd config for user
+    port              = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
     network           = server.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
     networkv6         = server.get('univentionOpenvpnNetIPv6', ['2001:db8:0:123::/64'])[0].decode('utf8')
 
@@ -465,6 +443,31 @@ def user_enable(dn, obj):
     lines.append("ifconfig-ipv6-push " + ipv6 + "/" + networkv6.split('/')[1] + "\n")
 
     write_rc(lines, ccd + uid + ".openvpn")
+
+
+def create_bundle(uid, name, addr, port, proto, secret):
+    lilog(ud.INFO, 'create_bundle for {}'.format(uid))
+
+    if secret:
+        try:
+            os.makedirs('{}/{}'.format(fn_ready2go, uid), exist_ok=True)
+            q = qrcode.QRCode(box_size=5)
+            q.add_data('otpauth://totp/OpenVPN4UCS:{}?secret={}&issuer=OpenVPN4UCS&digits=6'.format(uid, secret))
+            p = '{}/{}/qrcode.png'.format(fn_ready2go, uid)
+            x = q.make_image()
+            x.save(p)
+            os.chmod(p, 0o640)
+            uid = pwd.getpwnam(uid).pw_uid
+            gid = grp.getgrnam('www-data').gr_gid
+            os.chown(p, uid, gid)
+        except:
+            ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate qrcode for {}'.format(uid))
+
+    try:
+        listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+    except:
+        lilog(ud.ERROR, 'create-bundle failed')
+
 
 
 # -----------
