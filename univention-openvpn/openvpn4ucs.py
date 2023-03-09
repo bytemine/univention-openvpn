@@ -69,10 +69,10 @@ def handler(dn, new, old, cmd):
     srv_chgd = changed(old, new, srv_attrs)
     s2s_chgd = changed(old, new, s2s_attrs)
 
-    obj = {'n': new, 'a': new, 'm': old, 'd': old, 'r': old}[cmd]
+    #obj = {'n': new, 'a': new, 'm': old, 'd': old, 'r': old}[cmd]
 
     if usr_chgd:
-        handle_user(dn, obj, usr_chgd)
+        handle_user(dn, old, new, usr_chgd)
 
     if srv_chgd:
         handle_server(dn, old, new, srv_chgd)
@@ -93,6 +93,7 @@ def postrun():
     lilog(ud.INFO, 'postrun action = {}, action_s2s = {}, {} user actions'.format(action, action_s2s, len(action_user)))
 
     if action_user:
+        lilog(ud.INFO, '{}'.format(action_user))
         try:
             listener.setuid(0)
             lo = ul.getMachineConnection()
@@ -106,7 +107,17 @@ def postrun():
             if not name or not port or not addr:
                 lilog(ud.ERROR, 'missings params')
             else:
-                for uid, secret in [(u, s) if u in set(action_user) else (u, None) for u, s in read_secrets()]:
+                sl = []
+                us = set(action_user)
+                for u, s in read_secrets():
+                    if u in us:
+                        sl.append((u, s))
+                        us.remove(u)
+                for u in us:
+                    sl.append((u, None))
+
+                lilog(ud.INFO, 'DEBUG: {}'.format(sl))
+                for uid, secret in sl:
                     create_bundle(uid, name, addr, port, proto, secret)
         except Exception as e:
             lilog(ud.ERROR, traceback.format_exc())
@@ -214,20 +225,20 @@ fn_masqrule = '/etc/security/packetfilter.d/51_openvpn4ucs.sh'
 fn_ready2go = '/var/www/readytogo'
 
 
-def handle_user(dn, obj, changes):
+def handle_user(dn, old, new, changes):
     lilog(ud.INFO, 'user handler')
 
     if isin_and('univentionOpenvpnTOTP', changes, op.eq, '1'):
-        return totp_enable(dn, obj)
+        return totp_enable(dn, new)
 
     if isin_and('univentionOpenvpnTOTP', changes, op.ne, '1'):
-        return totp_disable(dn, obj)
+        return totp_disable(dn, old)
 
     if isin_and('univentionOpenvpnAccount', changes, op.eq, '1'):
-        return user_enable(dn, obj)
+        return user_enable(dn, new)
 
     if isin_and('univentionOpenvpnAccount', changes, op.ne, '1'):
-        return user_disable(dn, obj)
+        return user_disable(dn, old)
 
     lilog(ud.INFO, 'nothing to do')
 
@@ -292,7 +303,7 @@ def totp_disable(dn, obj):
         return			# do nothing
 
     if obj.get('univentionOpenvpnAccount', [b''])[0] != b'1':
-        lilog(ud.INFO, 'ignoring non vpn user')
+        lilog(ud.INFO, 'ignoring non vpn user {}'.format(dn))
         return
 
     uid = obj.get('uid', [b''])[0].decode('utf8')
@@ -323,8 +334,11 @@ def totp_enable(dn, obj):
     if not check_user_count():
         return			# do nothing
 
+    x = obj.get('univentionOpenvpnAccount', [b''])[0]
+    lilog(ud.INFO, 'XXX DEBUG: type {}, val {}'.format(type(x), repr(x)))
+
     if obj.get('univentionOpenvpnAccount', [b''])[0] != b'1':
-        lilog(ud.INFO, 'ignoring non vpn user')
+        lilog(ud.INFO, 'ignoring non vpn user {}'.format(dn))
         return
 
     uid = obj.get('uid', [b''])[0].decode('utf8')
@@ -457,17 +471,19 @@ def create_bundle(uid, name, addr, port, proto, secret):
             x = q.make_image()
             x.save(p)
             os.chmod(p, 0o640)
-            uid = pwd.getpwnam(uid).pw_uid
-            gid = grp.getgrnam('www-data').gr_gid
-            os.chown(p, uid, gid)
+            nuid = pwd.getpwnam(uid).pw_uid
+            ngid = grp.getgrnam('www-data').gr_gid
+            os.chown(p, nuid, ngid)
         except:
-            ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate qrcode for {}'.format(uid))
+            lilog(ud.ERROR, 'failed to generate qrcode for {}'.format(uid))
 
     try:
+        listener.setuid(0)
+        lilog(ud.INFO, 'running create-bundle {} {} {} {} {}'.format(uid, name, addr, port, proto))
         listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
+        listener.unsetuid()
     except:
         lilog(ud.ERROR, 'create-bundle failed')
-
 
 
 # -----------
