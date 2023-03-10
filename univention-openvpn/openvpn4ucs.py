@@ -320,7 +320,9 @@ def totp_disable(dn, obj):
         ud.debug(ud.LISTENER, ud.ERROR, 'cannot remove qrcode for {}: {}'.format(uid, e))
 
     listener.unsetuid()
-    action_user.append(uid)
+
+    if obj.get('univentionOpenvpnAccount', [b''])[0] == b'1':
+        action_user.append(uid)
 
 
 def totp_enable(dn, obj):
