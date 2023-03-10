@@ -349,7 +349,9 @@ def totp_enable(dn, obj):
         ud.debug(ud.LISTENER, ud.ERROR, 'failed to generate secret for {}'.format(uid))
 
     listener.unsetuid()
-    action_user.append(uid)
+
+    if obj.get('univentionOpenvpnAccount', [b''])[0] == b'1':
+        action_user.append(uid)
 
 
 def user_disable(dn, obj):
