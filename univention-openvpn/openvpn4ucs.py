@@ -116,7 +116,6 @@ def postrun():
                 for u in us:
                     sl.append((u, None))
 
-                lilog(ud.INFO, 'DEBUG: {}'.format(sl))
                 for uid, secret in sl:
                     create_bundle(uid, name, addr, port, proto, secret)
         except Exception as e:
