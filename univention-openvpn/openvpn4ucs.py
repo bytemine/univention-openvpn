@@ -476,10 +476,8 @@ def create_bundle(uid, name, addr, port, proto, secret):
             lilog(ud.ERROR, traceback.format_exc())
 
     try:
-        listener.setuid(0)
         lilog(ud.INFO, 'running create-bundle {} {} {} {} {}'.format(uid, name, addr, port, proto))
         listener.run('/usr/lib/openvpn-int/create-bundle', ['create-bundle', uid, name, addr, port, proto], uid=0)
-        listener.unsetuid()
     except:
         lilog(ud.ERROR, 'create-bundle failed')
 
