@@ -302,10 +302,6 @@ def totp_disable(dn, obj):
     if not check_user_count():
         return			# do nothing
 
-    if obj.get('univentionOpenvpnAccount', [b''])[0] != b'1':
-        lilog(ud.INFO, 'ignoring non vpn user {}'.format(dn))
-        return
-
     uid = obj.get('uid', [b''])[0].decode('utf8')
     if not uid:
         lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
@@ -333,13 +329,6 @@ def totp_enable(dn, obj):
 
     if not check_user_count():
         return			# do nothing
-
-    x = obj.get('univentionOpenvpnAccount', [b''])[0]
-    lilog(ud.INFO, 'XXX DEBUG: type {}, val {}'.format(type(x), repr(x)))
-
-    if obj.get('univentionOpenvpnAccount', [b''])[0] != b'1':
-        lilog(ud.INFO, 'ignoring non vpn user {}'.format(dn))
-        return
 
     uid = obj.get('uid', [b''])[0].decode('utf8')
     if not uid:
