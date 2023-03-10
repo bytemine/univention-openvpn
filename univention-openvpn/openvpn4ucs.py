@@ -471,8 +471,9 @@ def create_bundle(uid, name, addr, port, proto, secret):
             nuid = pwd.getpwnam(uid).pw_uid
             ngid = grp.getgrnam('www-data').gr_gid
             os.chown(p, nuid, ngid)
-        except:
-            lilog(ud.ERROR, 'failed to generate qrcode for {}'.format(uid))
+        except Exception as e:
+            lilog(ud.ERROR, 'failed to generate qrcode for {} - {}'.format(uid, e))
+            lilog(ud.ERROR, traceback.format_exc())
 
     try:
         listener.setuid(0)
