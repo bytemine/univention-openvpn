@@ -229,15 +229,15 @@ def handle_user(dn, old, new, changes):
     lilog(ud.INFO, 'user handler')
 
     if isin_and('univentionOpenvpnTOTP', changes, op.eq, '1'):
-        return totp_enable(dn, new)
+        totp_enable(dn, new)
 
-    if isin_and('univentionOpenvpnTOTP', changes, op.ne, '1'):
-        return totp_disable(dn, old)
+    elif isin_and('univentionOpenvpnTOTP', changes, op.ne, '1'):
+        totp_disable(dn, old)
 
     if isin_and('univentionOpenvpnAccount', changes, op.eq, '1'):
         return user_enable(dn, new)
 
-    if isin_and('univentionOpenvpnAccount', changes, op.ne, '1'):
+    elif isin_and('univentionOpenvpnAccount', changes, op.ne, '1'):
         return user_disable(dn, old)
 
     lilog(ud.INFO, 'nothing to do')
