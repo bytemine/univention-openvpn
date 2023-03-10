@@ -227,11 +227,15 @@ fn_ready2go = '/var/www/readytogo'
 def handle_user(dn, old, new, changes):
     lilog(ud.INFO, 'user handler')
 
+    ntd = True
+
     if isin_and('univentionOpenvpnTOTP', changes, op.eq, '1'):
         totp_enable(dn, new)
+        ntd = False
 
     elif isin_and('univentionOpenvpnTOTP', changes, op.ne, '1'):
         totp_disable(dn, old)
+        ntd = False
 
     if isin_and('univentionOpenvpnAccount', changes, op.eq, '1'):
         return user_enable(dn, new)
@@ -239,7 +243,8 @@ def handle_user(dn, old, new, changes):
     elif isin_and('univentionOpenvpnAccount', changes, op.ne, '1'):
         return user_disable(dn, old)
 
-    lilog(ud.INFO, 'nothing to do')
+    if ntd:
+        lilog(ud.INFO, 'nothing to do')
 
 
 def handle_server(dn, old, new, changes):
