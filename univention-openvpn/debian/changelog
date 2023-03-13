@@ -1,7 +1,70 @@
-openvpn4ucs (2.0) unstable; urgency=low
+univention-openvpn (2.1) unstable; urgency=low
+  * native TOTP support
+
+ -- Holger Rasch <rasch@bytemine.net>  Mon, 13 Mar 2023 19:00:00 +0100
+
+
+univention-openvpn (2.0) unstable; urgency=low
   * openvpn4ucs 2
 
- -- Holger Rasch <rasch@bytemine.net>  Fri, 15 Sep 2017 17:00:00 +0100
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 25 Oct 2021 19:00:00 +0100
+
+
+univention-openvpn (1.1.21) unstable; urgency=low
+  * remove support for privacyidea
+  * prepare for update to UCS 5 (avoid breaking pre-update checks)
+
+ -- Holger Rasch <rasch@bytemine.net>  Sat, 22 Oct 2021 17:00:00 +0100
+
+
+univention-openvpn (1.1.20) unstable; urgency=low
+  * support for upcoming (ucs5) new/own PKI
+
+ -- Holger Rasch <rasch@bytemine.net>  Mon, 23 Aug 2021 17:00:00 +0100
+
+
+univention-openvpn (1.1.19) unstable; urgency=low
+  * new option to enabled masquerading for VPN addresses
+  * ignore password check for technical users
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 21 Jan 2020 17:00:00 +0100
+
+
+univention-openvpn (1.1.18) unstable; urgency=low
+  * fix schema handling and install paths
+
+ -- Holger Rasch <rasch@bytemine.net>  Wed, 11 Dec 2019 17:00:00 +0100
+
+
+univention-openvpn (1.1.17) unstable; urgency=low
+  * add hint to license info on 'active users' page
+  * allow member of group 'Domain Admins' to write secret attribute, too
+  * use users/ldap module for technical users
+  * use defaults for required values again - now works for existing objects, too
+  * stop openvpn and disable config on setting to non-active
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 21 Oct 2019 17:00:00 +0100
+
+
+univention-openvpn (1.1.16) unstable; urgency=low
+  * restart openvpn only if required
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 14 Jan 2019 13:00:00 +0100
+
+
+univention-openvpn (1.1.15) unstable; urgency=low
+  * better option matching in server.conf
+  * push routes for all configured interfaces
+  * cope with long status output
+  * openvpn 2.4.x status output compat
+
+ -- Holger Rasch <rasch@bytemine.net>  Wed, 16 May 2018 17:00:00 +0100
+
+
+univention-openvpn (1.1.14) unstable; urgency=low
+  * remove server defaults
+
+ -- Holger Rasch <rasch@bytemine.net>  Fri, 12 Jan 2018 17:00:00 +0100
 
 
 univention-openvpn (1.1.13) unstable; urgency=low
