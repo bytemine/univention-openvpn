@@ -52,7 +52,7 @@ if [ "$1" = "configure" ]; then
 	CF='/etc/openvpn/server.conf'
 	for ocf in $CF ${CF}-disabled; do
 	  if test -f $ocf; then
-	    ( echo 'cipher AES-256-CBC'
+	    ( echo 'cipher AES-256-GCM'
 	      grep -v '^[       ]*cipher[       ]' $ocf
 	    ) > "${ocf},,"
 	    sed -e 's@^plugin .*$@plugin openvpn-plugin-auth-pam.so /etc/pam.d/vpncheckpass@' \
@@ -67,7 +67,7 @@ if [ "$1" = "configure" ]; then
 	CF='/etc/openvpn/sitetosite.conf'
 	for ocf in $CF ${CF}-disabled; do
 	  if test -f $ocf; then
-	    ( echo 'cipher AES-256-CBC'
+	    ( echo 'cipher AES-256-GCM'
 	      grep -v '^[ 	]*cipher[ 	]' $ocf
 	    ) > "${ocf},,"
 	    mv "${ocf},," $ocf 
