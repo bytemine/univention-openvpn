@@ -12,8 +12,8 @@ def mfaauth(user, pwstr, secret):
     if pwstr.startswith('SCRV1:'):
         # client config uses 'static-challenge'
         pwd, otp = pwstr.split(':')[1:]
-        pwd = base64.b64decode(pwd)
-        otp = base64.b64decode(otp)
+        pwd = base64.b64decode(pwd).decode('ascii')
+        otp = base64.b64decode(otp).decode('ascii')
     else:
         # user appends totp digits to password
         pwd = pwstr[:-6]
