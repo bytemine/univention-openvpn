@@ -49,7 +49,7 @@ def main():
         pwstr = lines[1][:64]
 
         cn = os.environ.get('common_name')
-        if user + '.openvpn' != cn:
+        if user != cn:
             syslog.syslog(syslog.LOG_NOTICE, 'user {} cert mismatch ({})'.format(repr(user), cn))
             sleep(3)
             return 1
