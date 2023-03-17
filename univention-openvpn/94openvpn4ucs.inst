@@ -353,6 +353,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set translationLongDescription='"de_DE" "OpenVPN Account für Benutzer. Wenn diese Option bei einem Konto gesetzt wird, so wird für den Nutzer ein Zertifikat generiert und zusammen mit den anderen notwendigen Dateien, einschliesslich einer Client Konfiguration fuer OpenVPN, als Zip-Datei im Heimatverzeichnis den Nutzers abgelegt. Pro aktiviertem Server wird ein solches Paket erzeugt."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
+    --set groupName='General' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
     --set CLIName='openvpnAccount' \
@@ -371,11 +372,13 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set ldapMapping='univentionOpenvpnTOTP' \
     --set objectClass='univentionOpenvpnUser' \
     --set name='UniventionOpenvpn-TOTP' \
-    --set shortDescription='enable TOTP' \
-    --set longDescription='enable additional TOTP for this account ' \
-    --set translationShortDescription='"de_DE" "TOTP aktivieren"' \
-    --set translationLongDescription='"de_DE" "Wenn diese Option gesetzt wird, dann wird beim OpenVPN Login zusätzlich zum UCS Passwort auch ein TOTP erforderlich."' \
+    --set shortDescription='enable additional TOTP factor' \
+    --set longDescription='Enable additional TOTP (time based one-time password) factor for this account. If enabled, the user needs to input a time dependend PIN in addtion to their password. A QR code can be displayed on the ready2go download page to configure an OTP app (e.g. freeotp) on a mobile phone. Desktop TOTP generators exist, too.' \
+    --set translationShortDescription='"de_DE" "zusätzlichen TOTP Faktor aktivieren"' \
+    --set translationLongDescription='"de_DE" "Wenn diese Option gesetzt wird, dann ist beim OpenVPN Login zusätzlich zum UCS Passwort auch eine zeitabhaengige PIN erforderlich. Auf der ready2go Download Seite kann ein QR Code angezeigt werden, um eine OTP App auf dem Mobiltelefon zu konfigurieren. Es gibt diese Generatoren auch für den Desktop."' \
     --set tabAdvanced='1' \
+    --set groupName='Security Settings' \
+    --set groupPosition='2' \
     --set tabName='OpenVPN4UCS' \
     --set overwriteTab='0' \
     --set valueRequired='0' \
