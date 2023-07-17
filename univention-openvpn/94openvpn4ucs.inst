@@ -291,7 +291,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set name='UniventionOpenvpn-Address' \
     --set shortDescription='(* required)   OpenVPN server address' \
     --set longDescription='This address is used by clients to connect to the OpenVPN server. The server itself always listens on all available interfaces. This is useful if the actual OpenVPN server is in a private network behind a firewall which uses port-forwarding to pass VPN connections.' \
-    --set translationShortDescription='"de_DE" "(* Pflichtfeld)   OpenVPN Serveradresse' \
+    --set translationShortDescription='"de_DE" "(* Pflichtfeld)   OpenVPN Serveradresse"' \
     --set translationLongDescription='"de_DE" "Diese Adresse wird von Klienten benutzt um den OpenVPN Server zu erreichen. Der Server selber lauscht allerdings immmer auf allen verfügbaren Schnittstellen. Dies macht es möglich, den OpenVPN Server in einem lokalen Netz hinter einer Firewall, welche Port-Weiterleitung einsetzt um den OpenVPN Server von aussen erreichbar zu machen, zu betreiben."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
@@ -409,7 +409,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set name='UniventionOpenvpn-RemoteAddress' \
     --set shortDescription='OpenVPN internal remote address' \
     --set longDescription='Defines the fixed IP for the remote endpoint, which is only used inside the virtual transfer network.' \
-    --set translationShortDescription='"de_DE" "Interne Adresse der OpenVPN Gegenstelle' \
+    --set translationShortDescription='"de_DE" "Interne Adresse der OpenVPN Gegenstelle"' \
     --set translationLongDescription='"de_DE" "Definiert die feste IP der Gegenstelle, welche nur innerhalb des virtuellen Transfernetzwerks verwendet wird."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
@@ -439,7 +439,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set name='UniventionOpenvpn-LocalAddress' \
     --set shortDescription='OpenVPN internal local address' \
     --set longDescription='Defines the fixed IP for the local endpoint, which is only used inside the virtual transfer network.' \
-    --set translationShortDescription='"de_DE" "OpenVPN interne lokale Adresse' \
+    --set translationShortDescription='"de_DE" "OpenVPN interne lokale Adresse"' \
     --set translationLongDescription='"de_DE" "Definiert die feste IP für den lokalen Endpunkt, welche nur innerhalb des virtuellen Transfernetzwerks verwendet wird."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
@@ -499,7 +499,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set name='UniventionOpenvpn-Remote' \
     --set shortDescription='OpenVPN remote address' \
     --set longDescription='The remote VPN endpoint address for site-to-site vpns. This can be an IPv4 address or a resolvable DNS name.' \
-    --set translationShortDescription='"de_DE" "Adresse der OpenVPN Gegenstelle' \
+    --set translationShortDescription='"de_DE" "Adresse der OpenVPN Gegenstelle"' \
     --set translationLongDescription='"de_DE" "Die Adresse der OpenVPN Gegenstelle. Diese wird für Site-to-Site VPNs verwendet."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
@@ -558,7 +558,7 @@ univention-directory-manager settings/extended_attribute create "$@" --ignore_ex
     --set name='UniventionOpenvpn-License' \
     --set shortDescription='<i>(see</i> <b>active users</b> <i>app for license details)</i><hr/>OpenVPN4UCS license key (required to activate commercial features)' \
     --set longDescription='Activates commercial features like: user amount >5, site-to-site VPN - available through bytemine.net.' \
-    --set translationShortDescription='"de_DE" "<i>(Lizenzdetails in der</i> <b>aktive Benutzer</b> <i>Applikation)</i><hr>OpenVPN4UCS Lizenzschlüssel (für kommerzielle Funktionen benötigt)' \
+    --set translationShortDescription='"de_DE" "<i>(Lizenzdetails in der</i> <b>aktive Benutzer</b> <i>Applikation)</i><hr>OpenVPN4UCS Lizenzschlüssel (für kommerzielle Funktionen benötigt)"' \
     --set translationLongDescription='"de_DE" "Aktiviert kommerzielle Funktionen: Benutzeranzahl >5, Site-to-Site VPN - zu beziehen über bytemine.net."' \
     --set tabAdvanced='1' \
     --set tabName='OpenVPN4UCS' \
