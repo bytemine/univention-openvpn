@@ -4,6 +4,12 @@ openvpn4ucs (2.1) unstable; urgency=low
  -- Holger Rasch <rasch@bytemine.net>  Mon, 13 Mar 2023 19:00:00 +0100
 
 
+openvpn4ucs (2.0.1) unstable; urgency=low
+  * fix missing internal double quotes for udm command arguments
+
+ -- Holger Rasch <rasch@bytemine.net>  Tue, 18 Jul 2023 14:00:00 +0200
+
+
 openvpn4ucs (2.0) unstable; urgency=low
   * openvpn4ucs 2
 

@@ -74,7 +74,7 @@ def main():
         return 0 if ares else 1
 
     except Exception as e:
-        syslog.syslog(syslog.LOG_ERR, 'user {} {}'.format(repr(user), e))
+        syslog.syslog(syslog.LOG_ERR, 'user {:.32} {}'.format(repr(user), e))
         sleep(3)
         return 1
 
