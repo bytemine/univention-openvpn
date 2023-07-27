@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="/download/css/style.css"/>
   <link rel="stylesheet" type="text/css" href="/download/css/mobile.css"/>
   <link rel="stylesheet" type="text/css" href="/download/css/jquery.dataTables.css"/>
-u <link rel="stylesheet" type="text/css" href="/download/css/popup.css"/>
+  <link rel="stylesheet" type="text/css" href="/download/css/popup.css"/>
   <script type="text/javascript" src="/download/lib/popup.js"></script>
   <script type="text/javascript" src="/download/lib/jquery-1.11.1.min.js"></script>
   <script type="text/javascript" src="/download/lib/jquery.dataTables.min.js"></script>
