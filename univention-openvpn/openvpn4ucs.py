@@ -108,12 +108,11 @@ def postrun():
                 lilog(ud.ERROR, 'missings params')
             else:
                 sl = []
-                us = set(action_user)
                 for u, s in read_secrets():
-                    if u in us:
+                    if u in action_user:
                         sl.append((u, s))
-                        us.remove(u)
-                for u in us:
+                        action_user.remove(u)
+                for u in action_user:
                     sl.append((u, None))
 
                 for uid, secret in sl:
@@ -172,7 +171,7 @@ def postrun():
 
 action = None
 action_s2s = None
-action_user = []
+action_user = set()
 
 usr_attrs  = [
     'univentionOpenvpnAccount',
@@ -208,7 +207,7 @@ def changed(old, new, alist):
         old_a = old.get(a, [b''])[0] if old else None
         new_a = new.get(a, [b''])[0] if new else None
         if new_a != old_a:
-            c[a] = new_a.decode('utf8')
+            c[a] = new_a.decode('utf8') if new_a else ''
     return c
 
 isin_and = lambda k, d, o, v: k in d and o(d[k], v)
@@ -326,7 +325,7 @@ def totp_disable(dn, obj):
     listener.unsetuid()
 
     if obj.get('univentionOpenvpnAccount', [b''])[0] == b'1':
-        action_user.append(uid)
+        action_user.add(uid)
 
 
 def totp_enable(dn, obj):
@@ -355,11 +354,12 @@ def totp_enable(dn, obj):
     listener.unsetuid()
 
     if obj.get('univentionOpenvpnAccount', [b''])[0] == b'1':
-        action_user.append(uid)
+        action_user.add(uid)
 
 
 def user_disable(dn, obj):
     lilog(ud.INFO, 'user disable')
+    global action_user
 
     uid = obj.get('uid', [b''])[0].decode('utf8')
     if not uid:
@@ -367,6 +367,8 @@ def user_disable(dn, obj):
         return
 
     lilog(ud.INFO, 'Revoke certificate for ' + uid)
+
+    action_user.remove(uid)
 
     # revoke cert
     try:
@@ -420,7 +422,7 @@ def user_enable(dn, obj):
         lilog(ud.ERROR, 'cannot get uid from object, dn: ' + dn)
         return
 
-    action_user.append(uid)
+    action_user.add(uid)
 
     listener.setuid(0)
     try:
