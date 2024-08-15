@@ -656,7 +656,7 @@ push "redirect-gateway def1"
     for n, i in ucr.interfaces.Interfaces().all_interfaces:
         try:
             nw = netaddr.IPNetwork('{}/{}'.format(i['address'], i['netmask']))
-            r += 'push "route {} {}"\n'.format(nw.ip, nw.netmask)
+            r += 'push "route {} {}"\n'.format(nw.network, nw.netmask)
         except:
             lilog(ud.INFO, 'ignoring interface ' + n)
 
@@ -725,7 +725,7 @@ ifconfig 10.0.0.1 10.0.0.2
     for n, i in ucr.interfaces.Interfaces().all_interfaces:
         try:
             nw = netaddr.IPNetwork('{}/{}'.format(i['address'], i['netmask']))
-            r += 'push "route {} {}"\n'.format(nw.ip, nw.netmask)
+            r += 'push "route {} {}"\n'.format(nw.network, nw.netmask)
         except:
             lilog(ud.INFO, 'ignoring interface ' + n)
 
