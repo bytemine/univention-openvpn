@@ -22,7 +22,6 @@ if [ ! -d "${ssl}/$uid" ]; then
 fi
 
 ovpncfg="${ssl}/${uid}/${server}.ovpn"
-ovpncfg_old="${ssl}/${uid}/${server}-pre_2_5.ovpn"
 
 rdy2gobas="/var/www/readytogo"
 readytogo="${rdy2gobas}/${uid}/"
@@ -54,14 +53,11 @@ cat <<-ENDOFCLIENTCONFIG
 	verb 3
 	auth-user-pass
 	auth-nocache
+	data-ciphers AES-256-GCM
 	${otpsupport}
 ENDOFCLIENTCONFIG
 
 ) > "$ovpncfg"
-cp "$ovpncfg" "$ovpncfg_old"
-
-echo "cipher AES-256-GCM" >> "$ovpncfg_old"
-
 
 eval "$(ucr shell)"
 
@@ -97,7 +93,6 @@ umask 037
 rm -f "$bundle"
 zip -j "$bundle" \
     "$ovpncfg" \
-    "$ovpncfg_old"
 chown "$uid" "$bundle"
 chgrp www-data "$bundle"
 

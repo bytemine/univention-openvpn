@@ -628,12 +628,11 @@ ca /etc/openvpn/o4uCA/ca.crt
 cert /etc/openvpn/server.crt
 key /etc/openvpn/server.key
 crl-verify /etc/openvpn/o4uCA/crl.pem
-cipher AES-256-GCM
+data-ciphers AES-256-GCM
 ifconfig-pool-persist ipp.txt
 {routes}{donamC}push "dhcp-option DNS {nameserver1}"
 {dodomC}push "dhcp-option DOMAIN {dodom}"
 keepalive 10 120
-comp-lzo
 persist-key
 persist-tun
 verb 1
@@ -704,7 +703,6 @@ ifconfig-pool-persist ipp.txt
 {routes}{donamC}push "dhcp-option DNS {nameserver1}"
 {dodomC}push "dhcp-option DOMAIN {dodom}"
 keepalive 10 120
-comp-lzo
 persist-key
 persist-tun
 verb 1
@@ -713,7 +711,7 @@ status /var/log/openvpn/openvpn-sitetosite-status.log
 management /var/run/management-udp-sitetosite unix
 dev tun
 secret {fn_secret}
-cipher AES-256-GCM
+data-ciphers AES-256-GCM
 
 ### Values which can be changed through UDM
 
