@@ -105,7 +105,7 @@ def postrun():
             proto = 'udp6' if addr and addr.count(':') else 'udp'
 
             if not name or not port or not addr:
-                lilog(ud.ERROR, 'missings params')
+                lilog(ud.ERROR, 'missing params')
             else:
                 sl = []
                 for u, s in read_secrets():
@@ -368,7 +368,8 @@ def user_disable(dn, obj):
 
     lilog(ud.INFO, 'Revoke certificate for ' + uid)
 
-    action_user.remove(uid)
+    if uid in action_user:
+        action_user.remove(uid)
 
     # revoke cert
     try:
@@ -436,7 +437,7 @@ def user_enable(dn, obj):
     # ccd config for user
     port              = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
     network           = server.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
-    networkv6         = server.get('univentionOpenvpnNetIPv6', ['2001:db8:0:123::/64'])[0].decode('utf8')
+    networkv6         = server.get('univentionOpenvpnNetIPv6', [b'2001:db8:0:123::/64'])[0].decode('utf8')
 
     netmask, netmaskv6 = network2netmask(network, networkv6)
 
