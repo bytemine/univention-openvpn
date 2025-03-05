@@ -60,6 +60,12 @@ def main():
     if len(vpnusers) > max(lul):
         exit()
 
+    for user in vpnusers:
+        uid = user[1].get('uid', [b''])[0]
+        totp = user[1].get('univentionOpenvpnTOTP', [b''])[0]
+        if totp and totp !='0':
+
+
     vpnservers = lo.search('(&(objectClass=univentionOpenvpn)(univentionOpenvpnActive=1))')
     for (tmp, server) in vpnservers:
         name = server.get('cn', [b''])[0]
