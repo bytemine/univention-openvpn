@@ -1,3 +1,11 @@
+openvpn4ucs (2.1.4) unstable; urgency=low
+  * remove support for old openvpn versions
+  * update pam config (required for UCS 5.2)
+  * bytemine GmbH has been renamed to otris systems GmbH
+
+ -- Holger Rasch <rasch@otris.systems>  Fri, 21 Mar 2025 18:00:00 +0100
+
+
 openvpn4ucs (2.1.3) unstable; urgency=low
   * fix network in routes pushed from server (no host part)
 
