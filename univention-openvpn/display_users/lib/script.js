@@ -38,7 +38,7 @@ function submit_contact_form() {
         body += "Company: "+document.getElementById("company").value+"%0A%0A"
         body += "Message:%0A"+message
     }
-    window.location.href = "mailto:sales@bytemine.net?subject="+document.getElementById("subject").value+"&body="+body;
+    window.location.href = "mailto:sales@otris.systems?subject="+document.getElementById("subject").value+"&body="+body;
 }
 
 function redirectpage(dest) {

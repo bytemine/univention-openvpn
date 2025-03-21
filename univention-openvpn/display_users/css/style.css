@@ -12,13 +12,6 @@ body {
     font-family: 'Verdana', sans-serif;
 }
 
-.body-background {
-    background-image: url("../images/background.png");
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-size: cover;
-}
-
 /* ==================================================
    TEXT
 ================================================== */

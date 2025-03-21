@@ -11,13 +11,3 @@ als auch die Standortvernetzung (Site-to-Site), dank der zentralen
 Verwaltung in der Univention Management Console, in wenigen Schritten 
 möglich.
 </p>
-
-<p>
-Eine Anleitung zur Einrichtung steht hier zu Verfügung:
-<ul>
-<li>
-<a href="http://www.bytemine.net/files/openvpn4ucs_howto_de.pdf" 
-title="OpenVPN4UCS How-To">OpenVPN4UCS How-To</a>
-</li>
-</ul>
-</p>
