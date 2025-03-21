@@ -31,8 +31,7 @@ def mfaauth(user, pwstr, secret):
 
 
 def pamauth(user, pwstr):
-    a = pam.pam()
-    r = a.authenticate(user, pwstr)
+    r = pam.authenticate(user, pwstr, service='vpncheckpass')
     if not r:
         syslog.syslog(syslog.LOG_NOTICE, 'user {} password mismatch'.format(repr(user)))
     return r
