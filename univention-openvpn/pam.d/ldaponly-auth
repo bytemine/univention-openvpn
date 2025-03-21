@@ -1,9 +1,0 @@
-# openvpn4ucs
-
-auth     requisite                          pam_nologin.so
-
-auth     sufficient                         pam_unix.so
-
-auth     [success=done new_authtok_reqd=ok          user_unknown=die          service_err=die authinfo_unavail=die          default=die]                         pam_ldap.so use_first_pass
-
-auth     required                           pam_env.so

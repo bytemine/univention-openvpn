@@ -33,5 +33,4 @@ display_users/index.html var/www/display_users
 display_users/lib var/www/display_users
 openvpn4ucs.svg var/www
 cron/openvpn4ucs etc/cron.d
-pam.d/ldaponly-auth etc/pam.d
 pam.d/vpncheckpass etc/pam.d
