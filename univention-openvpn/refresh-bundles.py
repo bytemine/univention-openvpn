@@ -30,7 +30,11 @@
 
 
 
-from os import system
+import os
+import pwd
+import grp
+import qrcode
+import traceback
 import univention.uldap as ul
 
 from datetime import date
@@ -38,6 +42,8 @@ from M2Crypto import RSA, BIO
 from base64 import b64decode
 
 MAX_UNLIC_USERS = 5
+
+r2gd = '/var/www/readytogo'
 
 
 def maxvpnusers(key):
@@ -56,15 +62,30 @@ def main():
         key = lob[1].get('univentionOpenvpnLicense', [b''])[0]
         lul.append(maxvpnusers(key))
 
+    try:
+        f = open('/etc/openvpn/mfa/secrets')
+        for l in f:
+            try:
+                u, s = l.rstrip().split(':')[:2]
+                uid = pwd.getpwnam(u).pw_uid
+                gid = grp.getgrnam('www-data').gr_gid
+                os.makedirs('{}/{}'.format(r2gd, u), exist_ok=True)
+                q = qrcode.QRCode(box_size=5)
+                q.add_data('otpauth://totp/OpenVPN4UCS:{}?secret={}&issuer=OpenVPN4UCS&digits=6'.format(u, s))
+                p = '{}/{}/qrcode.png'.format(r2gd, u)
+                x = q.make_image()
+                x.save(p)
+                os.chmod(p, 0o640)
+                os.chown(p, uid, gid)
+            except Exception as e:
+                print('ERROR: failed to generate qrcode for {} - {}'.format(uid, e))
+                print(traceback.format_exc())
+    except:
+        pass
+
     vpnusers = lo.search('(univentionOpenvpnAccount=1)')
     if len(vpnusers) > max(lul):
         exit()
-
-    for user in vpnusers:
-        uid = user[1].get('uid', [b''])[0]
-        totp = user[1].get('univentionOpenvpnTOTP', [b''])[0]
-        if totp and totp !='0':
-
 
     vpnservers = lo.search('(&(objectClass=univentionOpenvpn)(univentionOpenvpnActive=1))')
     for (tmp, server) in vpnservers:
@@ -77,7 +98,7 @@ def main():
             uid = user[1].get('uid', [b''])[0]
             proto = b'udp6' if addr and addr.count(b':') else b'udp'
             if uid:
-                system(b'/usr/lib/openvpn-int/create-bundle %s %s %s %s %s' % (uid, name, addr, port, proto))
+                os.system(b'/usr/lib/openvpn-int/create-bundle %s %s %s %s %s' % (uid, name, addr, port, proto))
 
 
 def license(key):
