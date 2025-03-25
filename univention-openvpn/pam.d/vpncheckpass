@@ -1,4 +1,4 @@
 # openvpn4ucs
 
 auth	sufficient	pam_krb5.so no_ccache use_first_pass minimum_uid=1000
-
+account	optional	pam_krb5.so
