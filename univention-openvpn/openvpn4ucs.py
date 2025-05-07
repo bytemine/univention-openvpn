@@ -98,7 +98,7 @@ def postrun():
             listener.setuid(0)
             lo = ul.getMachineConnection()
             name = listener.configRegistry['hostname']
-            tmp, server = lo.search('(cn=' + name + ')')[0]
+            tmp, server = lo.search('(&(objectClass=univentionOpenvpn)(cn=' + name + '))')[0]
 
             port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
             addr = server.get('univentionOpenvpnAddress', [b''])[0].decode('utf8')
@@ -392,7 +392,7 @@ def user_disable(dn, obj):
         listener.unsetuid()
 
     myname = listener.configRegistry['hostname']
-    tmp, server = lo.search('(cn=' + myname + ')')[0]
+    tmp, server = lo.search('(&(objectClass=univentionOpenvpn)(cn=' + myname + '))')[0]
     port = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
     if port:
         ccd = '/etc/openvpn/ccd-' + port + '/'
@@ -438,6 +438,10 @@ def user_enable(dn, obj):
     port              = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
     network           = server.get('univentionOpenvpnNet', [b''])[0].decode('utf8')
     networkv6         = server.get('univentionOpenvpnNetIPv6', [b'2001:db8:0:123::/64'])[0].decode('utf8')
+
+    if not network or not networkv6:
+        lilog(ud.ERROR, 'missing params')
+        return
 
     netmask, netmaskv6 = network2netmask(network, networkv6)
 
