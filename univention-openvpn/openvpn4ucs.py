@@ -1,5 +1,5 @@
 #
-#       Univention OpenVPN integration -- openvpn-master.py
+#       Univention OpenVPN integration
 #
 
 # Copyright (c) 2014-2017, bytemine GmbH
@@ -432,7 +432,7 @@ def user_enable(dn, obj):
         listener.unsetuid()
 
     myname = listener.configRegistry['hostname']
-    tmp, server = lo.search('(cn=' + myname + ')')[0]
+    tmp, server = lo.search('(&(objectClass=univentionOpenvpn)(cn=' + myname + '))')[0]
 
     # ccd config for user
     port              = server.get('univentionOpenvpnPort', [b''])[0].decode('utf8')
