@@ -1,3 +1,9 @@
+openvpn4ucs (2.1.5) unstable; urgency=low
+  * fix search filters used to find openvpn server computer object
+
+ -- Holger Rasch <rasch@otris.systems>  Wed, 07 May 2025 18:00:00 +0200
+
+
 openvpn4ucs (2.1.4) unstable; urgency=low
   * remove support for old openvpn versions
   * update pam config (required for UCS 5.2)
