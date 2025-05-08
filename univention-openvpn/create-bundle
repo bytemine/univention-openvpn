@@ -54,6 +54,7 @@ cat <<-ENDOFCLIENTCONFIG
 	auth-user-pass
 	auth-nocache
 	data-ciphers AES-256-GCM
+	data-ciphers-fallback AES-256-GCM
 	${otpsupport}
 ENDOFCLIENTCONFIG
 
