@@ -7,7 +7,7 @@ for configuration.
 
 https://www.univention.com/products/univention-app-center/app-catalog/openvpn4ucs/
 
-https://www.bytemine.net/openvpn4ucs/ (german)
+https://www.otris.systems (german)
 
 Thanks to central administration through the Univention Management 
 Console OpenVPN4UCS provides connectivity for mobile users (road 
@@ -15,7 +15,7 @@ warriors) and other sites (site-to-site) in very few steps.
 
 A first steps guide can be found here:
 
-https://www.bytemine.net/wp-content/uploads/2020/11/openvpn4ucs_howto_en.pdf
+https://www.otris.systems/openvpn4ucs_v2_quick_setup_guide_en/
 
-Contact us: info@bytemine.net
+Contact us: info@otris.systems
 
